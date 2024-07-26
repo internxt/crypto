@@ -1,9 +1,7 @@
 {
   "name": "doublekem-js-test",
-  "version": "0.1",
   "description": "JS library for testing double kem algorithm",
   "author": "Internxt",
-  "readmeFilename": "README.md",
   "dependencies": {
     "@dashlane/pqc-kem-kyber512-node": "^1.0.0",
     "crystals-kyber": "^5.1.0",
@@ -13,5 +11,20 @@
   "license": "Apache-2.0",
   "scripts": {
     "postinstall": "patch-package"
-  }
+  },
+  "version": "1.0.0",
+  "main": "doblekem.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/internxt/crypto.git"
+  },
+  "keywords": [
+    "crypto",
+    "test",
+    "doublekem"
+  ],
+  "bugs": {
+    "url": "https://github.com/internxt/crypto/issues"
+  },
+  "homepage": "https://github.com/internxt/crypto#readme"
 }
