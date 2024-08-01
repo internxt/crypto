@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/internxt/crypto/issues"
   },
-  "homepage": "https://github.com/internxt/crypto#readme"
+  "homepage": "https://github.com/internxt/crypto#readme",
+  "devDependencies": {
+    "mocha": "^10.7.0"
+  }
 }

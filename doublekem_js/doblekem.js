@@ -3,8 +3,9 @@ import kemBuilder from "@dashlane/pqc-kem-kyber512-node";
 
 const kyber = require("crystals-kyber");
 const webcrypto = require("crypto").webcrypto;
-
 var assert = require("assert");
+
+// Function for checking equality of objects
 function deepEqual(a, b) {
   try {
     assert.deepEqual(a, b);
@@ -17,6 +18,8 @@ function deepEqual(a, b) {
   return true;
 }
 
+
+// Test that dashlane/pqc-kem-kyber512-node Kyber512 works as expected
 async function pqc_kem_works() {
   const kem = await kemBuilder();
 
@@ -35,6 +38,94 @@ async function pqc_kem_works() {
 
 pqc_kem_works();
 
+// Test that after modification of keygen we can encaps/decaps
+async function modification_keygen_pcq_works() {
+  const kem = await kemBuilder();
+
+  let secret = new Uint8Array(32);
+  webcrypto.getRandomValues(secret);
+
+  const { publicKey, privateKey } =  await kem.keypair_seeded(secret);
+
+  const { ciphertext, sharedSecret: sharedSecretA } = await kem.encapsulate(
+    publicKey
+  );
+  const { sharedSecret: sharedSecretB } = await kem.decapsulate(
+    ciphertext,
+    privateKey
+  );
+
+  console.log('Modified pqc key works');
+  console.log(deepEqual(sharedSecretA, sharedSecretB));
+ 
+}
+modification_keygen_pcq_works();
+
+// Test that modified encaps/decaps works as expected
+async function modification_encaps_pcq_works() {
+  
+  let seed = new Uint8Array(32);
+  webcrypto.getRandomValues(seed);
+
+  const kem = await kemBuilder();
+  const { publicKey, privateKey } = await kem.keypair_seeded(seed);
+
+  
+  const { ciphertext} = await kem.encapsulate_internal(
+    publicKey,
+    seed
+  );
+
+
+  const { sharedSecret } = await kem.decapsulate_internal(
+    ciphertext,
+    privateKey
+  );
+
+  console.log('Modified pqs encaps works');
+  console.log(deepEqual(seed, sharedSecret));
+
+}
+modification_encaps_pcq_works();
+
+
+// Test that double KEM based crystals-kyber Kyber512 works as expected
+async function doublekem_pqc_works() {
+
+  const kem = await kemBuilder();
+  // Alice init
+  let randA = new Uint8Array(1088);
+  webcrypto.getRandomValues(randA);
+  const ctA = {ciphertext: randA};
+  const { publicKey: pkA, privateKey: skA } = await kem.keypair();
+
+  // Bob reply
+  let seedB = new Uint8Array(32);
+  webcrypto.getRandomValues(seedB);
+  const { publicKey: pkB, privateKey:  skB } = await kem.keypair_seeded(seedB);
+  const { ciphertext : ctB}  = await kem.encapsulate_internal(pkA, seedB);
+
+
+  const { sharedSecret: sharedSecretB }  = await kem.decapsulate_internal(ctA,skB);
+
+ 
+  // Alice derives key
+  const { sharedSecret: seedA }  = await kem.decapsulate_internal(ctB,skA);
+
+  const { publicKey: pkB_regen, privateKey:  skB_regen }  = await kem.keypair_seeded(seedA);
+
+
+  console.log('Alice got the same key');
+  console.log(deepEqual(pkB_regen, pkB));
+  let sharedSecretA = await kem.decapsulate_internal(ctA,skB_regen);
+
+  console.log('Double KEM works');
+  console.log(deepEqual(sharedSecretA, sharedSecretB));
+}
+doublekem_pqc_works();
+
+
+// Test that crystals-kyber Kyber512 works as expected
 async function crystals_kyber_works() {
   // To generate a public and private key pair (pk, sk)
   let pk_sk = kyber.KeyGen512();
@@ -56,7 +147,8 @@ async function crystals_kyber_works() {
 
 crystals_kyber_works();
 
-async function doublekem_works() {
+// Test that double KEM based crystals-kyber Kyber512 works as expected
+async function doublekem_crystals_kyber_works() {
   // Alice init
   let ctA = new Uint8Array(1088);
   webcrypto.getRandomValues(ctA);
@@ -89,4 +181,4 @@ async function doublekem_works() {
   console.log('Double KEM works');
   console.log(deepEqual(sharedSecretA, sharedSecretB));
 }
-doublekem_works();
+doublekem_crystals_kyber_works();
