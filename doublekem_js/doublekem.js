@@ -24,102 +24,142 @@ function deepEqual(a, b) {
 
 // Test that encaps/decaps works
 export async function pqc_kem_works() {
-  const kem = await kemBuilder();
+  let passed = false;
+  try {
+    const kem = await kemBuilder();
 
-  const { publicKey, privateKey } = await kem.keypair();
-  const { ciphertext, sharedSecret: sharedSecretA } = await kem.encapsulate(
-    publicKey
-  );
-  const { sharedSecret: sharedSecretB } = await kem.decapsulate(
-    ciphertext,
-    privateKey
-  );
+    const { publicKey, privateKey } = await kem.keypair().catch((e) => {
+      console.log(e);
+    });
+    const { ciphertext, sharedSecret: sharedSecretA } = await kem
+      .encapsulate(publicKey)
+      .catch((e) => {
+        console.log(e);
+      });
+    const { sharedSecret: sharedSecretB } = await kem.decapsulate(
+      ciphertext,
+      privateKey
+    );
+    passed = deepEqual(sharedSecretA, sharedSecretB);
+  } catch (error) {
+    console.log("pqc_kem_works: " + console.log(e));
+  }
 
-  return deepEqual(sharedSecretA, sharedSecretB);
+  return passed;
 }
 
 // Test that seeded keygen generates the same key for the same seed
 export async function pqc_seeded_keygen_same_seed_works() {
-  const kem = await kemBuilder();
+  let passed = false;
+  try {
+    const kem = await kemBuilder();
 
-  let secret = new Uint8Array(32);
-  webcrypto.getRandomValues(secret);
+    let secret = new Uint8Array(32);
+    webcrypto.getRandomValues(secret);
 
-  const { publicKey:pkA, privateKey:skA } =  await kem.keypair_seeded(secret);
-  const { publicKey: pkB, privateKey:skB } =  await kem.keypair_seeded(secret);
+    const { publicKey: pkA, privateKey: skA } = await kem.keypair_seeded(
+      secret
+    );
+    const { publicKey: pkB, privateKey: skB } = await kem.keypair_seeded(
+      secret
+    );
 
-  return (deepEqual(pkA, pkB) && deepEqual(skA, skB));
- 
+    passed = deepEqual(pkA, pkB) && deepEqual(skA, skB);
+  } catch (error) {
+    console.log("pqc_seeded_keygen_same_seed_works: " + console.log(e));
+  }
+
+  return passed;
 }
 
 // Test that seeded keygen we can encaps/decaps
 export async function pqc_seeded_keygen_kem_works() {
-  const kem = await kemBuilder();
+  let passed = false;
+  try {
+    const kem = await kemBuilder();
 
-  let secret = new Uint8Array(32);
-  webcrypto.getRandomValues(secret);
+    let secret = new Uint8Array(32);
+    webcrypto.getRandomValues(secret);
 
-  const { publicKey, privateKey } =  await kem.keypair_seeded(secret);
+    const { publicKey, privateKey } = await kem.keypair_seeded(secret);
 
-  const { ciphertext, sharedSecret: sharedSecretA } = await kem.encapsulate(
-    publicKey
-  );
-  const { sharedSecret: sharedSecretB } = await kem.decapsulate(
-    ciphertext,
-    privateKey
-  );
+    const { ciphertext, sharedSecret: sharedSecretA } = await kem.encapsulate(
+      publicKey
+    );
+    const { sharedSecret: sharedSecretB } = await kem.decapsulate(
+      ciphertext,
+      privateKey
+    );
+    passed = deepEqual(sharedSecretA, sharedSecretB);
+  } catch (error) {
+    console.log("pqc_seeded_keygen_kem_works: " + console.log(e));
+  }
 
-  return deepEqual(sharedSecretA, sharedSecretB);
- 
+  return passed;
 }
 
 // Test that modified encaps/decaps works
 export async function pqc_modified_kem_works() {
-  
-  let seed = new Uint8Array(32);
-  webcrypto.getRandomValues(seed);
+  let passed = false;
 
-  const kem = await kemBuilder();
-  const { publicKey, privateKey } = await kem.keypair_seeded(seed);
-  
-  const { ciphertext} = await kem.encapsulate_internal(
-    publicKey,
-    seed
-  );
+  try {
+    let seed = new Uint8Array(32);
+    webcrypto.getRandomValues(seed);
 
-  const { sharedSecret } = await kem.decapsulate_internal(
-    ciphertext,
-    privateKey
-  );
+    const kem = await kemBuilder();
+    const { publicKey, privateKey } = await kem.keypair_seeded(seed);
 
-  return deepEqual(seed, sharedSecret);
+    const { ciphertext } = await kem.encapsulate_internal(publicKey, seed);
 
+    const { sharedSecret } = await kem.decapsulate_internal(
+      ciphertext,
+      privateKey
+    );
+    passed = deepEqual(seed, sharedSecret);
+  } catch (error) {
+    console.log("pqc_modified_kem_works: " + console.log(e));
+  }
+
+  return passed;
 }
 
 // Test that double KEM protocol works
 export async function pqc_doublekem_works() {
+  let passed = false;
+  try {
+    const kem = await kemBuilder();
 
-  const kem = await kemBuilder();
+    // Alice starts the interaction
+    let randA = new Uint8Array(1088);
+    webcrypto.getRandomValues(randA);
+    const ctA = { ciphertext: randA };
+    const { publicKey: pkA, privateKey: skA } = await kem.keypair();
 
-  // Alice starts the interaction
-  let randA = new Uint8Array(1088);
-  webcrypto.getRandomValues(randA);
-  const ctA = {ciphertext: randA};
-  const { publicKey: pkA, privateKey: skA } = await kem.keypair();
+    // Bob replied and derives shared key
+    let seedB = new Uint8Array(32);
+    webcrypto.getRandomValues(seedB);
+    const { publicKey: pkB, privateKey: skB } = await kem.keypair_seeded(seedB);
+    const { ciphertext: ctB } = await kem.encapsulate_internal(pkA, seedB);
+    const { sharedSecret: sharedSecretB } = await kem.decapsulate_internal(
+      ctA,
+      skB
+    );
 
-  // Bob replied and derives shared key
-  let seedB = new Uint8Array(32);
-  webcrypto.getRandomValues(seedB);
-  const { publicKey: pkB, privateKey:  skB } = await kem.keypair_seeded(seedB);
-  const { ciphertext : ctB}  = await kem.encapsulate_internal(pkA, seedB);
-  const { sharedSecret: sharedSecretB }  = await kem.decapsulate_internal(ctA,skB);
- 
-  // Alice derives shared key
-  const { sharedSecret: seedA }  = await kem.decapsulate_internal(ctB,skA);
-  const { publicKey: pkB_regen, privateKey:  skB_regen }  = await kem.keypair_seeded(seedA);
-  const { sharedSecret: sharedSecretA } = await kem.decapsulate_internal(ctA,skB_regen);
+    // Alice derives shared key
+    const { sharedSecret: seedA } = await kem.decapsulate_internal(ctB, skA);
+    const { publicKey: pkB_regen, privateKey: skB_regen } =
+      await kem.keypair_seeded(seedA);
+    const { sharedSecret: sharedSecretA } = await kem.decapsulate_internal(
+      ctA,
+      skB_regen
+    );
 
-  return deepEqual(sharedSecretA, sharedSecretB);
+    passed = deepEqual(sharedSecretA, sharedSecretB);
+  } catch (error) {
+    console.log("pqc_doublekem_works: " + console.log(e));
+  }
+
+  return passed;
 }
 
 /*============================================
@@ -146,7 +186,6 @@ export async function ckj_kem_works() {
 
 // Test that seeded keygen generates the same key for the same seed
 export async function ckj_seeded_keygen_same_seed_works() {
-
   let seed = new Uint8Array(32);
   webcrypto.getRandomValues(seed);
 
@@ -158,12 +197,11 @@ export async function ckj_seeded_keygen_same_seed_works() {
   let pkB = keysB[0];
   let skB = keysB[1];
 
-  return (deepEqual(pkA, pkB) && deepEqual(skA, skB));
+  return deepEqual(pkA, pkB) && deepEqual(skA, skB);
 }
 
 // Test that seeded keygen we can encaps/decaps
 export async function ckj_seeded_keygen_kem_works() {
-
   let seed = new Uint8Array(32);
   webcrypto.getRandomValues(seed);
 
@@ -192,13 +230,12 @@ export async function ckj_modified_kem_works() {
   let sk = keys[1];
 
   let r = new Uint8Array(32);
-  webcrypto.getRandomValues(r); 
+  webcrypto.getRandomValues(r);
 
   let ct = kyber.IndcpaEncrypt(pk, seed, r);
-  let seed_decaps = kyber.IndcpaDecrypt(ct,sk);
+  let seed_decaps = kyber.IndcpaDecrypt(ct, sk);
 
   return deepEqual(seed, seed_decaps);
-
 }
 
 // Test that double KEM protocol works
@@ -210,23 +247,23 @@ export async function ckj_doublekem_works() {
   let pkA = alice_keys[0];
   let skA = alice_keys[1];
 
- // Bob replied and derives shared key
+  // Bob replied and derives shared key
   let seedB = new Uint8Array(32);
   webcrypto.getRandomValues(seedB);
   let bob_keys = kyber.IndcpaKeyGen(seedB);
   let pkB = bob_keys[0];
   let skB = bob_keys[1];
   let r = new Uint8Array(32);
-  webcrypto.getRandomValues(r); 
+  webcrypto.getRandomValues(r);
   let ctB = kyber.IndcpaEncrypt(pkA, seedB, r);
-  let sharedSecretB = kyber.IndcpaDecrypt(ctA,skB);
+  let sharedSecretB = kyber.IndcpaDecrypt(ctA, skB);
 
   // Alice derives shared key
-  let seedA = kyber.IndcpaDecrypt(ctB,skA);
+  let seedA = kyber.IndcpaDecrypt(ctB, skA);
   let bob_keys_regen = kyber.IndcpaKeyGen(seedA);
   let pkB_regen = bob_keys_regen[0];
   let skB_regen = bob_keys_regen[1];
-  let sharedSecretA = kyber.IndcpaDecrypt(ctA,skB_regen);
+  let sharedSecretA = kyber.IndcpaDecrypt(ctA, skB_regen);
 
   return deepEqual(sharedSecretA, sharedSecretB);
 }
