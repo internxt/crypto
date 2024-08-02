@@ -4,7 +4,6 @@ import hkdf from "js-crypto-hkdf";
 
 const kyber = require("crystals-kyber");
 const webcrypto = require("crypto").webcrypto;
-var assert = require("assert");
 const { SHA3 } = require("sha3");
 
 // Function for checking equality of arrays
