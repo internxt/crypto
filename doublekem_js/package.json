@@ -5,6 +5,7 @@
   "dependencies": {
     "@dashlane/pqc-kem-kyber512-node": "^1.0.0",
     "crystals-kyber": "^5.1.0",
+    "js-crypto-hkdf": "^1.0.7",
     "patch-package": "^8.0.0"
   },
   "type": "module",
