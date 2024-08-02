@@ -10,7 +10,8 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test": "vitest"
   },
   "version": "1.0.0",
   "main": "doblekem.js",
@@ -28,6 +29,6 @@
   },
   "homepage": "https://github.com/internxt/crypto#readme",
   "devDependencies": {
-    "mocha": "^10.7.0"
+    "vitest": "^2.0.5"
   }
 }

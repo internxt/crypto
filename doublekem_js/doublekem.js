@@ -18,9 +18,12 @@ function deepEqual(a, b) {
   return true;
 }
 
+/*============================================
+/ Kyber512 from dashlane/pqc-kem-kyber512-node
+=============================================*/
 
-// Test that dashlane/pqc-kem-kyber512-node Kyber512 works as expected
-async function pqc_kem_works() {
+// Test that encaps/decaps works
+export async function pqc_kem_works() {
   const kem = await kemBuilder();
 
   const { publicKey, privateKey } = await kem.keypair();
@@ -32,14 +35,25 @@ async function pqc_kem_works() {
     privateKey
   );
 
-  console.log('PQC kem works');
-  console.log(deepEqual(sharedSecretA, sharedSecretB));
+  return deepEqual(sharedSecretA, sharedSecretB);
 }
 
-pqc_kem_works();
+// Test that seeded keygen generates the same key for the same seed
+export async function pqc_seeded_keygen_same_seed_works() {
+  const kem = await kemBuilder();
 
-// Test that after modification of keygen we can encaps/decaps
-async function modification_keygen_pcq_works() {
+  let secret = new Uint8Array(32);
+  webcrypto.getRandomValues(secret);
+
+  const { publicKey:pkA, privateKey:skA } =  await kem.keypair_seeded(secret);
+  const { publicKey: pkB, privateKey:skB } =  await kem.keypair_seeded(secret);
+
+  return (deepEqual(pkA, pkB) && deepEqual(skA, skB));
+ 
+}
+
+// Test that seeded keygen we can encaps/decaps
+export async function pqc_seeded_keygen_kem_works() {
   const kem = await kemBuilder();
 
   let secret = new Uint8Array(32);
@@ -55,78 +69,65 @@ async function modification_keygen_pcq_works() {
     privateKey
   );
 
-  console.log('Modified pqc key works');
-  console.log(deepEqual(sharedSecretA, sharedSecretB));
+  return deepEqual(sharedSecretA, sharedSecretB);
  
 }
-modification_keygen_pcq_works();
 
-// Test that modified encaps/decaps works as expected
-async function modification_encaps_pcq_works() {
+// Test that modified encaps/decaps works
+export async function pqc_modified_kem_works() {
   
   let seed = new Uint8Array(32);
   webcrypto.getRandomValues(seed);
 
   const kem = await kemBuilder();
   const { publicKey, privateKey } = await kem.keypair_seeded(seed);
-
   
   const { ciphertext} = await kem.encapsulate_internal(
     publicKey,
     seed
   );
 
-
   const { sharedSecret } = await kem.decapsulate_internal(
     ciphertext,
     privateKey
   );
 
-  console.log('Modified pqs encaps works');
-  console.log(deepEqual(seed, sharedSecret));
+  return deepEqual(seed, sharedSecret);
 
 }
-modification_encaps_pcq_works();
 
-
-// Test that double KEM based crystals-kyber Kyber512 works as expected
-async function doublekem_pqc_works() {
+// Test that double KEM protocol works
+export async function pqc_doublekem_works() {
 
   const kem = await kemBuilder();
-  // Alice init
+
+  // Alice starts the interaction
   let randA = new Uint8Array(1088);
   webcrypto.getRandomValues(randA);
   const ctA = {ciphertext: randA};
   const { publicKey: pkA, privateKey: skA } = await kem.keypair();
 
-  // Bob reply
+  // Bob replied and derives shared key
   let seedB = new Uint8Array(32);
   webcrypto.getRandomValues(seedB);
   const { publicKey: pkB, privateKey:  skB } = await kem.keypair_seeded(seedB);
   const { ciphertext : ctB}  = await kem.encapsulate_internal(pkA, seedB);
-
-
   const { sharedSecret: sharedSecretB }  = await kem.decapsulate_internal(ctA,skB);
-
  
-  // Alice derives key
+  // Alice derives shared key
   const { sharedSecret: seedA }  = await kem.decapsulate_internal(ctB,skA);
-
   const { publicKey: pkB_regen, privateKey:  skB_regen }  = await kem.keypair_seeded(seedA);
+  const { sharedSecret: sharedSecretA } = await kem.decapsulate_internal(ctA,skB_regen);
 
-
-  console.log('Alice got the same key');
-  console.log(deepEqual(pkB_regen, pkB));
-  let sharedSecretA = await kem.decapsulate_internal(ctA,skB_regen);
-
-  console.log('Double KEM works');
-  console.log(deepEqual(sharedSecretA, sharedSecretB));
+  return deepEqual(sharedSecretA, sharedSecretB);
 }
-doublekem_pqc_works();
 
+/*============================================
+/ Kyber512 from crystals-kyber-javascript
+=============================================*/
 
-// Test that crystals-kyber Kyber512 works as expected
-async function crystals_kyber_works() {
+// Test that encaps/decaps works
+export async function ckj_kem_works() {
   // To generate a public and private key pair (pk, sk)
   let pk_sk = kyber.KeyGen512();
   let pk = pk_sk[0];
@@ -140,45 +141,92 @@ async function crystals_kyber_works() {
   // To decapsulate and obtain the same symmetric key
   let ss2 = kyber.Decrypt512(c, sk);
 
-  // Test function with KATs
-  kyber.Test512();
-  console.log('Test 512 works');
+  return deepEqual(ss1, ss2);
 }
 
-crystals_kyber_works();
+// Test that seeded keygen generates the same key for the same seed
+export async function ckj_seeded_keygen_same_seed_works() {
 
-// Test that double KEM based crystals-kyber Kyber512 works as expected
-async function doublekem_crystals_kyber_works() {
-  // Alice init
+  let seed = new Uint8Array(32);
+  webcrypto.getRandomValues(seed);
+
+  let keysA = kyber.IndcpaKeyGen(seed);
+  let pkA = keysA[0];
+  let skA = keysA[1];
+
+  let keysB = kyber.IndcpaKeyGen(seed);
+  let pkB = keysB[0];
+  let skB = keysB[1];
+
+  return (deepEqual(pkA, pkB) && deepEqual(skA, skB));
+}
+
+// Test that seeded keygen we can encaps/decaps
+export async function ckj_seeded_keygen_kem_works() {
+
+  let seed = new Uint8Array(32);
+  webcrypto.getRandomValues(seed);
+
+  let keys = kyber.IndcpaKeyGen(seed);
+  let pk = keys[0];
+  let sk = keys[1];
+
+  // Encapulate and get a random 256 bit symmetric key (ss) and its encapsulation (c)
+  let c_ss = kyber.Encrypt512(pk);
+  let c = c_ss[0];
+  let ss = c_ss[1];
+
+  // To decapsulate and obtain the same symmetric key
+  let ss_decaps = kyber.Decrypt512(c, sk);
+
+  return deepEqual(ss, ss_decaps);
+}
+
+// Test that modified encaps/decaps works
+export async function ckj_modified_kem_works() {
+  let seed = new Uint8Array(32);
+  webcrypto.getRandomValues(seed);
+
+  let keys = kyber.IndcpaKeyGen(seed);
+  let pk = keys[0];
+  let sk = keys[1];
+
+  let r = new Uint8Array(32);
+  webcrypto.getRandomValues(r); 
+
+  let ct = kyber.IndcpaEncrypt(pk, seed, r);
+  let seed_decaps = kyber.IndcpaDecrypt(ct,sk);
+
+  return deepEqual(seed, seed_decaps);
+
+}
+
+// Test that double KEM protocol works
+export async function ckj_doublekem_works() {
+  // Alice starts the interaction
   let ctA = new Uint8Array(1088);
   webcrypto.getRandomValues(ctA);
   let alice_keys = kyber.KeyGen512();
   let pkA = alice_keys[0];
   let skA = alice_keys[1];
 
-  // Bob reply
+ // Bob replied and derives shared key
   let seedB = new Uint8Array(32);
   webcrypto.getRandomValues(seedB);
   let bob_keys = kyber.IndcpaKeyGen(seedB);
   let pkB = bob_keys[0];
   let skB = bob_keys[1];
-
   let r = new Uint8Array(32);
   webcrypto.getRandomValues(r); 
   let ctB = kyber.IndcpaEncrypt(pkA, seedB, r);
   let sharedSecretB = kyber.IndcpaDecrypt(ctA,skB);
 
-  // Alice derives key
+  // Alice derives shared key
   let seedA = kyber.IndcpaDecrypt(ctB,skA);
   let bob_keys_regen = kyber.IndcpaKeyGen(seedA);
   let pkB_regen = bob_keys_regen[0];
   let skB_regen = bob_keys_regen[1];
-
-  console.log('Alice got the same key');
-  console.log(deepEqual(pkB_regen, pkB));
   let sharedSecretA = kyber.IndcpaDecrypt(ctA,skB_regen);
 
-  console.log('Double KEM works');
-  console.log(deepEqual(sharedSecretA, sharedSecretB));
+  return deepEqual(sharedSecretA, sharedSecretB);
 }
-doublekem_crystals_kyber_works();
