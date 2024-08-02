@@ -20,33 +20,27 @@ import {
 =============================================*/
 
 test("PQC encaps/decaps works", async () => {
-  const result = await pqc_kem_works();
-  expect(result).toBe(true);
+  await expect(pqc_kem_works()).resolves.toBe(true);
 });
 
 test("PQC seeded keygen generates the same key for the same seed", async () => {
-  const result = await pqc_seeded_keygen_same_seed_works();
-  expect(result).toBe(true);
+  await expect(pqc_seeded_keygen_same_seed_works()).resolves.toBe(true);
 });
 
 test("PQC seeded keygen works with encaps/decaps", async () => {
-  const result = await pqc_seeded_keygen_kem_works();
-  expect(result).toBe(true);
+  await expect(pqc_seeded_keygen_kem_works()).resolves.toBe(true);
 });
 
 test("PQC modified encaps/decaps works", async () => {
-  const result = await pqc_modified_kem_works();
-  expect(result).toBe(true);
+  await expect(pqc_modified_kem_works()).resolves.toBe(true);
 });
 
 test("PQC-based double KEM works", async () => {
-  const result = await pqc_doublekem_works();
-  expect(result).toBe(true);
+  await expect(pqc_doublekem_works()).resolves.toBe(true);
 });
 
 test("PQC-based KEMTLS works", async () => {
-  const result = await pqc_kemtls_works();
-  expect(result).toBe(true);
+  await expect(pqc_kemtls_works()).resolves.toBe(true);
 });
 
 /*============================================
