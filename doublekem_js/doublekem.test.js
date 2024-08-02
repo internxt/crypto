@@ -6,23 +6,23 @@ import {ckj_kem_works, ckj_seeded_keygen_same_seed_works, ckj_seeded_keygen_kem_
 / Kyber512 from dashlane/pqc-kem-kyber512-node
 =============================================*/
 
-test('PCQ encaps/decaps works', async () => {
+test('PQC encaps/decaps works', async () => {
   await expect(pqc_kem_works()).toBeTruthy();
 });
 
-test('PCQ seeded keygen generates the same key for the same seed', async () => {
+test('PQC seeded keygen generates the same key for the same seed', async () => {
     await expect(pqc_seeded_keygen_same_seed_works()).toBeTruthy();
   });
   
-test('PCQ seeded keygen works with encaps/decaps', async () => {
+test('PQC seeded keygen works with encaps/decaps', async () => {
     await expect(pqc_seeded_keygen_kem_works()).toBeTruthy();
   });
 
-test('PCQ modified encaps/decaps works', async () => {
+test('PQC modified encaps/decaps works', async () => {
     await expect(pqc_modified_kem_works()).toBeTruthy();
   });
 
-test('PCQ-based double KEM works', async () => {
+test('PQC-based double KEM works', async () => {
     await expect(pqc_doublekem_works()).toBeTruthy();
   });
 
