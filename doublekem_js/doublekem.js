@@ -98,20 +98,20 @@ export async function pqc_modified_kem_works() {
     webcrypto.getRandomValues(seed);
 
     const kem = await kemBuilder();
-    const { publicKey, privateKey } = await kem.keypair_seeded(seed);
+    const { publicKey: pk, privateKey: sk } = await kem.keypair_seeded(seed);
 
-    const { ciphertext } = await kem.encapsulate_internal(publicKey, seed);
+    const { ciphertext: ct } = await kem.encapsulate_internal(pk, seed);
 
-    const { sharedSecret } = await kem.decapsulate_internal(
-      ciphertext,
-      privateKey
-    );
-    passed = isEqualArray(seed, sharedSecret);
+    const { sharedSecret: ss } = await kem.decapsulate_internal(ct, sk);
+    passed = isEqualArray(seed, ss);
   } catch (e) {
     console.log("pqc_modified_kem_works: " + console.log(e));
   }
 
   return passed;
+}
+function addvector(a, b) {
+  return a.map((e, i) => e + b[i]);
 }
 
 // Test that double KEM protocol works
@@ -121,28 +121,39 @@ export async function pqc_doublekem_works() {
     const kem = await kemBuilder();
 
     // Alice starts the interaction
+    let seedA = new Uint8Array(32);
+    webcrypto.getRandomValues(seedA);
+    const { publicKey: pkA, privateKey: skA } = await kem.keypair_seeded(seedA);
     let randA = new Uint8Array(1088);
     webcrypto.getRandomValues(randA);
     const ctA = { ciphertext: randA };
-    const { publicKey: pkA, privateKey: skA } = await kem.keypair();
 
     // Bob replies and derives shared key
     let seedB = new Uint8Array(32);
     webcrypto.getRandomValues(seedB);
-    const { ciphertext: ctB } = await kem.encapsulate_internal(pkA, seedB);
+    const ctB = await kem.encapsulate_internal(pkA, seedB);
+    const ctAB = { ciphertext: addvector(ctA.ciphertext, ctB.ciphertext) };
     const { publicKey: pkB, privateKey: skB } = await kem.keypair_seeded(seedB);
-    const { sharedSecret: sharedSecretB } = await kem.decapsulate_internal(
-      ctA,
-      skB
-    );
+    const sharedSecretB = await kem.decapsulate_internal(ctAB.ciphertext, skB);
 
     // Alice derives shared key
-    const { sharedSecret: seedA } = await kem.decapsulate_internal(ctB, skA);
-    const { publicKey: pkB_regen, privateKey: skB_regen } =
-      await kem.keypair_seeded(seedA);
-    if (isEqualArray(pkB_regen, pkB) && isEqualArray(skB_regen, skB)) {
-      let sharedSecretA = await kem.decapsulate_internal(ctA, skB);
-      passed = isEqualArray(sharedSecretA.sharedSecret, sharedSecretB);
+    const { sharedSecret: ss_B } = await kem.decapsulate_internal(
+      ctB.ciphertext,
+      skA
+    );
+    const { publicKey: pkB_star, privateKey: skB_star } =
+      await kem.keypair_seeded(ss_B);
+    if (isEqualArray(pkB_star, pkB)) {
+      const sharedSecretA = await kem.decapsulate_internal(
+        ctAB.ciphertext,
+        skB_star
+      );
+      console.log(sharedSecretA);
+      console.log(sharedSecretB);
+      passed = isEqualArray(
+        sharedSecretA.sharedSecret,
+        sharedSecretB.sharedSecret
+      );
     }
   } catch (e) {
     console.log("pqc_doublekem_works: " + console.log(e));
