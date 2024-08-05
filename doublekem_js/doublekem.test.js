@@ -20,7 +20,7 @@ import {
 =============================================*/
 
 test("PQC encaps/decaps works", async () => {
-  await expect(pqc_kem_works()).resolves.toBe(true);
+  expect(await pqc_kem_works()).toBe(true);
 });
 
 test("PQC seeded keygen generates the same key for the same seed", async () => {

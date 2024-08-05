@@ -11,8 +11,9 @@
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {
-    "postinstall": "patch-package",
-    "test": "vitest"
+    "postinstall": "patch-package && rm ./node_modules/@dashlane/pqc-kem-kyber512-node/dist/kem.wasm.wasm && cp kem.wasm.wasm ./node_modules/@dashlane/pqc-kem-kyber512-node/dist/kem.wasm.wasm",
+    "test": "vitest",
+    "prepare": "patch-package"
   },
   "version": "1.0.0",
   "main": "doblekem.js",
