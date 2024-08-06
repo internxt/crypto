@@ -162,6 +162,46 @@ export async function pqc_doublekem_works() {
   return passed;
 }
 
+// Test that double KEM protocol works
+export async function pqc_doublekem_fixed_order_works() {
+  let passed = false;
+  try {
+    const kem = await kemBuilder();
+
+    // Alice starts the interaction
+    const { publicKey: pkA, privateKey: skA } = await kem.keypair();
+    let ctA = new Uint8Array(1088);
+    webcrypto.getRandomValues(ctA);
+
+    // Bob replies and derives shared key
+    const { ciphertext: ctB, sharedSecret: z } = await kem.encapsulate(pkA);
+    const ctAB = addvector(ctA, ctB);
+    const { publicKey: pkB, privateKey: skB } = await kem.keypair_seeded(z);
+    const { sharedSecret: sharedSecretB } = await kem.decapsulate_internal(
+      ctAB,
+      skB
+    );
+
+    // Alice derives shared key
+    const { sharedSecret: z_star } = await kem.decapsulate(ctB, skA);
+    const { publicKey: pkB_star, privateKey: skB_star } =
+      await kem.keypair_seeded(z_star);
+    if (isEqualArray(pkB_star, pkB)) {
+      const { sharedSecret: sharedSecretA } = await kem.decapsulate_internal(
+        ctAB,
+        skB_star
+      );
+      console.log(sharedSecretA);
+      console.log(sharedSecretB);
+      passed = isEqualArray(sharedSecretA, sharedSecretB);
+    }
+  } catch (e) {
+    console.log("pqc_doublekem_works: " + console.log(e));
+  }
+
+  return passed;
+}
+
 // Test that KEMTLS protocol (without signatures) works
 export async function pqc_kemtls_works() {
   let passed = false;

@@ -5,6 +5,7 @@ import {
   pqc_seeded_keygen_kem_works,
   pqc_modified_kem_works,
   pqc_doublekem_works,
+  pqc_doublekem_fixed_order_works,
   pqc_kemtls_works,
 } from "./doublekem.js";
 import {
@@ -41,6 +42,11 @@ test("PQC modified encaps/decaps works", async () => {
 
 test("PQC-based double KEM works", async () => {
   const result = await pqc_doublekem_works();
+  expect(result).toBe(true);
+});
+
+test("PQC-based double KEM fixed order works", async () => {
+  const result = await pqc_doublekem_fixed_order_works();
   expect(result).toBe(true);
 });
 
