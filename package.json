@@ -4,7 +4,6 @@
   "version": "0.0.1-alpha",
   "type": "module",
   "scripts": {
-    "preinstall": "node scripts/use-yarn.js",
     "prepare": "husky",
     "dev": "vite",
     "build": "vite build",
