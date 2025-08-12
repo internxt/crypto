@@ -1,8 +1,9 @@
 {
   "name": "internxt-crypto",
-  "private": true,
   "version": "0.0.1-alpha",
-  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": ["dist"],
   "scripts": {
     "prepare": "husky",
     "dev": "vite",
