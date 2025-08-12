@@ -1,48 +1,33 @@
-# crypto
+# Mail cryptographic library
 
-A folder doublekem_js contains implementation for a custom key exchange algorithm with an off-channel authentication - double kem - based on [pqc-kem-kyber512-node](https://github.com/Dashlane/pqc.js/) and [crystals-kyber](https://github.com/antontutoveanu/crystals-kyber-javascript/tree/main). 
-Also, it has an implementation of [KEMTLS](https://eprint.iacr.org/2020/534) (without certificates) based on [pqc-kem-kyber512-node](https://github.com/Dashlane/pqc.js/).
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=internxt_crypto&metric=coverage)](https://sonarcloud.io/summary/new_code?id=internxt_crypto)
 
-To run tests run the following from doublekem_js folder:
+# Project Manteinance
 
-```npm install```
+We aim to have:
 
-```npm test```
+- An 'A' score on Maintainability Rating
+- An 'A' score on Security Rating
+- Less than 3% duplicated lines
+- A 90% tests coverage
 
-## Double kem protocol
+## Scripts
 
-The goal is for Alice and Bob to establish a shared secret ss. 
-CPAPKE is an internal encryption/decryption scheme of Kyber. 
-```
+### `yarn run lint` (`yarn run lint:ts`)
 
-      ┌─────────────┐                                                            ┌─────────────┐                 
-      │             │                                                            │             │                 
-      │    Alice    │                                                            │     Bob     │                 
-      └─────────────┘                                                            └─────────────┘                 
-                                                                                                                 
-                                                                                                                 
-c_A <-getRandomValues(1088)                                                                                      
-                                                                                                                 
-(pk_A, sk_A) <- Kyber512.KeyGen()
-                                                c_A, pk_A                                                        
-                                  ────────────────────────────────────────►                                       
-                                                                            seed <- getRandomValues(32)          
-                                                                                                                 
-                                                                            c_B <- CPAPKE.Enc(seed, pk_A)            
-                                                                                                                 
-                                                                            (pk_B, sk_B) <- Kyber512.KeyGen(seed)
-                                                                                                                 
-                                                                            c_AB <- c_A XOR c_B                  
-                                                                                                                 
-                                                 c_B, pk_B                  ss <- CPAPK.Dec(c_AB, sk_B)             
-                                  ◄────────────────────────────────────────                                      
-seed* <- CPAPKE.Dec(c_B, sk_A)                                                                                       
-                                                                                                                 
-(pk_B*, sk_B*) <- Kyber512.KeyGen(seed*)                                                                         
-                                                                                                                 
-if pk_B != pk_B*, abort                                                                                          
-                                                                                                                 
-c_AB = c_A XOR c_B                                                                                               
-                                                                                                                 
-ss <- Decaps(c_AB, sk_B)
-```                                                                                           
+- Runs .ts linter
+
+### `yarn test` (`vitest run`)
+
+- Runs unit tests with [Vitest](https://vitest.dev/)
+
+
+### `yarn build`
+
+Builds the app for production to the `build` folder.

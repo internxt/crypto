@@ -1,0 +1,45 @@
+{
+  "name": "internext-crypto",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "preinstall": "node scripts/use-yarn.js",
+    "prepare": "husky",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview",
+    "build:staging": "vite build --mode staging",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier \"{src,test}/**/*.{ts,tsx}\" --write",
+    "lint:ts": "eslint \"./{src,test}/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn run lint:ts --fix"
+  },
+  "devDependencies": {
+    "@internxt/eslint-config-internxt": "^1.0.3",
+    "@playwright/test": "^1.54.2",
+    "@vitest/browser": "^3.2.4",
+    "@vitest/coverage-istanbul": "^3.2.4",
+    "eslint": "^7.32.0",
+    "lint-staged": "^16.1.4",
+    "playwright": "^1.54.1",
+    "prettier": "^3.6.2",
+    "typescript": "^4.4.2",
+    "vite": "^7.0.6",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@noble/post-quantum": "^0.4.1",
+    "buffer": "^6.0.3",
+    "hash-wasm": "^4.12.0",
+    "husky": "^9.1.7",
+    "minisearch": "^7.1.2",
+    "uuid": "^11.1.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,tsx,ts}": [
+      "prettier --write"
+    ]
+  }
+}

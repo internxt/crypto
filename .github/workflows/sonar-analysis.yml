@@ -1,0 +1,50 @@
+name: SonarCloud analysis
+
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read # allows SonarCloud to decorate PRs with analysis results
+  contents: read
+
+jobs:
+  Analysis:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          token: ${{ secrets.GITHUB_TOKEN }}
+      # Generate a .npmrc file with the NPM_TOKEN
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node_version }}
+          registry-url: 'https://npm.pkg.github.com'
+      - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
+      - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+      # You cannot read packages from other private repos with GITHUB_TOKEN
+      # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+      - run: echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+      - run: echo "always-auth=true" >> .npmrc
+
+      - name: Install
+        run: yarn install
+      - name: Check and Install Playwright
+        run: yarn playwright install
+      - name: Unit test run
+        run: yarn test:coverage
+
+      # Analyze with SonarCloud
+      - name: Analyze with SonarCloud
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
