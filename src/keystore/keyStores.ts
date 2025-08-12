@@ -1,5 +1,5 @@
 import { IdentityKeys, EncryptionKeys } from '../utils/types';
-import { encryptSymmetrically, decryptSymmetrically } from '../core/symmetric';
+import { encryptSymmetrically, decryptSymmetrically } from '../symmetric/aes';
 import { Buffer } from 'buffer';
 import { IDENTITY_KEYSTORE_TAG, ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG } from '../utils/constants';
 

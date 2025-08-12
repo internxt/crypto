@@ -1,4 +1,4 @@
-import { encryptSymmetrically, decryptSymmetrically } from '../core/symmetric';
+import { encryptSymmetrically, decryptSymmetrically } from '../symmetric/aes';
 import { INDEX_KEYSTORE_TAG, NONCE_LENGTH } from '../utils/constants';
 
 const MAX_INDEX_VALUE = Math.pow(2, NONCE_LENGTH * 8);
@@ -20,12 +20,7 @@ export async function encryptCurrentIndices(
     nonce = 0;
     aux = INDEX_KEYSTORE_TAG + new Date().toDateString();
   }
-  const { ciphertext, iv } = await encryptSymmetrically(
-    secretKey,
-    repeats,
-    indices,
-    aux,
-  );
+  const { ciphertext, iv } = await encryptSymmetrically(secretKey, repeats, indices, aux);
   return { nonce, ciphertext, iv, aux };
 }
 

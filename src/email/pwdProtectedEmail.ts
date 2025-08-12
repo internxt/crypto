@@ -1,6 +1,6 @@
-import { importWrappingKey, unwrapKey, wrapKey } from '../core/keyWrapper';
-import { generateSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../core/symmetric';
-import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../keys/deriveKeysFromPwd';
+import { importWrappingKey, unwrapKey, wrapKey } from '../keyWrappers/aesWrapper';
+import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric';
+import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive/deriveKeysFromPwd';
 import { Email, EncryptedEmailPwd } from '../utils/types';
 import { emailToBinary, binaryToEmail } from './converters';
 
@@ -10,7 +10,7 @@ export async function encryptPwdProtectedEmail(
   email: Email,
   aux: string,
 ): Promise<EncryptedEmailPwd> {
-  const encryptionKey = await generateSymmetricCryptoKey();
+  const encryptionKey = await genSymmetricCryptoKey();
   const binaryEmail = emailToBinary(email);
   const { ciphertext: encryptedEmail, iv } = await encryptSymmetrically(encryptionKey, emailsInChain, binaryEmail, aux);
 

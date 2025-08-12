@@ -1,13 +1,13 @@
 import { CONTEXT_LOGIN, CONTEXT_KEYSTORE, CONTEXT_RECOVERY, CONTEXT_INDEX } from '../utils/constants';
 
-import { deriveKeyFromBaseKey } from '../keys/deriveKeys';
-import { importSymmetricKey, exportSymmetricKey } from '../core/symmetric';
+import { deriveSymmetricKeyFromBaseKey } from '../derive/deriveKeys';
+import { importSymmetricCryptoKey, exportSymmetricCryptoKey } from '../symmetric/keys';
 
 async function getKeystoreCryptoKey(context: string, baseKey: CryptoKey): Promise<CryptoKey> {
   try {
-    const baseKeyBits = await exportSymmetricKey(baseKey);
-    const keyBits = await deriveKeyFromBaseKey(context, baseKeyBits);
-    return importSymmetricKey(keyBits);
+    const baseKeyBits = await exportSymmetricCryptoKey(baseKey);
+    const keyBits = await deriveSymmetricKeyFromBaseKey(context, baseKeyBits);
+    return importSymmetricCryptoKey(keyBits);
   } catch (error) {
     return Promise.reject(new Error(`Cannot derive keystore crypto key: ${error}`));
   }

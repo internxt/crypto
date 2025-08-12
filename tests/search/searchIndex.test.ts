@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { desearializeIndices, getCurrentIndex, searializeIndices } from '../../src/search/createSearchIndex';
 import { Email } from '../../src/utils/types';
 import { decryptCurrentIndices, encryptCurrentIndices } from '../../src/search/searchIndex';
-import { generateSymmetricCryptoKey } from '../../src/core/symmetric';
+import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 import { NONCE_LENGTH } from '../../src/utils/constants';
 
 const emails: Email[] = [
@@ -50,7 +50,7 @@ describe('Test search index functions', () => {
     const results_before = indices.search('zen art motorcycle');
 
     const message = searializeIndices(indices);
-    const key = await generateSymmetricCryptoKey();
+    const key = await genSymmetricCryptoKey();
     const repets = 0;
     const init_aux = 'initial aux';
 
@@ -69,7 +69,7 @@ describe('Test search index functions', () => {
     const results_before = indices.search('zen art motorcycle');
 
     const message = searializeIndices(indices);
-    const key = await generateSymmetricCryptoKey();
+    const key = await genSymmetricCryptoKey();
     const repets = Math.pow(2, NONCE_LENGTH * 8);
     const init_aux = 'initial aux';
 

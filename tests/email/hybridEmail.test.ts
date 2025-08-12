@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { encryptEmailHybrid, decryptEmailHybrid } from '../../src/email/hybridEmail';
 
-import { generateKyberKeys } from '../../src/core/kyber';
-import { generateEccKeys } from '../../src/core/ecc';
+import { generateKyberKeys } from '../../src/post-quantum/kyber768';
+import { generateEccKeys } from '../../src/asymmetric/ecc';
 import { Email } from '../../src/utils/types';
 
 describe('Test email crypto functions', () => {

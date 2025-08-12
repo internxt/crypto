@@ -3,8 +3,9 @@ import {
   getKeyFromPasswordAndSalt,
   verifyKeyFromPasswordAndSaltHex,
   getKeyFromPasswordAndSaltHex,
-  argon2Hex,
-} from '../../src/keys/deriveKeysFromPwd';
+} from '../../src/derive/deriveKeysFromPwd';
+
+import { argon2Hex } from '../../src/derive/utils';
 
 describe('Test Argon2', () => {
   it('should get correct key from the password', async () => {

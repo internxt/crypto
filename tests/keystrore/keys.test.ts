@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { getEncryptionKeystoreKey } from '../../src/keystore';
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/utils/constants';
-import { generateSymmetricCryptoKey } from '../../src/core';
+import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 
 describe('Test keystore keys functions', () => {
   it('should generate encryption keystore as expected', async () => {
-    const baseKey = await generateSymmetricCryptoKey();
+    const baseKey = await genSymmetricCryptoKey();
     const key = await getEncryptionKeystoreKey(baseKey);
 
     expect(key).toBeInstanceOf(CryptoKey);

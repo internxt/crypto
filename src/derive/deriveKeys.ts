@@ -1,9 +1,25 @@
 import { blake3, createBLAKE3 } from 'hash-wasm';
 import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN } from '../utils/constants';
 import { Buffer } from 'buffer';
+import { importSymmetricCryptoKey } from '../symmetric';
 
-export async function deriveKeyFromBaseKey(context: string, baseKey: Uint8Array): Promise<Uint8Array> {
-  return deriveBitsFromBaseKey(context, baseKey, AES_KEY_BIT_LENGTH);
+export async function deriveSymmetricKeyFromBaseKey(context: string, baseKey: Uint8Array): Promise<Uint8Array> {
+  try {
+    const key = await deriveBitsFromBaseKey(context, baseKey, AES_KEY_BIT_LENGTH);
+    return key;
+  } catch (error) {
+    return Promise.reject(new Error(`Key derivation from base key failed: ${error}`));
+  }
+}
+
+export async function deriveSymmetricCryptoKeyFromBaseKey(context: string, baseKey: Uint8Array): Promise<CryptoKey> {
+  try {
+    const keyBytes = await deriveSymmetricKeyFromBaseKey(context, baseKey);
+    const key = await importSymmetricCryptoKey(keyBytes);
+    return key;
+  } catch (error) {
+    return Promise.reject(new Error(`CryptoKey derivation from base key failed: ${error}`));
+  }
 }
 
 export async function deriveBitsFromBaseKey(
@@ -21,7 +37,7 @@ export async function deriveBitsFromBaseKey(
   }
 }
 
-export async function deriveKeyFromTwoKeys(
+export async function deriveSymmetricKeyFromTwoKeys(
   key1: Uint8Array,
   key2: Uint8Array,
   context: string | Uint8Array,

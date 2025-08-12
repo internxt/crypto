@@ -1,6 +1,6 @@
 {
   "name": "internxt-crypto",
-  "version": "0.0.1-alpha",
+  "version": "0.0.2-alpha",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": ["dist"],

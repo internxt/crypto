@@ -1,5 +1,9 @@
-export * as core from './core';
+export * as asymmetric from './asymmetric';
 export * as email from './email';
-export * as keys from './keys';
+export * as deriveKey from './derive';
 export * as utils from './utils';
 export * as keystore from './keystore';
+export * as symmetric from './symmetric';
+export * as hash from './hash';
+export * as pq from './post-quantum';
+export * as keyWrapper from './keyWrappers';

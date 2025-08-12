@@ -1,8 +1,4 @@
-import {
-  CURVE_NAME,
-  ECC_ALGORITHM,
-  AES_KEY_BIT_LENGTH,
-} from '../utils/constants';
+import { CURVE_NAME, ECC_ALGORITHM, AES_KEY_BIT_LENGTH } from '../utils/constants';
 
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
   try {
@@ -19,10 +15,7 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
   }
 }
 
-export async function deriveEccBits(
-  recipientPublicKey: CryptoKey,
-  userPrivateKey: CryptoKey,
-): Promise<Uint8Array> {
+export async function deriveEccBits(recipientPublicKey: CryptoKey, userPrivateKey: CryptoKey): Promise<Uint8Array> {
   try {
     const result = await crypto.subtle.deriveBits(
       {

@@ -1,4 +1,4 @@
-import { getHash } from './hash';
+import { getHash } from '../hash/blake3';
 
 import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../utils/constants';
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateKyberKeys, encapsulateKyber, decapsulateKyber } from '../../src/core/kyber';
+import { generateKyberKeys, encapsulateKyber, decapsulateKyber } from '../../src/post-quantum/kyber768';
 import { KYBER_PUBLIC_KEY_LENGTH, KYBER_SECRET_KEY_LENGTH, KYBER_SEED_LENGTH } from '../../src/utils/constants';
 
 describe('Test kyber functions', () => {

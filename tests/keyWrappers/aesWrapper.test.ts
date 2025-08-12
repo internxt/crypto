@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { wrapKey, unwrapKey, deriveWrappingKey, importWrappingKey } from '../../src/core/keyWrapper';
-import { generateSymmetricCryptoKey } from '../../src/core/symmetric';
+import { wrapKey, unwrapKey, deriveWrappingKey, importWrappingKey } from '../../src/keyWrappers/aesWrapper';
+import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 import { KEY_WRAPPING_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/utils/constants';
-import { generateEccKeys } from '../../src/core/ecc';
+import { generateEccKeys } from '../../src/asymmetric/ecc';
 
 describe('Test key wrapping functions', () => {
   it('should scuessfully derive wrapping key', async () => {
@@ -27,7 +27,7 @@ describe('Test key wrapping functions', () => {
     const secret2 = new Uint8Array([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
 
     const wrappingKey = await deriveWrappingKey(secret1, secret2);
-    const encryptionKey = await generateSymmetricCryptoKey();
+    const encryptionKey = await genSymmetricCryptoKey();
 
     const ciphertext = await wrapKey(encryptionKey, wrappingKey);
     const result = await unwrapKey(ciphertext, wrappingKey);

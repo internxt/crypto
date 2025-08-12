@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { deriveBitsFromBaseKey } from '../../src/keys/deriveKeys';
+import { deriveBitsFromBaseKey } from '../../src/derive/deriveKeys';
 import { getEncryptionKeystoreKey } from '../../src/keystore/keys';
 import { AES_KEY_BIT_LENGTH } from '../../src/utils/constants';
-import { generateSymmetricCryptoKey } from '../../src/core';
+import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 
 describe('Test derive key', () => {
   function createTestInput(size) {
@@ -22,7 +22,7 @@ describe('Test derive key', () => {
   });
 
   it('correct default key length', async () => {
-    const baseKey = await generateSymmetricCryptoKey();
+    const baseKey = await genSymmetricCryptoKey();
     const key = await getEncryptionKeystoreKey(baseKey);
     const alg = key.algorithm as AesKeyAlgorithm;
     expect(alg.length).toBe(AES_KEY_BIT_LENGTH);
