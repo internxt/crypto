@@ -9,7 +9,7 @@ import {
   decryptCurrentIndices,
   encryptCurrentIndices,
 } from "../../src/search/searchIndex";
-import { generateSymmetricKey } from "../../src/core/symmetric";
+import { generateSymmetricCryptoKey } from "../../src/core/symmetric";
 import { NONCE_LENGTH } from "../../src/utils/constants";
 
 const emails: Email[] = [
@@ -57,7 +57,7 @@ describe("Test search index functions", () => {
     const results_before = indices.search("zen art motorcycle");
 
     const message = searializeIndices(indices);
-    const key = await generateSymmetricKey();
+    const key = await generateSymmetricCryptoKey();
     const repets = 0;
     const init_aux = "initial aux";
 
@@ -81,7 +81,7 @@ describe("Test search index functions", () => {
     const results_before = indices.search("zen art motorcycle");
 
     const message = searializeIndices(indices);
-    const key = await generateSymmetricKey();
+    const key = await generateSymmetricCryptoKey();
     const repets = Math.pow(2, NONCE_LENGTH * 8);
     const init_aux = "initial aux";
 

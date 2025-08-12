@@ -1,11 +1,11 @@
-import { getHash } from './hash';
+import { getHash } from "./hash";
 
 import {
   KEY_WRAPPING_ALGORITHM,
   KEY_FORMAT,
   AES_KEY_BIT_LENGTH,
   AES_ALGORITHM,
-} from '../utils/constants';
+} from "../utils/constants";
 
 export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
   try {
@@ -14,10 +14,10 @@ export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
       key,
       KEY_WRAPPING_ALGORITHM,
       false,
-      ['wrapKey', 'unwrapKey'],
+      ["wrapKey", "unwrapKey"],
     );
   } catch (error) {
-    throw new Error(`Failed to import wrapping key: ${error.message}`);
+    throw new Error(`Failed to import wrapping key: ${error}`);
   }
 }
 export async function deriveWrappingKey(
@@ -26,12 +26,12 @@ export async function deriveWrappingKey(
 ): Promise<CryptoKey> {
   try {
     if (eccSecret.length !== kyberSecret.length) {
-      throw new Error('secrets must have equal length');
+      throw new Error("secrets must have equal length");
     }
     const key = await getHash(AES_KEY_BIT_LENGTH, [kyberSecret, eccSecret]);
     return await importWrappingKey(key);
   } catch (error) {
-    throw new Error(`Failed to derive wrapping key: ${error.message}`);
+    throw new Error(`Failed to derive wrapping key: ${error}`);
   }
 }
 
@@ -47,10 +47,10 @@ export async function unwrapKey(
       KEY_WRAPPING_ALGORITHM,
       AES_ALGORITHM,
       false,
-      ['encrypt', 'decrypt'],
+      ["encrypt", "decrypt"],
     );
   } catch (error) {
-    throw new Error(`Failed to unwrap key: ${error.message}`);
+    throw new Error(`Failed to unwrap key: ${error}`);
   }
 }
 
@@ -67,6 +67,6 @@ export async function wrapKey(
     );
     return new Uint8Array(result);
   } catch (error) {
-    throw new Error(`Failed to wrap key: ${error.message}`);
+    throw new Error(`Failed to wrap key: ${error}`);
   }
 }

@@ -1,52 +1,43 @@
-import { blake3 } from 'hash-wasm';
-import {
-  CONTEXT_LOGIN,
-  AES_KEY_BIT_LENGTH,
-  CONTEXT_KEYSTORE,
-  CONTEXT_RECOVERY,
-  CONTEXT_INDEX,
-} from '../utils/constants';
-import { Buffer } from 'buffer';
+import { blake3, createBLAKE3 } from "hash-wasm";
+import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN } from "../utils/constants";
+import { Buffer } from "buffer";
 
-export async function deriveBitsFromContext(
+export async function deriveKeyFromBaseKey(
+  context: string,
+  baseKey: Uint8Array,
+): Promise<Uint8Array> {
+  return deriveBitsFromBaseKey(context, baseKey, AES_KEY_BIT_LENGTH);
+}
+
+export async function deriveBitsFromBaseKey(
   context: string,
   baseKey: string | Uint8Array,
   bits: number,
 ): Promise<Uint8Array> {
-  const context_key = await blake3(context);
+  try {
+    const context_key = await blake3(context);
 
-  const result = await blake3(baseKey, bits, Buffer.from(context_key, 'hex'));
-  return new Uint8Array(Buffer.from(result, 'hex'));
+    const result = await blake3(baseKey, bits, Buffer.from(context_key, "hex"));
+    return new Uint8Array(Buffer.from(result, "hex"));
+  } catch (error) {
+    return Promise.reject(
+      new Error(`Bit derivation from base key failed: ${error}`),
+    );
+  }
 }
 
-export function keyToHex(key: Uint8Array): string {
-  return Buffer.from(key).toString('hex');
-}
-
-export async function getIdentityKeystoreKey(
-  baseKey: string | Uint8Array,
+export async function deriveKeyFromTwoKeys(
+  key1: Uint8Array,
+  key2: Uint8Array,
+  context: string | Uint8Array,
 ): Promise<Uint8Array> {
-  return deriveBitsFromContext(CONTEXT_LOGIN, baseKey, AES_KEY_BIT_LENGTH);
-}
-
-export async function getEncryptionKeystoreKey(
-  baseKey: string | Uint8Array,
-): Promise<Uint8Array> {
-  return deriveBitsFromContext(CONTEXT_KEYSTORE, baseKey, AES_KEY_BIT_LENGTH);
-}
-
-export async function getIndexKey(
-  baseKey: string | Uint8Array,
-): Promise<Uint8Array> {
-  return deriveBitsFromContext(CONTEXT_INDEX, baseKey, AES_KEY_BIT_LENGTH);
-}
-
-export async function getRecoveryKey(
-  recoveryCodes: string | Uint8Array,
-): Promise<Uint8Array> {
-  return deriveBitsFromContext(
-    CONTEXT_RECOVERY,
-    recoveryCodes,
-    AES_KEY_BIT_LENGTH,
-  );
+  try {
+    const hasher = await createBLAKE3(HASH_BIT_LEN, key1);
+    hasher.init();
+    hasher.update(context);
+    hasher.update(key2);
+    return hasher.digest("binary");
+  } catch (error) {
+    return Promise.reject(new Error(`Key derivation failed: ${error}`));
+  }
 }

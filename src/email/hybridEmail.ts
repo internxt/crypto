@@ -1,13 +1,13 @@
-import { deriveEccBits } from '../core/ecc';
-import { deriveWrappingKey, unwrapKey, wrapKey } from '../core/keyWrapper';
+import { deriveEccBits } from "../core/ecc";
+import { deriveWrappingKey, unwrapKey, wrapKey } from "../core/keyWrapper";
 import {
-  generateSymmetricKey,
+  generateSymmetricCryptoKey,
   encryptSymmetrically,
   decryptSymmetrically,
-} from '../core/symmetric';
-import { encapsulateKyber, decapsulateKyber } from '../core/kyber';
-import { Email, EncryptedEmailHybrid } from '../utils/types';
-import { binaryToEmail, emailToBinary } from './converters';
+} from "../core/symmetric";
+import { encapsulateKyber, decapsulateKyber } from "../core/kyber";
+import { Email, EncryptedEmailHybrid } from "../utils/types";
+import { binaryToEmail, emailToBinary } from "./converters";
 
 export async function encryptEmailHybrid(
   recipientPublicKey: CryptoKey,
@@ -17,7 +17,7 @@ export async function encryptEmailHybrid(
   email: Email,
   aux: string,
 ): Promise<EncryptedEmailHybrid> {
-  const encryptionKey = await generateSymmetricKey();
+  const encryptionKey = await generateSymmetricCryptoKey();
   const binaryEmail = emailToBinary(email);
   const { ciphertext: encryptedEmail, iv } = await encryptSymmetrically(
     encryptionKey,

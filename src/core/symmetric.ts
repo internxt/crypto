@@ -1,24 +1,50 @@
-import { randomBytes } from '@noble/post-quantum/utils.js';
-import { getHash } from './hash';
+import { randomBytes } from "@noble/post-quantum/utils.js";
+import { getHash } from "./hash";
 import {
   AES_ALGORITHM,
   AES_KEY_BIT_LENGTH,
   IV_LENGTH,
   AUX_LEN,
   NONCE_LENGTH,
-} from '../utils/constants';
+  KEY_FORMAT,
+} from "../utils/constants";
 
 const MAX_NONCE_VALUE = Math.pow(2, NONCE_LENGTH * 8);
 
-export async function generateSymmetricKey(): Promise<CryptoKey> {
+export async function importSymmetricKey(
+  keyData: Uint8Array,
+): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
+    KEY_FORMAT,
+    keyData,
+    {
+      name: AES_ALGORITHM,
+      length: AES_KEY_BIT_LENGTH,
+    },
+    true,
+    ["encrypt", "decrypt"],
+  );
+}
+
+export async function exportSymmetricKey(key: CryptoKey): Promise<Uint8Array> {
+  const rawKey = await crypto.subtle.exportKey(KEY_FORMAT, key);
+  return new Uint8Array(rawKey);
+}
+export async function generateSymmetricCryptoKey(): Promise<CryptoKey> {
   return window.crypto.subtle.generateKey(
     {
       name: AES_ALGORITHM,
       length: AES_KEY_BIT_LENGTH,
     },
     true,
-    ['encrypt', 'decrypt'],
+    ["encrypt", "decrypt"],
   );
+}
+
+export function generateSymmetricKey(): Uint8Array {
+  const key = new Uint8Array(AES_KEY_BIT_LENGTH);
+  window.crypto.getRandomValues(key);
+  return key;
 }
 
 export function createIV(n: number): Uint8Array {

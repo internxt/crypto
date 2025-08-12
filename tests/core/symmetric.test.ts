@@ -3,7 +3,7 @@ import {
   createIV,
   encryptSymmetrically,
   decryptSymmetrically,
-  generateSymmetricKey,
+  generateSymmetricCryptoKey,
 } from "../../src/core/symmetric";
 import {
   AES_ALGORITHM,
@@ -41,7 +41,7 @@ describe("Test symmetric functions", () => {
   });
 
   it("should sucessfully generate keys", async () => {
-    const key = await generateSymmetricKey();
+    const key = await generateSymmetricCryptoKey();
 
     expect(key).toBeInstanceOf(CryptoKey);
     expect(key.type).toBe("secret");
@@ -55,7 +55,7 @@ describe("Test symmetric functions", () => {
   });
 
   it("should sucessfully encrypt and decrypt", async () => {
-    const key = await generateSymmetricKey();
+    const key = await generateSymmetricCryptoKey();
     const nonce = 1;
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
     const aux = "additional data";
