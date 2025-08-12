@@ -1,19 +1,10 @@
-import { randomBytes } from "@noble/post-quantum/utils.js";
-import { getHash } from "./hash";
-import {
-  AES_ALGORITHM,
-  AES_KEY_BIT_LENGTH,
-  IV_LENGTH,
-  AUX_LEN,
-  NONCE_LENGTH,
-  KEY_FORMAT,
-} from "../utils/constants";
+import { randomBytes } from '@noble/post-quantum/utils.js';
+import { getHash } from './hash';
+import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, IV_LENGTH, AUX_LEN, NONCE_LENGTH, KEY_FORMAT } from '../utils/constants';
 
 const MAX_NONCE_VALUE = Math.pow(2, NONCE_LENGTH * 8);
 
-export async function importSymmetricKey(
-  keyData: Uint8Array,
-): Promise<CryptoKey> {
+export async function importSymmetricKey(keyData: Uint8Array): Promise<CryptoKey> {
   return crypto.subtle.importKey(
     KEY_FORMAT,
     keyData,
@@ -22,7 +13,7 @@ export async function importSymmetricKey(
       length: AES_KEY_BIT_LENGTH,
     },
     true,
-    ["encrypt", "decrypt"],
+    ['encrypt', 'decrypt'],
   );
 }
 
@@ -37,7 +28,7 @@ export async function generateSymmetricCryptoKey(): Promise<CryptoKey> {
       length: AES_KEY_BIT_LENGTH,
     },
     true,
-    ["encrypt", "decrypt"],
+    ['encrypt', 'decrypt'],
   );
 }
 

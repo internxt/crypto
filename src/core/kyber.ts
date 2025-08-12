@@ -1,4 +1,4 @@
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { ml_kem768 } from '@noble/post-quantum/ml-kem.js';
 
 export function generateKyberKeys(seed?: Uint8Array): {
   publicKey: Uint8Array;
@@ -13,7 +13,7 @@ export function encapsulateKyber(publicKey: Uint8Array): {
 } {
   try {
     if (!publicKey?.length) {
-      throw Error("No public key given");
+      throw Error('No public key given');
     }
     return ml_kem768.encapsulate(publicKey);
   } catch (error) {
@@ -21,9 +21,6 @@ export function encapsulateKyber(publicKey: Uint8Array): {
   }
 }
 
-export function decapsulateKyber(
-  cipherText: Uint8Array,
-  secretKey: Uint8Array,
-): Uint8Array {
+export function decapsulateKyber(cipherText: Uint8Array, secretKey: Uint8Array): Uint8Array {
   return ml_kem768.decapsulate(cipherText, secretKey);
 }

@@ -1,11 +1,7 @@
-import { IdentityKeys, EncryptionKeys } from "../utils/types";
-import { encryptSymmetrically, decryptSymmetrically } from "../core/symmetric";
-import { Buffer } from "buffer";
-import {
-  IDENTITY_KEYSTORE_TAG,
-  ENCRYPTION_KEYSTORE_TAG,
-  RECOVERY_KEYSTORE_TAG,
-} from "../utils/constants";
+import { IdentityKeys, EncryptionKeys } from '../utils/types';
+import { encryptSymmetrically, decryptSymmetrically } from '../core/symmetric';
+import { Buffer } from 'buffer';
+import { IDENTITY_KEYSTORE_TAG, ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG } from '../utils/constants';
 
 export async function createIdentityKeystore(
   secretKey: CryptoKey,
@@ -26,7 +22,7 @@ export async function openIdentityKeystore(
 ): Promise<IdentityKeys> {
   const aux = userID + IDENTITY_KEYSTORE_TAG;
   const content = await decryptSymmetrically(secretKey, iv, encryptedKeys, aux);
-  const json = Buffer.from(content).toString("utf-8");
+  const json = Buffer.from(content).toString('utf-8');
   const keys: IdentityKeys = JSON.parse(json);
   return keys;
 }
@@ -50,7 +46,7 @@ export async function openEncryptionKeystore(
 ): Promise<EncryptionKeys> {
   const aux = userID + ENCRYPTION_KEYSTORE_TAG;
   const content = await decryptSymmetrically(secretKey, iv, encryptedKeys, aux);
-  const json = Buffer.from(content).toString("utf-8");
+  const json = Buffer.from(content).toString('utf-8');
   const keys: EncryptionKeys = JSON.parse(json);
   return keys;
 }
@@ -73,13 +69,8 @@ export async function openRecoveryKeystore(
   userID: string,
 ): Promise<EncryptionKeys> {
   const aux = userID + RECOVERY_KEYSTORE_TAG;
-  const content = await decryptSymmetrically(
-    recoveryKey,
-    iv,
-    encryptedKeys,
-    aux,
-  );
-  const json = Buffer.from(content).toString("utf-8");
+  const content = await decryptSymmetrically(recoveryKey, iv, encryptedKeys, aux);
+  const json = Buffer.from(content).toString('utf-8');
   const keys: EncryptionKeys = JSON.parse(json);
   return keys;
 }

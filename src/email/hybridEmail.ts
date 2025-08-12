@@ -1,13 +1,9 @@
-import { deriveEccBits } from "../core/ecc";
-import { deriveWrappingKey, unwrapKey, wrapKey } from "../core/keyWrapper";
-import {
-  generateSymmetricCryptoKey,
-  encryptSymmetrically,
-  decryptSymmetrically,
-} from "../core/symmetric";
-import { encapsulateKyber, decapsulateKyber } from "../core/kyber";
-import { Email, EncryptedEmailHybrid } from "../utils/types";
-import { binaryToEmail, emailToBinary } from "./converters";
+import { deriveEccBits } from '../core/ecc';
+import { deriveWrappingKey, unwrapKey, wrapKey } from '../core/keyWrapper';
+import { generateSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../core/symmetric';
+import { encapsulateKyber, decapsulateKyber } from '../core/kyber';
+import { Email, EncryptedEmailHybrid } from '../utils/types';
+import { binaryToEmail, emailToBinary } from './converters';
 
 export async function encryptEmailHybrid(
   recipientPublicKey: CryptoKey,
@@ -19,16 +15,10 @@ export async function encryptEmailHybrid(
 ): Promise<EncryptedEmailHybrid> {
   const encryptionKey = await generateSymmetricCryptoKey();
   const binaryEmail = emailToBinary(email);
-  const { ciphertext: encryptedEmail, iv } = await encryptSymmetrically(
-    encryptionKey,
-    emailsInChain,
-    binaryEmail,
-    aux,
-  );
+  const { ciphertext: encryptedEmail, iv } = await encryptSymmetrically(encryptionKey, emailsInChain, binaryEmail, aux);
 
   const eccSecret = await deriveEccBits(recipientPublicKey, userPrivateKey);
-  const { cipherText: kyberCiphertext, sharedSecret: kyberSecret } =
-    encapsulateKyber(recipientPublicKeyKyber);
+  const { cipherText: kyberCiphertext, sharedSecret: kyberSecret } = encapsulateKyber(recipientPublicKeyKyber);
   const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
 
   const encryptedKey = await wrapKey(encryptionKey, wrappingKey);
@@ -51,22 +41,11 @@ export async function decryptEmailHybrid(
   aux: string,
 ) {
   const eccSecret = await deriveEccBits(senderPublicKey, recipientPrivateKey);
-  const kyberSecret = decapsulateKyber(
-    encryptedEmail.kyberCiphertext,
-    recipientPrivateKeyKyber,
-  );
+  const kyberSecret = decapsulateKyber(encryptedEmail.kyberCiphertext, recipientPrivateKeyKyber);
 
   const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-  const encryptionKey = await unwrapKey(
-    encryptedEmail.encryptedKey,
-    wrappingKey,
-  );
-  const binaryEmail = await decryptSymmetrically(
-    encryptionKey,
-    encryptedEmail.iv,
-    encryptedEmail.encryptedEmail,
-    aux,
-  );
+  const encryptionKey = await unwrapKey(encryptedEmail.encryptedKey, wrappingKey);
+  const binaryEmail = await decryptSymmetrically(encryptionKey, encryptedEmail.iv, encryptedEmail.encryptedEmail, aux);
   const email = binaryToEmail(binaryEmail);
 
   return email;

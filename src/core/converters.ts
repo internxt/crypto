@@ -1,5 +1,5 @@
-import { Buffer } from "buffer";
+import { Buffer } from 'buffer';
 
 export function arrayToHex(array: Uint8Array): string {
-  return Buffer.from(array).toString("hex");
+  return Buffer.from(array).toString('hex');
 }
