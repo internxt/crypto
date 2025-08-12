@@ -1,4 +1,4 @@
-import { ml_kem768 } from "@noble/post-quantum/ml-kem.js";
+import { ml_kem768 } from '@noble/post-quantum/ml-kem.js';
 
 export function generateKyberKeys(seed?: Uint8Array): {
   publicKey: Uint8Array;

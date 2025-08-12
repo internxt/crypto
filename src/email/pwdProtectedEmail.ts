@@ -1,15 +1,15 @@
-import { importWrappingKey, unwrapKey, wrapKey } from "../core/keyWrapper";
+import { importWrappingKey, unwrapKey, wrapKey } from '../core/keyWrapper';
 import {
   generateSymmetricKey,
   encryptSymmetrically,
   decryptSymmetrically,
-} from "../core/symmetric";
+} from '../core/symmetric';
 import {
   getKeyFromPassword,
   getKeyFromPasswordAndSalt,
-} from "../keys/deriveKeysFromPwd";
-import { Email, EncryptedEmailPwd } from "../utils/types";
-import { emailToBinary, binaryToEmail } from "./converters";
+} from '../keys/deriveKeysFromPwd';
+import { Email, EncryptedEmailPwd } from '../utils/types';
+import { emailToBinary, binaryToEmail } from './converters';
 
 export async function encryptPwdProtectedEmail(
   sharedSecret: string,
@@ -27,9 +27,9 @@ export async function encryptPwdProtectedEmail(
   );
 
   const { key, salt } = await getKeyFromPassword(sharedSecret);
-  console.log("argon2 test", key.length, salt.length);
+  console.log('argon2 test', key.length, salt.length);
   const wrappingKey = await importWrappingKey(key);
-  console.log("imported everything");
+  console.log('imported everything');
   const encryptedKey = await wrapKey(encryptionKey, wrappingKey);
 
   return {

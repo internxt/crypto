@@ -1,12 +1,12 @@
-import { blake3 } from "hash-wasm";
+import { blake3 } from 'hash-wasm';
 import {
   CONTEXT_LOGIN,
   AES_KEY_BIT_LENGTH,
   CONTEXT_KEYSTORE,
   CONTEXT_RECOVERY,
   CONTEXT_INDEX,
-} from "../utils/constants";
-import { Buffer } from "buffer";
+} from '../utils/constants';
+import { Buffer } from 'buffer';
 
 export async function deriveBitsFromContext(
   context: string,
@@ -15,12 +15,12 @@ export async function deriveBitsFromContext(
 ): Promise<Uint8Array> {
   const context_key = await blake3(context);
 
-  const result = await blake3(baseKey, bits, Buffer.from(context_key, "hex"));
-  return new Uint8Array(Buffer.from(result, "hex"));
+  const result = await blake3(baseKey, bits, Buffer.from(context_key, 'hex'));
+  return new Uint8Array(Buffer.from(result, 'hex'));
 }
 
 export function keyToHex(key: Uint8Array): string {
-  return Buffer.from(key).toString("hex");
+  return Buffer.from(key).toString('hex');
 }
 
 export async function getIdentityKeystoreKey(

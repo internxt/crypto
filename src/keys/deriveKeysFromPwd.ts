@@ -1,4 +1,4 @@
-import { argon2id } from "hash-wasm";
+import { argon2id } from 'hash-wasm';
 
 import {
   ARGON2ID_ITERATIONS,
@@ -6,7 +6,7 @@ import {
   ARGON2ID_PARALLELISM,
   ARGON2ID_SALT_BYTE_LENGTH,
   ARGON2ID_OUTPUT_BYTE_LENGTH,
-} from "../utils/constants";
+} from '../utils/constants';
 
 export async function getKeyFromPassword(
   password: string,
@@ -38,7 +38,7 @@ export async function argon2Hex(
     iterations,
     memorySize,
     hashLength,
-    outputType: "hex",
+    outputType: 'hex',
   });
 }
 
@@ -57,7 +57,7 @@ export async function argon2(
     iterations,
     memorySize,
     hashLength,
-    outputType: "binary",
+    outputType: 'binary',
   });
 }
 

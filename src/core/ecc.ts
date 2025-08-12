@@ -2,7 +2,7 @@ import {
   CURVE_NAME,
   ECC_ALGORITHM,
   AES_KEY_BIT_LENGTH,
-} from "../utils/constants";
+} from '../utils/constants';
 
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
   try {
@@ -12,7 +12,7 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
         namedCurve: CURVE_NAME,
       },
       false,
-      ["deriveBits"],
+      ['deriveBits'],
     );
   } catch (error) {
     throw new Error(`Failed to generate ECC keys: ${error.message}`);

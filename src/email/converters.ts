@@ -1,5 +1,5 @@
-import { Email } from "../utils/types";
-import { Buffer } from "buffer";
+import { Email } from '../utils/types';
+import { Buffer } from 'buffer';
 
 export function emailToBinary(email: Email): Uint8Array {
   try {
@@ -13,7 +13,7 @@ export function emailToBinary(email: Email): Uint8Array {
 
 export function binaryToEmail(array: Uint8Array): Email {
   try {
-    const json = Buffer.from(array).toString("utf-8");
+    const json = Buffer.from(array).toString('utf-8');
     const email: Email = JSON.parse(json);
     return email;
   } catch (error) {

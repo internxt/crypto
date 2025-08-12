@@ -1,4 +1,4 @@
-import { createBLAKE3 } from "hash-wasm";
+import { createBLAKE3 } from 'hash-wasm';
 
 export async function getHash(len: number, data: string[] | Uint8Array[]) {
   const hasher = await createBLAKE3(len);
@@ -7,5 +7,5 @@ export async function getHash(len: number, data: string[] | Uint8Array[]) {
     hasher.update(chunk);
   }
 
-  return hasher.digest("binary");
+  return hasher.digest('binary');
 }

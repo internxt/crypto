@@ -1,5 +1,5 @@
-import { encryptSymmetrically, decryptSymmetrically } from "../core/symmetric";
-import { INDEX_KEYSTORE_TAG, NONCE_LENGTH } from "../utils/constants";
+import { encryptSymmetrically, decryptSymmetrically } from '../core/symmetric';
+import { INDEX_KEYSTORE_TAG, NONCE_LENGTH } from '../utils/constants';
 
 const MAX_INDEX_VALUE = Math.pow(2, NONCE_LENGTH * 8);
 

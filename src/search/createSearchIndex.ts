@@ -1,9 +1,9 @@
-import MiniSearch from "minisearch";
-import { Email } from "../utils/types";
+import MiniSearch from 'minisearch';
+import { Email } from '../utils/types';
 
 const options = {
-  fields: ["subject", "sender", "recipient", "body"],
-  storeFields: ["id"],
+  fields: ['subject', 'sender', 'recipient', 'body'],
+  storeFields: ['id'],
 };
 
 export function getCurrentIndex(emails: Email[]) {
