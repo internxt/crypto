@@ -12,8 +12,8 @@
     "build:staging": "vite build --mode staging",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "format": "prettier \"{src,test}/**/*.{ts,tsx}\" --write",
-    "lint:ts": "eslint \"./{src,test}/**/*.{ts,tsx}\"",
+    "format": "prettier \"{src,tests}/**/*.{ts,tsx}\" --write",
+    "lint:ts": "eslint \"./{src,tests}/**/*.{ts,tsx}\"",
     "lint:fix": "yarn run lint:ts --fix"
   },
   "devDependencies": {
