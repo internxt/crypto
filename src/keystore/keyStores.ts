@@ -83,7 +83,7 @@ export async function createRecoveryKeystore(
     const result = await createKeystore(recoveryKey, nonce, content, userID, RECOVERY_KEYSTORE_TAG);
     return result;
   } catch (error) {
-    return Promise.reject(new Error(`Encryption keystore creation failed: ${error}`));
+    return Promise.reject(new Error(`Recovery keystore creation failed: ${error}`));
   }
 }
 

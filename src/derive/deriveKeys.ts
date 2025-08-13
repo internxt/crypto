@@ -43,6 +43,9 @@ export async function deriveSymmetricKeyFromTwoKeys(
   context: string | Uint8Array,
 ): Promise<Uint8Array> {
   try {
+    if (key2.length != 32) {
+      throw new Error('Key length must be exactly 32 bytes');
+    }
     const hasher = await createBLAKE3(HASH_BIT_LEN, key1);
     hasher.init();
     hasher.update(context);

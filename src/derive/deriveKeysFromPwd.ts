@@ -15,10 +15,11 @@ export async function getKeyFromPassword(password: string): Promise<{ key: Uint8
   return { key, salt };
 }
 
-export async function getKeyFromPasswordHex(password: string): Promise<string> {
+export async function getKeyFromPasswordHex(password: string): Promise<{ hash: string; salt: Uint8Array }> {
   const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
   window.crypto.getRandomValues(salt);
-  return getKeyFromPasswordAndSaltHex(password, salt);
+  const result = await getKeyFromPasswordAndSaltHex(password, salt);
+  return { hash: result, salt };
 }
 
 export async function getKeyFromPasswordAndSaltHex(password: string, salt: string | Uint8Array): Promise<string> {

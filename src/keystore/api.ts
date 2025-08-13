@@ -33,6 +33,8 @@ export async function sendKeystore(
       }
       if (error.response?.status === 403) {
         throw new Error('Forbidden: Insufficient permissions');
+      } else {
+        throw new Error('AxiosError: Error sending keystore', error);
       }
     }
     console.error('Error sending keystore:', error);
@@ -65,6 +67,8 @@ export async function getKeystore(userID: string, token: string, type: KeystoreT
       }
       if (error.response?.status === 404) {
         throw new Error('Keystore not found for the specified user');
+      } else {
+        throw new Error('AxiosError: Error retrieving keystore', error);
       }
     }
     console.error('Error retrieving keystore:', error);

@@ -3,6 +3,7 @@ import {
   getKeyFromPasswordAndSalt,
   verifyKeyFromPasswordAndSaltHex,
   getKeyFromPasswordAndSaltHex,
+  getKeyFromPasswordHex,
 } from '../../src/derive/deriveKeysFromPwd';
 
 import { argon2Hex } from '../../src/derive/utils';
@@ -28,7 +29,7 @@ describe('Test Argon2', () => {
     expect(result).toBe('ec2f7a502b4bfe7dc758c4c5120c7420830d42efdc7a78971743649b30cafb15');
   });
 
-  it('should sucessfully verify correct key', async () => {
+  it('should sucessfully verify generated from the password and salt key', async () => {
     const test_password = 'text demo';
     const test_salt = '123456789';
     const test_key = await getKeyFromPasswordAndSaltHex(test_password, test_salt);
@@ -51,5 +52,12 @@ describe('Test Argon2', () => {
     const result1 = await getKeyFromPasswordAndSaltHex(test_password, test_salt_1);
     const result2 = await getKeyFromPasswordAndSaltHex(test_password, test_salt_2);
     expect(result1).not.toBe(result2);
+  });
+
+  it('should sucessfully verify generated from the password key', async () => {
+    const test_password = 'text demo';
+    const { hash, salt } = await getKeyFromPasswordHex(test_password);
+    const result = await verifyKeyFromPasswordAndSaltHex(test_password, salt, hash);
+    expect(result).toBe(true);
   });
 });

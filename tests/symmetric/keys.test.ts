@@ -21,6 +21,6 @@ describe('Test symmetric key functions', () => {
     const key = genSymmetricKey();
 
     expect(key).toBeInstanceOf(Uint8Array);
-    expect(key.length).toBe(AES_KEY_BIT_LENGTH);
+    expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
   });
 });

@@ -30,7 +30,7 @@ export async function genSymmetricCryptoKey(): Promise<CryptoKey> {
 }
 
 export function genSymmetricKey(): Uint8Array {
-  const key = new Uint8Array(AES_KEY_BIT_LENGTH);
+  const key = new Uint8Array(AES_KEY_BIT_LENGTH / 8);
   window.crypto.getRandomValues(key);
   return key;
 }

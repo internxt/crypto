@@ -86,6 +86,18 @@ describe('Test keystore send/get functions', () => {
 
       await expect(sendKeystore(mockKeystore, mockUserID, mockToken, mockType)).rejects.toThrow('Network Error');
     });
+    it('should handle axios errors with an empty response', async () => {
+      const errorWithNoResponse = {
+        isAxiosError: true,
+      };
+
+      vi.mocked(axios.post).mockRejectedValueOnce(errorWithNoResponse);
+      vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
+
+      await expect(sendKeystore(mockKeystore, mockUserID, mockToken, mockType)).rejects.toThrow(
+        /AxiosError: Error sending keystore/,
+      );
+    });
   });
 
   describe('getKeystore', () => {
@@ -173,6 +185,19 @@ describe('Test keystore send/get functions', () => {
       vi.mocked(axios.get).mockRejectedValueOnce(networkError);
 
       await expect(getKeystore(mockUserId, mockUserToken, mockType)).rejects.toThrow('Network Error');
+    });
+
+    it('should handle axios errors with an empty response', async () => {
+      const errorWithoutResponce = {
+        isAxiosError: true,
+      };
+
+      vi.mocked(axios.get).mockRejectedValueOnce(errorWithoutResponce);
+      vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
+
+      await expect(getKeystore(mockUserId, mockUserToken, mockType)).rejects.toThrow(
+        /AxiosError: Error retrieving keystore/,
+      );
     });
   });
 });
