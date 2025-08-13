@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { encryptEmailHybrid, decryptEmailHybrid } from '../../src/email/hybridEmail';
+import { encryptEmailHybrid, decryptEmailHybrid } from '../../src/email/hybridEncEmail';
 
 import { generateKyberKeys } from '../../src/post-quantum/kyber768';
 import { generateEccKeys } from '../../src/asymmetric/ecc';

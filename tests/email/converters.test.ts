@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Email } from '../../src/utils/types';
-import { emailToBinary, binaryToEmail } from '../../src/email/converters';
+import { emailToBinary, binaryToEmail } from '../../src/email/utils';
 
 describe('Test email crypto functions', () => {
   it('converter to binary and back works', async () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { generateKyberKeys, encapsulateKyber, decapsulateKyber } from '../../src/post-quantum/kyber768';
-import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH, KYBER_SEED_LENGTH } from '../../src/utils/constants';
+import { generateKyberKeys, encapsulateKyber, decapsulateKyber } from '../../src/post-quantum/kyber1024';
+import { KYBER1024_PUBLIC_KEY_LENGTH, KYBER1024_SECRET_KEY_LENGTH, KYBER_SEED_LENGTH } from '../../src/utils/constants';
 
 describe('Test kyber functions', () => {
   it('should generate keys sucessfully', async () => {
@@ -8,8 +8,8 @@ describe('Test kyber functions', () => {
 
     expect(keys).toHaveProperty('publicKey');
     expect(keys).toHaveProperty('secretKey');
-    expect(keys.publicKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
-    expect(keys.secretKey.length).toBe(KYBER768_SECRET_KEY_LENGTH);
+    expect(keys.publicKey.length).toBe(KYBER1024_PUBLIC_KEY_LENGTH);
+    expect(keys.secretKey.length).toBe(KYBER1024_SECRET_KEY_LENGTH);
   });
 
   it('should generate identical keys for identical seeds', async () => {

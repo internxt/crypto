@@ -3,7 +3,7 @@ import { deriveWrappingKey, unwrapKey, wrapKey } from '../keyWrappers/aesWrapper
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum/kyber768';
 import { Email, EncryptedEmailHybrid } from '../utils/types';
-import { binaryToEmail, emailToBinary } from './converters';
+import { binaryToEmail, emailToBinary } from './utils';
 
 export async function encryptEmailHybrid(
   recipientPublicKey: CryptoKey,

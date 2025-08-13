@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { generateEccKeys, deriveEccBits } from '../../src/asymmetric/ecc';
 import { CURVE_NAME, ECC_ALGORITHM } from '../../src/utils/constants';
 
@@ -47,5 +47,17 @@ describe('Test ecc functions', () => {
     await expect(deriveEccBits(keysAlice.privateKey, keysAlice.privateKey)).rejects.toThrowError(
       /Failed to derive ECC bits:/,
     );
+  });
+
+  it('should throw an error if generateKey fails', async () => {
+    const originalGenerateKey = window.crypto.subtle.generateKey;
+
+    window.crypto.subtle.generateKey = vi.fn(() => {
+      throw new Error('simulated failure');
+    }) as any;
+
+    await expect(generateEccKeys()).rejects.toThrowError('Failed to generate ECC keys: simulated failure');
+
+    window.crypto.subtle.generateKey = originalGenerateKey;
   });
 });

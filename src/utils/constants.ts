@@ -26,8 +26,15 @@ export const ENCRYPTION_KEYSTORE_TAG = 'Encryption keystore';
 export const RECOVERY_KEYSTORE_TAG = 'Key recovery keystroe';
 export const INDEX_KEYSTORE_TAG = 'Current encrypted indices';
 
-export const KYBER_PUBLIC_KEY_LENGTH = 1184;
-export const KYBER_SECRET_KEY_LENGTH = 2400;
+export const KYBER512_PUBLIC_KEY_LENGTH = 800;
+export const KYBER512_SECRET_KEY_LENGTH = 1632;
+
+export const KYBER768_PUBLIC_KEY_LENGTH = 1184;
+export const KYBER768_SECRET_KEY_LENGTH = 2400;
+
+export const KYBER1024_PUBLIC_KEY_LENGTH = 1568;
+export const KYBER1024_SECRET_KEY_LENGTH = 3168;
+
 export const KYBER_SEED_LENGTH = 64;
 
 export const HASH_BIT_LEN = 256;

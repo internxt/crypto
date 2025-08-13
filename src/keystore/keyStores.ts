@@ -1,30 +1,40 @@
-import { IdentityKeys, EncryptionKeys } from '../utils/types';
-import { encryptSymmetrically, decryptSymmetrically } from '../symmetric/aes';
-import { Buffer } from 'buffer';
+import { IdentityKeys, EncryptionKeys, EncryptedKeystore } from '../utils/types';
 import { IDENTITY_KEYSTORE_TAG, ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG } from '../utils/constants';
+import { createKeystore, openKeystore } from './utils';
 
 export async function createIdentityKeystore(
   secretKey: CryptoKey,
   nonce: number,
   keys: IdentityKeys,
   userID: string,
-): Promise<{ ciphertext: Uint8Array; iv: Uint8Array }> {
-  const content = JSON.stringify(keys);
-  const aux = userID + IDENTITY_KEYSTORE_TAG;
-  return encryptSymmetrically(secretKey, nonce, Buffer.from(content), aux);
+): Promise<EncryptedKeystore> {
+  try {
+    const content = JSON.stringify(keys);
+    const result = await createKeystore(secretKey, nonce, content, userID, IDENTITY_KEYSTORE_TAG);
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error(`Identity keystore creation failed: ${error}`));
+  }
 }
 
 export async function openIdentityKeystore(
   secretKey: CryptoKey,
-  iv: Uint8Array,
-  encryptedKeys: Uint8Array,
+  encryptedKeystore: EncryptedKeystore,
   userID: string,
 ): Promise<IdentityKeys> {
-  const aux = userID + IDENTITY_KEYSTORE_TAG;
-  const content = await decryptSymmetrically(secretKey, iv, encryptedKeys, aux);
-  const json = Buffer.from(content).toString('utf-8');
-  const keys: IdentityKeys = JSON.parse(json);
-  return keys;
+  try {
+    const json = await openKeystore(
+      secretKey,
+      encryptedKeystore.iv,
+      encryptedKeystore.encryptedKeys,
+      userID,
+      IDENTITY_KEYSTORE_TAG,
+    );
+    const keys: IdentityKeys = JSON.parse(json);
+    return keys;
+  } catch (error) {
+    return Promise.reject(new Error(`Opening identity keystore failed: ${error}`));
+  }
 }
 
 export async function createEncryptionKeystore(
@@ -32,23 +42,34 @@ export async function createEncryptionKeystore(
   nonce: number,
   keys: EncryptionKeys,
   userID: string,
-): Promise<{ ciphertext: Uint8Array; iv: Uint8Array }> {
-  const content = JSON.stringify(keys);
-  const aux = userID + ENCRYPTION_KEYSTORE_TAG;
-  return encryptSymmetrically(secretKey, nonce, Buffer.from(content), aux);
+): Promise<EncryptedKeystore> {
+  try {
+    const content = JSON.stringify(keys);
+    const result = await createKeystore(secretKey, nonce, content, userID, ENCRYPTION_KEYSTORE_TAG);
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error(`Encryption keystore creation failed: ${error}`));
+  }
 }
 
 export async function openEncryptionKeystore(
   secretKey: CryptoKey,
-  iv: Uint8Array,
-  encryptedKeys: Uint8Array,
+  encryptedKeystore: EncryptedKeystore,
   userID: string,
 ): Promise<EncryptionKeys> {
-  const aux = userID + ENCRYPTION_KEYSTORE_TAG;
-  const content = await decryptSymmetrically(secretKey, iv, encryptedKeys, aux);
-  const json = Buffer.from(content).toString('utf-8');
-  const keys: EncryptionKeys = JSON.parse(json);
-  return keys;
+  try {
+    const json = await openKeystore(
+      secretKey,
+      encryptedKeystore.iv,
+      encryptedKeystore.encryptedKeys,
+      userID,
+      ENCRYPTION_KEYSTORE_TAG,
+    );
+    const keys: EncryptionKeys = JSON.parse(json);
+    return keys;
+  } catch (error) {
+    return Promise.reject(new Error(`Opening encryption keystore failed: ${error}`));
+  }
 }
 
 export async function createRecoveryKeystore(
@@ -56,21 +77,32 @@ export async function createRecoveryKeystore(
   nonce: number,
   keys: EncryptionKeys,
   userID: string,
-): Promise<{ ciphertext: Uint8Array; iv: Uint8Array }> {
-  const content = JSON.stringify(keys);
-  const aux = userID + RECOVERY_KEYSTORE_TAG;
-  return encryptSymmetrically(recoveryKey, nonce, Buffer.from(content), aux);
+): Promise<EncryptedKeystore> {
+  try {
+    const content = JSON.stringify(keys);
+    const result = await createKeystore(recoveryKey, nonce, content, userID, RECOVERY_KEYSTORE_TAG);
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error(`Encryption keystore creation failed: ${error}`));
+  }
 }
 
 export async function openRecoveryKeystore(
   recoveryKey: CryptoKey,
-  iv: Uint8Array,
-  encryptedKeys: Uint8Array,
+  encryptedKeystore: EncryptedKeystore,
   userID: string,
 ): Promise<EncryptionKeys> {
-  const aux = userID + RECOVERY_KEYSTORE_TAG;
-  const content = await decryptSymmetrically(recoveryKey, iv, encryptedKeys, aux);
-  const json = Buffer.from(content).toString('utf-8');
-  const keys: EncryptionKeys = JSON.parse(json);
-  return keys;
+  try {
+    const json = await openKeystore(
+      recoveryKey,
+      encryptedKeystore.iv,
+      encryptedKeystore.encryptedKeys,
+      userID,
+      RECOVERY_KEYSTORE_TAG,
+    );
+    const keys: EncryptionKeys = JSON.parse(json);
+    return keys;
+  } catch (error) {
+    return Promise.reject(new Error(`Opening recovery keystore failed: ${error}`));
+  }
 }

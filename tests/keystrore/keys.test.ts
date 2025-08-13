@@ -1,21 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { getEncryptionKeystoreKey } from '../../src/keystore';
-import { AES_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/utils/constants';
-import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
+import { getEncryptionKeystoreKey, getIdentityKeystoreKey, getIndexKey, getRecoveryKey } from '../../src/keystore';
+import { genSymmetricCryptoKey, exportSymmetricCryptoKey } from '../../src/symmetric/keys';
 
-describe('Test keystore keys functions', () => {
-  it('should generate encryption keystore as expected', async () => {
+describe('Test keystore key generation functions', () => {
+  it('should give different derived keys for the same baseKey', async () => {
     const baseKey = await genSymmetricCryptoKey();
-    const key = await getEncryptionKeystoreKey(baseKey);
 
-    expect(key).toBeInstanceOf(CryptoKey);
-    expect(key.type).toBe('secret');
-    expect(key.extractable).toBeTruthy();
-    expect(key.usages).toContain('encrypt');
-    expect(key.usages).toContain('decrypt');
+    const identityCryptoKey = await getIdentityKeystoreKey(baseKey);
+    const encryptionCryoptoKey = await getEncryptionKeystoreKey(baseKey);
+    const indexCryptoKey = await getIndexKey(baseKey);
+    const recoveryCryptoKey = await getRecoveryKey(baseKey);
 
-    const alg = key.algorithm as AesKeyAlgorithm;
-    expect(alg.name).toBe(AES_ALGORITHM);
-    expect(alg.length).toBe(AES_KEY_BIT_LENGTH);
+    const identityKey = await exportSymmetricCryptoKey(identityCryptoKey);
+    const encryptionKey = await exportSymmetricCryptoKey(encryptionCryoptoKey);
+    const indexKey = await exportSymmetricCryptoKey(indexCryptoKey);
+    const recoveryKey = await exportSymmetricCryptoKey(recoveryCryptoKey);
+
+    expect(identityKey).not.toStrictEqual(encryptionKey);
+    expect(identityKey).not.toStrictEqual(indexKey);
+    expect(identityKey).not.toStrictEqual(recoveryKey);
+
+    expect(encryptionKey).not.toStrictEqual(indexKey);
+    expect(encryptionKey).not.toStrictEqual(recoveryKey);
+
+    expect(indexKey).not.toStrictEqual(recoveryKey);
   });
 });

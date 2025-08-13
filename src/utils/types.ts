@@ -1,3 +1,15 @@
+export enum KeystoreType {
+  IDENTITY = 'identity',
+  ENCRYPTION = 'encryption',
+  RECOVERY = 'recovery',
+  INDEX = 'index',
+}
+
+export type EncryptedKeystore = {
+  iv: Uint8Array;
+  encryptedKeys: Uint8Array;
+};
+
 export type IdentityKeys = {
   userPublicKey: string;
   userPrivateKey: string;

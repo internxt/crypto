@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { EncryptionKeys, IdentityKeys } from '../../src/utils/types';
 import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 
-describe('Test key store functions', () => {
+describe('Test keystore create/open functions', () => {
   it('should successfully create and open identity keystore', async () => {
     const userID = uuidv4();
     const nonce = 14;
@@ -21,8 +21,8 @@ describe('Test key store functions', () => {
       serverPublicKey: 'server public key',
     };
     const secretKey = await genSymmetricCryptoKey();
-    const { ciphertext, iv } = await createIdentityKeystore(secretKey, nonce, keys, userID);
-    const result = await openIdentityKeystore(secretKey, iv, ciphertext, userID);
+    const encKeystore = await createIdentityKeystore(secretKey, nonce, keys, userID);
+    const result = await openIdentityKeystore(secretKey, encKeystore, userID);
 
     expect(result).toStrictEqual(keys);
   });
@@ -37,8 +37,8 @@ describe('Test key store functions', () => {
       userPublicKyberKey: 'user public kyber key',
     };
     const secretKey = await genSymmetricCryptoKey();
-    const { ciphertext, iv } = await createEncryptionKeystore(secretKey, nonce, keys, userID);
-    const result = await openEncryptionKeystore(secretKey, iv, ciphertext, userID);
+    const encKeystore = await createEncryptionKeystore(secretKey, nonce, keys, userID);
+    const result = await openEncryptionKeystore(secretKey, encKeystore, userID);
 
     expect(result).toStrictEqual(keys);
   });
@@ -53,8 +53,8 @@ describe('Test key store functions', () => {
       userPublicKyberKey: 'user public kyber key',
     };
     const recoveryKey = await genSymmetricCryptoKey();
-    const { ciphertext, iv } = await createRecoveryKeystore(recoveryKey, nonce, keys, userID);
-    const result = await openRecoveryKeystore(recoveryKey, iv, ciphertext, userID);
+    const encKeystore = await createRecoveryKeystore(recoveryKey, nonce, keys, userID);
+    const result = await openRecoveryKeystore(recoveryKey, encKeystore, userID);
 
     expect(result).toStrictEqual(keys);
   });

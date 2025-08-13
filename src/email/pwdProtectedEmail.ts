@@ -2,7 +2,7 @@ import { importWrappingKey, unwrapKey, wrapKey } from '../keyWrappers/aesWrapper
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive/deriveKeysFromPwd';
 import { Email, EncryptedEmailPwd } from '../utils/types';
-import { emailToBinary, binaryToEmail } from './converters';
+import { emailToBinary, binaryToEmail } from './utils';
 
 export async function encryptPwdProtectedEmail(
   sharedSecret: string,
