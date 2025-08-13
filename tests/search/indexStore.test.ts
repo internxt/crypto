@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { desearializeIndices, getCurrentIndex, searializeIndices } from '../../src/search/createSearchIndex';
 import { Email } from '../../src/utils/types';
-import { decryptCurrentIndices, encryptCurrentIndices } from '../../src/search/searchIndex';
+import { decryptCurrentSearchIndices, encryptCurrentSearchIndices } from '../../src/search/indexStore';
 import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 import { NONCE_LENGTH } from '../../src/utils/constants';
 
@@ -54,8 +54,8 @@ describe('Test search index functions', () => {
     const repets = 0;
     const init_aux = 'initial aux';
 
-    const { nonce, ciphertext, iv, aux } = await encryptCurrentIndices(key, message, repets, init_aux);
-    const result = await decryptCurrentIndices(key, iv, ciphertext, aux);
+    const { nonce, ciphertext, iv, aux } = await encryptCurrentSearchIndices(key, message, repets, init_aux);
+    const result = await decryptCurrentSearchIndices(key, iv, ciphertext, aux);
     const decrypted_indices = desearializeIndices(result);
     const results_after = decrypted_indices.search('zen art motorcycle');
 
@@ -73,8 +73,8 @@ describe('Test search index functions', () => {
     const repets = Math.pow(2, NONCE_LENGTH * 8);
     const init_aux = 'initial aux';
 
-    const { nonce, ciphertext, iv, aux } = await encryptCurrentIndices(key, message, repets, init_aux);
-    const result = await decryptCurrentIndices(key, iv, ciphertext, aux);
+    const { nonce, ciphertext, iv, aux } = await encryptCurrentSearchIndices(key, message, repets, init_aux);
+    const result = await decryptCurrentSearchIndices(key, iv, ciphertext, aux);
     const decrypted_indices = desearializeIndices(result);
     const results_after = decrypted_indices.search('zen art motorcycle');
 

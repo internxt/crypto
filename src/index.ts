@@ -7,3 +7,4 @@ export * as symmetric from './symmetric';
 export * as hash from './hash';
 export * as pq from './post-quantum';
 export * as keyWrapper from './keyWrappers';
+export * as searchEmail from './search';

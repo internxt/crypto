@@ -3,7 +3,7 @@ import { INDEX_KEYSTORE_TAG, NONCE_LENGTH } from '../utils/constants';
 
 const MAX_INDEX_VALUE = Math.pow(2, NONCE_LENGTH * 8);
 
-export async function encryptCurrentIndices(
+export async function encryptCurrentSearchIndices(
   secretKey: CryptoKey,
   indices: Uint8Array,
   repeats: number,
@@ -24,7 +24,7 @@ export async function encryptCurrentIndices(
   return { nonce, ciphertext, iv, aux };
 }
 
-export async function decryptCurrentIndices(
+export async function decryptCurrentSearchIndices(
   secretKey: CryptoKey,
   iv: Uint8Array,
   encryptedIndices: Uint8Array,
