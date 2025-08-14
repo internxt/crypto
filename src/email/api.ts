@@ -1,4 +1,4 @@
-import emailjs, { EmailJSResponseStatus } from '@emailjs/browser';
+import emailjs from '@emailjs/browser';
 import envService from '../utils/env';
 import { User } from '../utils/types';
 
