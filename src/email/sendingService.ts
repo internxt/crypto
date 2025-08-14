@@ -5,20 +5,20 @@ import { sendEncryptedEmail } from './api';
 export async function sendHybridEmailToMultipleRecipients(encryptedEmails: HybridEncryptedEmail[]) {
   try {
     for (const encEmail of encryptedEmails) {
-      await sendHybridEmail(encEmail, encEmail.subject, encEmail.sender, encEmail.encryptedFor);
+      await sendHybridEmail(encEmail);
     }
   } catch (error) {
     console.error('Failed to email to multiple recipients:', error);
   }
 }
 
-export async function sendHybridEmail(encEmail: HybridEncryptedEmail, subject: string, sender: User, recipient: User) {
+export async function sendHybridEmail(encEmail: HybridEncryptedEmail) {
   try {
     const encText = emailCiphertextToBase64(encEmail.ciphertext);
     const encKey = encHybridKeyToBase64(encEmail.encryptedKey);
-    await sendEncryptedEmail(subject, encText, encKey, sender, recipient);
+    await sendEncryptedEmail(encEmail.subject, encText, encKey, encEmail.sender, encEmail.encryptedFor);
   } catch (error) {
-    console.error(`Failed to email to the recipient ${recipient}:`, error);
+    console.error(`Failed to email to the recipient ${encEmail.encryptedFor}:`, error);
   }
 }
 

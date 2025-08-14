@@ -25,16 +25,17 @@ export async function sendEncryptedEmail(
     const templateId = envService.getVariable('templateID');
     const publicKey = envService.getVariable('publicKey');
 
-    const response = await emailjs.send(serviceId, templateId, templateParams, publicKey);
-
-    console.log('Encrypted email sent successfully:', response);
-    return;
+    await emailjs.send(serviceId, templateId, templateParams, publicKey).then(
+      (response) => {
+        console.log('SUCCESS!', response.status, response.text);
+        return Promise.resolve;
+      },
+      (err) => {
+        console.log('Failed!', err);
+        return Promise.reject(new Error('emailjs error', err));
+      },
+    );
   } catch (error) {
-    if (error instanceof EmailJSResponseStatus) {
-      console.log('EMAILJS FAILED...', error);
-      return;
-    }
-
-    console.log('ERROR', error);
+    return Promise.reject(new Error('Could not send an email', error));
   }
 }

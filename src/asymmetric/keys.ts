@@ -33,7 +33,7 @@ export async function importPublicKey(spkiKeyData: ArrayBuffer): Promise<CryptoK
         namedCurve: CURVE_NAME,
       },
       true,
-      ['deriveBits'],
+      [],
     );
   } catch (error) {
     return Promise.reject(new Error(`Failed to import public key: ${error}`));
