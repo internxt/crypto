@@ -1,15 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { Email } from '../../src/utils/types';
+import { EmailBody } from '../../src/utils/types';
 import { emailToBinary, binaryToEmail } from '../../src/email/utils';
 
 describe('Test email crypto functions', () => {
   it('converter to binary and back works', async () => {
-    const email: Email = {
-      id: '42',
-      subject: 'test subject',
-      body: 'test body',
-      sender: 'test sender',
-      recipient: ['test recipient 1', 'test recipient 2', 'test recipient 3'],
+    const email: EmailBody = {
+      text: 'test body',
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
@@ -36,6 +32,6 @@ describe('Test email crypto functions', () => {
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
-    expect(() => emailToBinary(bad_email as any as Email)).toThrowError(/Cannot convert email to Uint8Array:/);
+    expect(() => emailToBinary(bad_email as any as EmailBody)).toThrowError(/Cannot convert email to Uint8Array:/);
   });
 });

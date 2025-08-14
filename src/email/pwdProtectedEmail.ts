@@ -1,43 +1,30 @@
-import { importWrappingKey, unwrapKey, wrapKey } from '../keyWrappers/aesWrapper';
-import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric';
+import { importWrappingKey, wrapKey } from '../keyWrappers/aesWrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive/deriveKeysFromPwd';
-import { Email, EncryptedEmailPwd } from '../utils/types';
-import { emailToBinary, binaryToEmail } from './utils';
+import { PwdProtectedEmail, Email, PwdProtectedKey } from '../utils/types';
+import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './utils';
 
-export async function encryptPwdProtectedEmail(
-  sharedSecret: string,
-  emailsInChain: number,
-  email: Email,
-  aux: string,
-): Promise<EncryptedEmailPwd> {
-  const encryptionKey = await genSymmetricCryptoKey();
-  const binaryEmail = emailToBinary(email);
-  const { ciphertext: encryptedEmail, iv } = await encryptSymmetrically(encryptionKey, emailsInChain, binaryEmail, aux);
+export async function createPwdProtectedEmail(sharedSecret: string, email: Email): Promise<PwdProtectedEmail> {
+  const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);
 
   const { key, salt } = await getKeyFromPassword(sharedSecret);
-  console.log('argon2 test', key.length, salt.length);
   const wrappingKey = await importWrappingKey(key);
-  console.log('imported everything');
   const encryptedKey = await wrapKey(encryptionKey, wrappingKey);
-
-  return {
-    encryptedEmail,
-    encryptedKey,
-    iv,
-    salt,
+  const encKey: PwdProtectedKey = { encryptedKey, salt };
+  const result: PwdProtectedEmail = {
+    sender: email.sender,
+    recipients: email.recipients,
+    subject: email.subject,
+    emailChainLength: email.emailChainLength,
+    ciphertext: encEmail,
+    encryptedKey: encKey,
   };
+  return result;
 }
 
-export async function decryptPwdProtectedEmail(sharedSecret: string, encryptedEmail: EncryptedEmailPwd, aux: string) {
-  const key = await getKeyFromPasswordAndSalt(sharedSecret, encryptedEmail.salt);
+export async function decryptPwdProtectedEmail(sharedSecret: string, encryptedEmail: PwdProtectedEmail) {
+  const encKey = encryptedEmail.encryptedKey;
+  const key = await getKeyFromPasswordAndSalt(sharedSecret, encKey.salt);
   const wrappingKey = await importWrappingKey(key);
-  const encryptionKey = await unwrapKey(encryptedEmail.encryptedKey, wrappingKey);
-  const decryptedBits = await decryptSymmetrically(
-    encryptionKey,
-    encryptedEmail.iv,
-    encryptedEmail.encryptedEmail,
-    aux,
-  );
-  const result = binaryToEmail(decryptedBits);
+  const result = await decryptEmailSymmetrically(encryptedEmail, wrappingKey, encKey.encryptedKey);
   return result;
 }

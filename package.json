@@ -35,12 +35,14 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@noble/post-quantum": "^0.4.1",
     "axios": "^1.11.0",
     "buffer": "^6.0.3",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
     "minisearch": "^7.1.2",
+    "react-scripts": "^5.0.1",
     "uuid": "^11.1.0"
   },
   "lint-staged": {

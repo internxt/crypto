@@ -1,7 +1,24 @@
-import { Email } from '../utils/types';
+import {
+  EmailBody,
+  Email,
+  PublicKeys,
+  PublicKeysHex,
+  EmailCiphertext,
+  HybridEncKey,
+  PwdProtectedKey,
+  HybridEncryptedEmail,
+  PwdProtectedEmail,
+} from '../utils/types';
 import { Buffer } from 'buffer';
+import {
+  importSymmetricCryptoKey,
+  genSymmetricCryptoKey,
+  encryptSymmetrically,
+  decryptSymmetrically,
+} from '../symmetric';
+import { unwrapKey } from '../keyWrappers';
 
-export function emailToBinary(email: Email): Uint8Array {
+export function emailToBinary(email: EmailBody): Uint8Array {
   try {
     const json = JSON.stringify(email);
     const buffer = Buffer.from(json);
@@ -11,12 +28,87 @@ export function emailToBinary(email: Email): Uint8Array {
   }
 }
 
-export function binaryToEmail(array: Uint8Array): Email {
+export function binaryToEmail(array: Uint8Array): EmailBody {
   try {
     const json = Buffer.from(array).toString('utf-8');
-    const email: Email = JSON.parse(json);
+    const email: EmailBody = JSON.parse(json);
     return email;
   } catch (error) {
     throw new Error(`Cannot convert Uint8Array to email: ${error}`);
   }
+}
+
+export async function hexToPublicKey(key: PublicKeysHex): Promise<PublicKeys> {
+  try {
+    const eccPublicKeyBytes = Buffer.from(key.eccPublicKey, 'hex');
+    const eccPublicKey = await importSymmetricCryptoKey(eccPublicKeyBytes);
+    const kyberPublicKey = Buffer.from(key.kyberPublicKey, 'hex');
+    return { eccPublicKey, kyberPublicKey, user: key.user };
+  } catch (error) {
+    throw new Error(`Cannot convert hex to public key: ${error}`);
+  }
+}
+
+export function getAux(email: HybridEncryptedEmail | PwdProtectedEmail | Email): string {
+  try {
+    const { subject, emailChainLength, sender, recipients } = email;
+    const aux = JSON.stringify({ subject, emailChainLength, sender, recipients });
+    return aux;
+  } catch (error) {
+    throw new Error(`Cannot create aux: ${error}`);
+  }
+}
+
+export function serializeEmailBody(email: EmailBody): Uint8Array {
+  try {
+    const json = JSON.stringify(email);
+    const buffer = Buffer.from(json);
+    return new Uint8Array(buffer);
+  } catch (error) {
+    throw new Error(`Cannot serialize: ${error}`);
+  }
+}
+
+export async function encryptEmailSymmetrically(
+  email: Email,
+): Promise<{ encEmail: EmailCiphertext; encryptionKey: CryptoKey }> {
+  const aux = getAux(email);
+  const encryptionKey = await genSymmetricCryptoKey();
+  const emailBody = email.body;
+  const binaryEmail = serializeEmailBody(emailBody);
+  const { ciphertext, iv } = await encryptSymmetrically(encryptionKey, email.emailChainLength, binaryEmail, aux);
+  const encEmail: EmailCiphertext = { ciphertext, iv };
+  return { encEmail, encryptionKey };
+}
+
+export async function decryptEmailSymmetrically(
+  encryptedEmail: HybridEncryptedEmail | PwdProtectedEmail,
+  wrappingKey: CryptoKey,
+  encryptedKey: Uint8Array,
+): Promise<EmailBody> {
+  const aux = getAux(encryptedEmail);
+  const emailCiphertext: EmailCiphertext = encryptedEmail.ciphertext;
+
+  const encryptionKey = await unwrapKey(encryptedKey, wrappingKey);
+  const binaryEmail = await decryptSymmetrically(encryptionKey, emailCiphertext.iv, emailCiphertext.ciphertext, aux);
+  const email = binaryToEmail(binaryEmail);
+  return email;
+}
+
+export function emailCiphertextToBase64(emailCipher: EmailCiphertext): string {
+  const json = JSON.stringify(emailCipher);
+  const base64 = btoa(json);
+  return base64;
+}
+
+export function encHybridKeyToBase64(encHybridKey: HybridEncKey): string {
+  const json = JSON.stringify(encHybridKey);
+  const base64 = btoa(json);
+  return base64;
+}
+
+export function pwdProtectedKeyToBase64(pwdProtectedKey: PwdProtectedKey): string {
+  const json = JSON.stringify(pwdProtectedKey);
+  const base64 = btoa(json);
+  return base64;
 }

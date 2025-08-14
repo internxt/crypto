@@ -1,25 +1,36 @@
 import { describe, expect, it } from 'vitest';
-import { encryptPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email/pwdProtectedEmail';
-import { Email } from '../../src/utils/types';
+import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email/pwdProtectedEmail';
+import { EmailBody, Email } from '../../src/utils/types';
 
 describe('Test email crypto functions', () => {
   it('should encrypt and decrypt email sucessfully', async () => {
-    const email: Email = {
-      id: '42',
-      subject: 'Test subject',
-      body: 'Hi Bob, This is a test message. -Alice.',
-      sender: 'alice@example.com',
-      recipient: ['bob@example.com'],
+    const emailBody: EmailBody = {
+      text: 'Hi Bob, This is a test message. -Alice.',
       date: '2025-03-4T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
 
     const sharedSecret = 'test shared secret';
+    const userAlice = {
+      email: 'alice email',
+      name: 'alice',
+    };
 
-    const aux = 'Email from Alice to Bob';
+    const userBob = {
+      email: 'bob email',
+      name: 'bob',
+    };
+    const email: Email = {
+      id: 'test id',
+      body: emailBody,
+      subject: 'test subject',
+      sender: userAlice,
+      recipients: [userBob],
+      emailChainLength: 2,
+    };
 
-    const encryptedEmail = await encryptPwdProtectedEmail(sharedSecret, 1, email, aux);
-    const decryptedEmail = await decryptPwdProtectedEmail(sharedSecret, encryptedEmail, aux);
-    expect(decryptedEmail).toStrictEqual(email);
+    const encryptedEmail = await createPwdProtectedEmail(sharedSecret, email);
+    const decryptedEmail = await decryptPwdProtectedEmail(sharedSecret, encryptedEmail);
+    expect(decryptedEmail).toStrictEqual(emailBody);
   });
 });

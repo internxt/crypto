@@ -5,42 +5,57 @@ import { decryptCurrentSearchIndices, encryptCurrentSearchIndices } from '../../
 import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 import { NONCE_LENGTH } from '../../src/utils/constants';
 
+const alice = { email: 'alice@email.com', name: 'alice' };
+const bob = { email: 'bob@email.com', name: 'bob' };
+const eve = { email: 'eve@email.com', name: 'eve' };
 const emails: Email[] = [
   {
     id: '1',
+    body: {
+      text: 'Call me Ishmael. Some years ago...',
+      date: '2023-06-14T08:11:22.000Z',
+      labels: ['fiction'],
+    },
     subject: 'Moby Dick',
-    body: 'Call me Ishmael. Some years ago...',
-    sender: 'alice@email.com',
-    recipient: ['bob@email.com'],
-    date: '2023-06-14T08:11:22.000Z',
-    labels: ['fiction'],
+    sender: alice,
+    recipients: [bob],
+    emailChainLength: 0,
   },
   {
     id: '2',
     subject: 'Zen and the Art of Motorcycle Maintenance',
-    body: 'I can see by my watch...',
-    sender: 'bob@email.com',
-    recipient: ['alice@email.com', 'eve@email.com'],
-    date: '2022-09-07T21:47:55.000Z',
-    labels: ['fiction', 'self-help'],
+    body: {
+      text: 'I can see by my watch...',
+      date: '2022-09-07T21:47:55.000Z',
+      labels: ['fiction', 'self-help'],
+    },
+    sender: bob,
+    recipients: [alice, eve],
+    emailChainLength: 3,
   },
   {
     id: '3',
     subject: 'Neuromancer',
-    body: 'The sky above the port was...',
-    sender: 'eve@email.com',
-    recipient: ['alice@email.com', 'bob@email.com'],
-    date: '2021-01-30T04:15:36.000Z',
-    labels: ['fiction'],
+    body: {
+      text: 'The sky above the port was...',
+      date: '2021-01-30T04:15:36.000Z',
+      labels: ['fiction'],
+    },
+    sender: eve,
+    recipients: [alice, bob],
+    emailChainLength: 1,
   },
   {
     id: '4',
     subject: 'Zen and the Art of Archery',
-    body: 'At first sight it must seem...',
-    sender: 'bob@email.com',
-    date: '2021-01-30T04:15:36.000Z',
-    recipient: ['alice@email.com', 'eve@email.com'],
-    labels: ['non-fiction', 'education'],
+    body: {
+      text: 'At first sight it must seem...',
+      date: '2021-01-30T04:15:36.000Z',
+      labels: ['non-fiction', 'education'],
+    },
+    recipients: [alice, eve],
+    sender: bob,
+    emailChainLength: 5,
   },
 ];
 
