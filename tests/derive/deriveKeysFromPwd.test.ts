@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   getKeyFromPasswordAndSalt,
   verifyKeyFromPasswordAndSaltHex,
   getKeyFromPasswordAndSaltHex,
   getKeyFromPasswordHex,
+  getKeyFromPassword,
 } from '../../src/derive/deriveKeysFromPwd';
 
 import { argon2Hex } from '../../src/derive/utils';
@@ -59,5 +60,20 @@ describe('Test Argon2', () => {
     const { hash, salt } = await getKeyFromPasswordHex(test_password);
     const result = await verifyKeyFromPasswordAndSaltHex(test_password, salt, hash);
     expect(result).toBe(true);
+  });
+
+  it('should throw an error if key derivation failed', async () => {
+    const test_password = 'text demo';
+
+    const originalGenerateRandomValues = window.crypto.getRandomValues;
+
+    window.crypto.getRandomValues = vi.fn(() => {
+      throw new Error('simulated failure');
+    }) as any;
+
+    await expect(getKeyFromPassword(test_password)).rejects.toThrowError(/Key derivation from password failed/);
+    await expect(getKeyFromPasswordHex(test_password)).rejects.toThrowError(/Key derivation from password failed/);
+
+    window.crypto.getRandomValues = originalGenerateRandomValues;
   });
 });

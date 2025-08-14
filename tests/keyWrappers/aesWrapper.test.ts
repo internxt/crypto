@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { wrapKey, unwrapKey, deriveWrappingKey, importWrappingKey } from '../../src/keyWrappers/aesWrapper';
 import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 import { KEY_WRAPPING_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/utils/constants';
-import { generateEccKeys } from '../../src/asymmetric/ecc';
+import { generateEccKeys } from '../../src/asymmetric';
 
 describe('Test key wrapping functions', () => {
   it('should scuessfully derive wrapping key', async () => {

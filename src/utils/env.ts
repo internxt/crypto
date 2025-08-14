@@ -2,9 +2,9 @@ const envService = {
   getVariable,
 };
 const variableList = {
-  serviceID: 'REACT_APP_SERVICE_ID',
-  templateID: 'REACT_APP_TEMPLATE_ID',
-  publicKey: 'REACT_APP_PUBLIC_KEY',
+  serviceID: 'VITE_SERVICE_ID',
+  templateID: 'VITE_TEMPLATE_ID',
+  publicKey: 'VITE_PUBLIC_KEY',
 };
 
 function getVariable(variable: keyof typeof variableList): string {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { generateEccKeys, deriveEccBits } from '../../src/asymmetric/ecc';
+import { generateEccKeys, deriveEccBits } from '../../src/asymmetric';
 import { CURVE_NAME, ECC_ALGORITHM } from '../../src/utils/constants';
 
 describe('Test ecc functions', () => {

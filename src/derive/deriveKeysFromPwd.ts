@@ -9,17 +9,25 @@ import {
 import { argon2, argon2Hex } from './utils';
 
 export async function getKeyFromPassword(password: string): Promise<{ key: Uint8Array; salt: Uint8Array }> {
-  const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
-  window.crypto.getRandomValues(salt);
-  const key = await getKeyFromPasswordAndSalt(password, salt);
-  return { key, salt };
+  try {
+    const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
+    window.crypto.getRandomValues(salt);
+    const key = await getKeyFromPasswordAndSalt(password, salt);
+    return { key, salt };
+  } catch (error) {
+    return Promise.reject(new Error(`Key derivation from password failed: ${error}`));
+  }
 }
 
 export async function getKeyFromPasswordHex(password: string): Promise<{ hash: string; salt: Uint8Array }> {
-  const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
-  window.crypto.getRandomValues(salt);
-  const result = await getKeyFromPasswordAndSaltHex(password, salt);
-  return { hash: result, salt };
+  try {
+    const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
+    window.crypto.getRandomValues(salt);
+    const result = await getKeyFromPasswordAndSaltHex(password, salt);
+    return { hash: result, salt };
+  } catch (error) {
+    return Promise.reject(new Error(`Key derivation from password failed: ${error}`));
+  }
 }
 
 export async function getKeyFromPasswordAndSaltHex(password: string, salt: string | Uint8Array): Promise<string> {

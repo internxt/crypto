@@ -1,19 +1,4 @@
-import { CURVE_NAME, ECC_ALGORITHM, AES_KEY_BIT_LENGTH } from '../utils/constants';
-
-export async function generateEccKeys(): Promise<CryptoKeyPair> {
-  try {
-    return window.crypto.subtle.generateKey(
-      {
-        name: ECC_ALGORITHM,
-        namedCurve: CURVE_NAME,
-      },
-      false,
-      ['deriveBits'],
-    );
-  } catch (error) {
-    throw new Error(`Failed to generate ECC keys: ${error.message}`);
-  }
-}
+import { ECC_ALGORITHM, AES_KEY_BIT_LENGTH } from '../utils/constants';
 
 export async function deriveEccBits(recipientPublicKey: CryptoKey, userPrivateKey: CryptoKey): Promise<Uint8Array> {
   try {
@@ -27,6 +12,6 @@ export async function deriveEccBits(recipientPublicKey: CryptoKey, userPrivateKe
     );
     return new Uint8Array(result);
   } catch (error) {
-    throw new Error(`Failed to derive ECC bits: ${error.message}`);
+    return Promise.reject(new Error(`Failed to derive ECC bits: ${error.message}`));
   }
 }

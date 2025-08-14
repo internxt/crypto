@@ -10,7 +10,7 @@ export type User = {
   name: string;
 };
 
-export type PublicKeysHex = {
+export type PublicKeysBase64 = {
   user: User;
   eccPublicKey: string;
   kyberPublicKey: string;
@@ -42,7 +42,7 @@ export type EncryptionKeys = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  ciphertext: EmailCiphertext;
+  ciphertext: symmetricCiphertext;
   sender: User;
   subject: string;
   encryptedFor: User;
@@ -52,14 +52,14 @@ export type HybridEncryptedEmail = {
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  ciphertext: EmailCiphertext;
+  ciphertext: symmetricCiphertext;
   sender: User;
   subject: string;
   recipients: User[];
   emailChainLength: number;
 };
 
-export type EmailCiphertext = {
+export type symmetricCiphertext = {
   ciphertext: Uint8Array;
   iv: Uint8Array;
 };

@@ -10,7 +10,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { EncryptionKeys, IdentityKeys } from '../../src/utils/types';
 import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
-import { generateEccKeys } from '../../src/asymmetric/ecc';
+import { generateEccKeys } from '../../src/asymmetric';
 
 describe('Test keystore create/open functions', () => {
   it('should successfully create and open identity keystore', async () => {
