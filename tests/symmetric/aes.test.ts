@@ -9,8 +9,8 @@ describe('Test symmetric functions', () => {
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
     const aux = 'additional data';
 
-    const { ciphertext, iv } = await encryptSymmetrically(key, nonce, message, aux);
-    const result = await decryptSymmetrically(key, iv, ciphertext, aux);
+    const enc = await encryptSymmetrically(key, nonce, message, aux);
+    const result = await decryptSymmetrically(key, enc, aux);
 
     expect(result).toStrictEqual(message);
   });

@@ -1,4 +1,4 @@
-import { importWrappingKey, wrapKey } from '../keyWrappers/aesWrapper';
+import { importWrappingKey, wrapKey, unwrapKey } from '../keyWrappers/aesWrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive/deriveKeysFromPwd';
 import { PwdProtectedEmail, Email, PwdProtectedKey } from '../utils/types';
 import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './utils';
@@ -25,6 +25,7 @@ export async function decryptPwdProtectedEmail(sharedSecret: string, encryptedEm
   const encKey = encryptedEmail.encryptedKey;
   const key = await getKeyFromPasswordAndSalt(sharedSecret, encKey.salt);
   const wrappingKey = await importWrappingKey(key);
-  const result = await decryptEmailSymmetrically(encryptedEmail, wrappingKey, encKey.encryptedKey);
+  const encryptionKey = await unwrapKey(encKey.encryptedKey, wrappingKey);
+  const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
   return result;
 }

@@ -1,5 +1,6 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric/aes';
 import { INDEX_KEYSTORE_TAG, NONCE_LENGTH } from '../utils/constants';
+import { SymmetricCiphertext } from '../utils/types';
 
 const MAX_INDEX_VALUE = Math.pow(2, NONCE_LENGTH * 8);
 
@@ -10,9 +11,8 @@ export async function encryptCurrentSearchIndices(
   current_aux: string,
 ): Promise<{
   nonce: number;
-  ciphertext: Uint8Array;
-  iv: Uint8Array;
   aux: string;
+  encIndices: SymmetricCiphertext;
 }> {
   let aux = current_aux;
   let nonce = repeats;
@@ -20,15 +20,14 @@ export async function encryptCurrentSearchIndices(
     nonce = 0;
     aux = INDEX_KEYSTORE_TAG + new Date().toDateString();
   }
-  const { ciphertext, iv } = await encryptSymmetrically(secretKey, repeats, indices, aux);
-  return { nonce, ciphertext, iv, aux };
+  const result = await encryptSymmetrically(secretKey, repeats, indices, aux);
+  return { nonce, aux, encIndices: result };
 }
 
 export async function decryptCurrentSearchIndices(
   secretKey: CryptoKey,
-  iv: Uint8Array,
-  encryptedIndices: Uint8Array,
+  encryptedIndices: SymmetricCiphertext,
   aux: string,
 ): Promise<Uint8Array> {
-  return decryptSymmetrically(secretKey, iv, encryptedIndices, aux);
+  return decryptSymmetrically(secretKey, encryptedIndices, aux);
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { KeystoreType } from '../../src/utils';
-import { sendKeystore, getKeystore } from '../../src/keystore/api'; // Adjust import path as needed
+import { sendKeystore, getKeystore } from '../../src/keystore/api';
 
 vi.mock('axios');
 

@@ -1,6 +1,7 @@
 import { HybridEncryptedEmail, PwdProtectedEmail, User } from '../utils/types';
-import { emailCiphertextToBase64, encHybridKeyToBase64, pwdProtectedKeyToBase64 } from './utils';
-import { sendEncryptedEmail } from './api';
+import { encHybridKeyToBase64, pwdProtectedKeyToBase64 } from './converters';
+import { ciphertextToBase64 } from '../symmetric/utils';
+import { sendEmail } from './api';
 
 export async function sendHybridEmailToMultipleRecipients(encryptedEmails: HybridEncryptedEmail[]) {
   try {
@@ -14,9 +15,10 @@ export async function sendHybridEmailToMultipleRecipients(encryptedEmails: Hybri
 
 export async function sendHybridEmail(encEmail: HybridEncryptedEmail) {
   try {
-    const encText = emailCiphertextToBase64(encEmail.ciphertext);
+    const encText = ciphertextToBase64(encEmail.ciphertext);
     const encKey = encHybridKeyToBase64(encEmail.encryptedKey);
-    await sendEncryptedEmail(encEmail.subject, encText, encKey, encEmail.sender, encEmail.encryptedFor);
+    const body = JSON.stringify({ encText, encKey });
+    await sendEmail(encEmail.subject, body, encEmail.sender, encEmail.encryptedFor);
   } catch (error) {
     console.error(`Failed to email to the recipient ${encEmail.encryptedFor}:`, error);
   }
@@ -39,9 +41,10 @@ export async function sendPwdProtectedEmail(
   recipient: User,
 ) {
   try {
-    const encText = emailCiphertextToBase64(encEmail.ciphertext);
+    const encText = ciphertextToBase64(encEmail.ciphertext);
     const encKey = pwdProtectedKeyToBase64(encEmail.encryptedKey);
-    await sendEncryptedEmail(subject, encText, encKey, sender, recipient);
+    const body = JSON.stringify({ encText, encKey });
+    await sendEmail(subject, body, sender, recipient);
   } catch (error) {
     console.error(`Failed to email to the recipient ${recipient}:`, error);
   }

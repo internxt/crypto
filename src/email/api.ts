@@ -2,22 +2,22 @@ import emailjs from '@emailjs/browser';
 import envService from '../utils/env';
 import { User } from '../utils/types';
 
-export async function sendEncryptedEmail(
-  subject: string,
-  encryptedText: string,
-  encryptedKey: string,
-  sender: User,
-  recipient: User,
-): Promise<void> {
+/**
+ * Sends a user's  email to the server
+ * @param subject - The email subject
+ * @param body - The email body
+ * @param sender - The email sender
+ * @param recipient - The email recipient
+ */
+export async function sendEmail(subject: string, body: string, sender: User, recipient: User): Promise<void> {
   try {
     const templateParams = {
       from_email: sender.email,
       from_name: sender.name,
       to_email: recipient.email,
       to_name: recipient.name,
-      encrypted_subject: subject,
-      encrypted_body: encryptedText,
-      encrypted_symmetric_key: encryptedKey,
+      email_subject: subject,
+      email_body: body,
       timestamp: new Date().toISOString(),
     };
 

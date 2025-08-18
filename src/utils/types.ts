@@ -22,11 +22,6 @@ export type PublicKeys = {
   kyberPublicKey: Uint8Array;
 };
 
-export type EncryptedKeystore = {
-  iv: Uint8Array;
-  encryptedKeys: Uint8Array;
-};
-
 export type IdentityKeys = {
   userPublicKey: string;
   userPrivateKey: string;
@@ -42,7 +37,7 @@ export type EncryptionKeys = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  ciphertext: symmetricCiphertext;
+  ciphertext: SymmetricCiphertext;
   sender: User;
   subject: string;
   encryptedFor: User;
@@ -52,14 +47,14 @@ export type HybridEncryptedEmail = {
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  ciphertext: symmetricCiphertext;
+  ciphertext: SymmetricCiphertext;
   sender: User;
   subject: string;
   recipients: User[];
   emailChainLength: number;
 };
 
-export type symmetricCiphertext = {
+export type SymmetricCiphertext = {
   ciphertext: Uint8Array;
   iv: Uint8Array;
 };

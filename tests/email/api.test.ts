@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sendEncryptedEmail } from '../../src/email/api';
+import { sendEmail } from '../../src/email/api';
 import { User } from '../../src/utils/types';
 
 describe('Check sending api', () => {
@@ -7,11 +7,8 @@ describe('Check sending api', () => {
     const userAlice: User = { email: 'alice email', name: 'alice' };
     const userBob: User = { email: 'bob email', name: 'bob' };
     const subject = 'test email subject';
-    const encryptedText = 'mock enc text';
-    const encryptedKey = 'mock enc key';
+    const emailBody = 'mock enc text $mock enc key';
 
-    await expect(sendEncryptedEmail(subject, encryptedText, encryptedKey, userAlice, userBob)).rejects.toThrowError(
-      /Could not send an email/,
-    );
+    await expect(sendEmail(subject, emailBody, userAlice, userBob)).rejects.toThrowError(/Could not send an email/);
   });
 });

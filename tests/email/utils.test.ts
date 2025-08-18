@@ -1,37 +1,97 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody } from '../../src/utils/types';
-import { emailBodyToBinary, binaryToEmailBody } from '../../src/email/utils';
+import { EmailBody, Email, HybridEncryptedEmail, HybridEncKey } from '../../src/utils/types';
+import { decryptEmailSymmetrically, encryptEmailSymmetrically, getAux } from '../../src/email/utils';
+import { genSymmetricCryptoKey } from '../../src/symmetric';
 
 describe('Test email crypto functions', () => {
-  it('converter to binary and back works', async () => {
-    const email: EmailBody = {
+  it('should encrypt and decrypt email', async () => {
+    const emailBody: EmailBody = {
       text: 'test body',
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
-    const binary = emailBodyToBinary(email);
-    const result = binaryToEmailBody(binary);
-    expect(result).toEqual(email);
-  });
+    const userAlice = {
+      email: 'alice email',
+      name: 'alice',
+    };
 
-  it('throws error if binaryToEmail fails', async () => {
-    const bad_binary: Uint8Array = new Uint8Array([
-      49, 34, 44, 34, 116, 101, 115, 116, 32, 114, 101, 99, 105, 112, 105, 101, 110, 116, 32, 50, 34, 44, 34, 116, 101,
-      115, 116, 32, 114, 101, 99, 105, 112, 105, 101, 110, 116, 32, 51, 34, 93, 44, 34,
-    ]);
-    expect(() => binaryToEmailBody(bad_binary)).toThrowError(/Cannot convert Uint8Array to email:/);
-  });
+    const userBob = {
+      email: 'bob email',
+      name: 'bob',
+    };
 
-  it('throws error if emailToBinary fails', async () => {
-    const bad_email = {
-      id: BigInt(42),
+    const email: Email = {
+      id: 'test id',
       subject: 'test subject',
-      body: 'test body',
-      sender: 'test sender',
-      recipient: ['test recipient 1', 'test recipient 2', 'test recipient 3'],
+      body: emailBody,
+      sender: userAlice,
+      recipients: [userBob],
+      emailChainLength: 2,
+    };
+    const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);
+    const encKey: HybridEncKey = { kyberCiphertext: new Uint8Array(), encryptedKey: new Uint8Array() };
+    const encryptedEmail: HybridEncryptedEmail = {
+      ciphertext: encEmail,
+      sender: userAlice,
+      recipients: [userBob],
+      emailChainLength: 2,
+      subject: 'test subject',
+      encryptedFor: userBob,
+      encryptedKey: encKey,
+    };
+    const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
+    expect(result).toEqual(emailBody);
+  });
+
+  it('should throw an error if decryption fails', async () => {
+    const emailBody: EmailBody = {
+      text: 'test body',
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
-    expect(() => emailBodyToBinary(bad_email as any as EmailBody)).toThrowError(/Cannot convert email to Uint8Array:/);
+    const userAlice = {
+      email: 'alice email',
+      name: 'alice',
+    };
+
+    const userBob = {
+      email: 'bob email',
+      name: 'bob',
+    };
+
+    const email: Email = {
+      id: 'test id',
+      subject: 'test subject',
+      body: emailBody,
+      sender: userAlice,
+      recipients: [userBob],
+      emailChainLength: 2,
+    };
+    const { encEmail } = await encryptEmailSymmetrically(email);
+    const encKey: HybridEncKey = { kyberCiphertext: new Uint8Array(), encryptedKey: new Uint8Array() };
+    const encryptedEmail: HybridEncryptedEmail = {
+      ciphertext: encEmail,
+      sender: userAlice,
+      recipients: [userBob],
+      emailChainLength: 2,
+      subject: 'test subject',
+      encryptedFor: userBob,
+      encryptedKey: encKey,
+    };
+    const bad_encryptionKey = await genSymmetricCryptoKey();
+    await expect(decryptEmailSymmetrically(encryptedEmail, bad_encryptionKey)).rejects.toThrowError(
+      /Cannot decrypt email/,
+    );
+  });
+
+  it('should throw an error if cannot create aux', async () => {
+    const bad_email = { subject: BigInt(423) };
+    expect(() => getAux(bad_email as any as Email)).toThrowError(/Cannot create aux/);
+  });
+
+  it('should throw an error if cannot encrypt', async () => {
+    const bad_email: any = {};
+    bad_email.self = bad_email;
+    await expect(encryptEmailSymmetrically(bad_email)).rejects.toThrowError(/Cannot encrypt email/);
   });
 });

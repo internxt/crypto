@@ -6,7 +6,7 @@ import {
   decryptSymmetrically,
 } from '../symmetric';
 import { Buffer } from 'buffer';
-import { EncryptedKeystore } from '../utils/types';
+import { SymmetricCiphertext } from '../utils/types';
 
 export async function getKeystoreCryptoKey(context: string, baseKey: CryptoKey): Promise<CryptoKey> {
   try {
@@ -24,21 +24,19 @@ export async function createKeystore(
   content: string,
   userID: string,
   tag: string,
-): Promise<EncryptedKeystore> {
+): Promise<SymmetricCiphertext> {
   const aux = userID + tag;
-  const { ciphertext, iv } = await encryptSymmetrically(secretKey, nonce, Buffer.from(content), aux);
-  return { encryptedKeys: ciphertext, iv };
+  return await encryptSymmetrically(secretKey, nonce, Buffer.from(content), aux);
 }
 
 export async function openKeystore(
   secretKey: CryptoKey,
-  iv: Uint8Array,
-  encryptedKeys: Uint8Array,
+  encryptedKeys: SymmetricCiphertext,
   userID: string,
   tag: string,
 ): Promise<string> {
   const aux = userID + tag;
-  const content = await decryptSymmetrically(secretKey, iv, encryptedKeys, aux);
+  const content = await decryptSymmetrically(secretKey, encryptedKeys, aux);
   const result = Buffer.from(content).toString('utf-8');
   return result;
 }

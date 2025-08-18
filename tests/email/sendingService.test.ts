@@ -65,7 +65,7 @@ describe('Test sending email functions', () => {
         from_name: userAlice.name,
         to_email: userBob.email,
         to_name: userBob.name,
-        encrypted_subject: email.subject,
+        email_subject: email.subject,
       }),
       publicKey,
     );

@@ -1,4 +1,4 @@
-import { IdentityKeys, EncryptionKeys, EncryptedKeystore } from '../utils/types';
+import { IdentityKeys, EncryptionKeys, SymmetricCiphertext } from '../utils/types';
 import { IDENTITY_KEYSTORE_TAG, ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG } from '../utils/constants';
 import { createKeystore, openKeystore } from './utils';
 
@@ -7,7 +7,7 @@ export async function createIdentityKeystore(
   nonce: number,
   keys: IdentityKeys,
   userID: string,
-): Promise<EncryptedKeystore> {
+): Promise<SymmetricCiphertext> {
   try {
     const content = JSON.stringify(keys);
     const result = await createKeystore(secretKey, nonce, content, userID, IDENTITY_KEYSTORE_TAG);
@@ -19,17 +19,11 @@ export async function createIdentityKeystore(
 
 export async function openIdentityKeystore(
   secretKey: CryptoKey,
-  encryptedKeystore: EncryptedKeystore,
+  encryptedKeystore: SymmetricCiphertext,
   userID: string,
 ): Promise<IdentityKeys> {
   try {
-    const json = await openKeystore(
-      secretKey,
-      encryptedKeystore.iv,
-      encryptedKeystore.encryptedKeys,
-      userID,
-      IDENTITY_KEYSTORE_TAG,
-    );
+    const json = await openKeystore(secretKey, encryptedKeystore, userID, IDENTITY_KEYSTORE_TAG);
     const keys: IdentityKeys = JSON.parse(json);
     return keys;
   } catch (error) {
@@ -42,7 +36,7 @@ export async function createEncryptionKeystore(
   nonce: number,
   keys: EncryptionKeys,
   userID: string,
-): Promise<EncryptedKeystore> {
+): Promise<SymmetricCiphertext> {
   try {
     const content = JSON.stringify(keys);
     const result = await createKeystore(secretKey, nonce, content, userID, ENCRYPTION_KEYSTORE_TAG);
@@ -54,17 +48,11 @@ export async function createEncryptionKeystore(
 
 export async function openEncryptionKeystore(
   secretKey: CryptoKey,
-  encryptedKeystore: EncryptedKeystore,
+  encryptedKeystore: SymmetricCiphertext,
   userID: string,
 ): Promise<EncryptionKeys> {
   try {
-    const json = await openKeystore(
-      secretKey,
-      encryptedKeystore.iv,
-      encryptedKeystore.encryptedKeys,
-      userID,
-      ENCRYPTION_KEYSTORE_TAG,
-    );
+    const json = await openKeystore(secretKey, encryptedKeystore, userID, ENCRYPTION_KEYSTORE_TAG);
     const keys: EncryptionKeys = JSON.parse(json);
     return keys;
   } catch (error) {
@@ -77,7 +65,7 @@ export async function createRecoveryKeystore(
   nonce: number,
   keys: EncryptionKeys,
   userID: string,
-): Promise<EncryptedKeystore> {
+): Promise<SymmetricCiphertext> {
   try {
     const content = JSON.stringify(keys);
     const result = await createKeystore(recoveryKey, nonce, content, userID, RECOVERY_KEYSTORE_TAG);
@@ -89,17 +77,11 @@ export async function createRecoveryKeystore(
 
 export async function openRecoveryKeystore(
   recoveryKey: CryptoKey,
-  encryptedKeystore: EncryptedKeystore,
+  encryptedKeystore: SymmetricCiphertext,
   userID: string,
 ): Promise<EncryptionKeys> {
   try {
-    const json = await openKeystore(
-      recoveryKey,
-      encryptedKeystore.iv,
-      encryptedKeystore.encryptedKeys,
-      userID,
-      RECOVERY_KEYSTORE_TAG,
-    );
+    const json = await openKeystore(recoveryKey, encryptedKeystore, userID, RECOVERY_KEYSTORE_TAG);
     const keys: EncryptionKeys = JSON.parse(json);
     return keys;
   } catch (error) {

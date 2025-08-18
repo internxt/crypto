@@ -1,5 +1,5 @@
 import { deriveEccBits } from '../asymmetric/ecc';
-import { deriveWrappingKey, wrapKey } from '../keyWrappers/aesWrapper';
+import { deriveWrappingKey, wrapKey, unwrapKey } from '../keyWrappers/aesWrapper';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum/kyber768';
 import { Email, HybridEncKey, PublicKeys, HybridEncryptedEmail } from '../utils/types';
 import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './utils';
@@ -85,10 +85,9 @@ export async function decryptEmailHybrid(
     const eccSecret = await deriveEccBits(senderPublicKey, recipientPrivateKey);
     const encKey: HybridEncKey = encryptedEmail.encryptedKey;
     const kyberSecret = decapsulateKyber(encKey.kyberCiphertext, recipientPrivateKeyKyber);
-    console.log('TEST: got kyber');
     const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-    console.log('TEST: got wrapping key');
-    const email = await decryptEmailSymmetrically(encryptedEmail, wrappingKey, encKey.encryptedKey);
+    const encryptionKey = await unwrapKey(encKey.encryptedKey, wrappingKey);
+    const email = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
 
     return email;
   } catch (error) {
