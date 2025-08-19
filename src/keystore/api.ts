@@ -1,26 +1,23 @@
 import axios, { AxiosResponse } from 'axios';
 import { KeystoreType } from '../utils/types';
-
+import sessionStorageService from '../utils/sessionStorageService';
+import envService from '../utils/env';
 /**
  * Sends a user's keystore to the server
  * @param encryptedKeystore - The encrypted keystore
- * @param userID - The user's ID
- * @param token - The user's bearer token
+ * @param type - The keystore's type
  * @returns Server response
  */
-export async function sendKeystore(
-  encryptedKeystore: Uint8Array,
-  userID: string,
-  token: string,
-  type: KeystoreType,
-): Promise<AxiosResponse> {
+export async function sendKeystore(encryptedKeystore: Uint8Array, type: KeystoreType): Promise<AxiosResponse> {
   try {
+    const userID = sessionStorageService.get('userID');
+    const baseUrl = envService.getVariable('baseUrl');
     const response = await axios.post(
-      `/api/keystore/${type}`,
+      baseUrl + '/uploadKeystore',
       { encryptedKeystore, userID, type },
       {
+        withCredentials: true,
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       },
@@ -44,15 +41,16 @@ export async function sendKeystore(
 
 /**
  * Requests a user's keystore from the server
- * @param userID - The user's ID
- * @param token - The user's bearer token
+ * @param type - The requested keystore's type
  * @returns The user's keystore
  */
-export async function getKeystore(userID: string, token: string, type: KeystoreType): Promise<Uint8Array> {
+export async function getKeystoreFromServer(type: KeystoreType): Promise<Uint8Array> {
   try {
-    const response = await axios.get<Uint8Array>(`/api/keystore/${userID}/${type}`, {
+    const userID = sessionStorageService.get('userID');
+    const baseUrl = envService.getVariable('baseUrl');
+    const response = await axios.get<Uint8Array>(baseUrl + `/downloadKeystore/${userID}/${type}`, {
+      withCredentials: true,
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });

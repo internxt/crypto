@@ -1,15 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { getEncryptionKeystoreKey, getIdentityKeystoreKey, getIndexKey, getRecoveryKey } from '../../src/keystore';
+import {
+  deriveEncryptionKeystoreKey,
+  deriveIdentityKeystoreKey,
+  deriveIndexKey,
+  deriveRecoveryKey,
+} from '../../src/keystore';
 import { genSymmetricCryptoKey, exportSymmetricCryptoKey } from '../../src/symmetric/keys';
 
 describe('Test keystore key generation functions', () => {
   it('should give different derived keys for the same baseKey', async () => {
     const baseKey = await genSymmetricCryptoKey();
 
-    const identityCryptoKey = await getIdentityKeystoreKey(baseKey);
-    const encryptionCryoptoKey = await getEncryptionKeystoreKey(baseKey);
-    const indexCryptoKey = await getIndexKey(baseKey);
-    const recoveryCryptoKey = await getRecoveryKey(baseKey);
+    const identityCryptoKey = await deriveIdentityKeystoreKey(baseKey);
+    const encryptionCryoptoKey = await deriveEncryptionKeystoreKey(baseKey);
+    const indexCryptoKey = await deriveIndexKey(baseKey);
+    const recoveryCryptoKey = await deriveRecoveryKey(baseKey);
 
     const identityKey = await exportSymmetricCryptoKey(identityCryptoKey);
     const encryptionKey = await exportSymmetricCryptoKey(encryptionCryoptoKey);

@@ -5,7 +5,7 @@ import {
   deriveSymmetricKeyFromBaseKey,
   deriveSymmetricCryptoKeyFromBaseKey,
 } from '../../src/derive/deriveKeys';
-import { getEncryptionKeystoreKey } from '../../src/keystore/keys';
+import { deriveEncryptionKeystoreKey } from '../../src/keystore/keys';
 import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/utils/constants';
 import { genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric/keys';
 
@@ -70,7 +70,7 @@ describe('Test derive key', () => {
 
   it('correct symmetric key length', async () => {
     const baseKey = await genSymmetricCryptoKey();
-    const key = await getEncryptionKeystoreKey(baseKey);
+    const key = await deriveEncryptionKeystoreKey(baseKey);
     const alg = key.algorithm as AesKeyAlgorithm;
     expect(alg.length).toBe(AES_KEY_BIT_LENGTH);
   });

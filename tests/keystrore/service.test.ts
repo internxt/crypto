@@ -2,15 +2,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { KeystoreType } from '../../src/utils';
 import {
-  getEncryptionKeystore,
-  sendEncryptionKeystore,
-  sendIdentityKeystore,
-  sendIndexKeystore,
-  sendRecoveryKeystore,
-  getIdentityKeystore,
-  getIndexKeystore,
-  getRecoveryKeystore,
-} from '../../src/keystore'; // Adjust import path as needed
+  getEncryptionKeystoreFromServer,
+  sendEncryptionKeystoreToServer,
+  sendIdentityKeystoreToServer,
+  sendIndexKeystoreToServer,
+  sendRecoveryKeystoreToServer,
+  getIdentityKeystoreFromServer,
+  getIndexKeystoreFromServer,
+  getRecoveryKeystoreFromServer,
+} from '../../src/keystore';
+import sessionStorageService from '../../src/utils/sessionStorageService';
 
 vi.mock('axios');
 
@@ -21,10 +22,9 @@ describe('Test keystore send/get service functions', () => {
 
   const mockEncryptedKeystore = new Uint8Array([1, 2, 3, 4, 5]);
   const mockUserID = 'userID';
-  const mockToken = 'valid-token';
   const tokenField = {
+    withCredentials: true,
     headers: {
-      Authorization: `Bearer ${mockToken}`,
       'Content-Type': 'application/json',
     },
   };
@@ -37,14 +37,17 @@ describe('Test keystore send/get service functions', () => {
       headers: {},
       config: {},
     };
+    const url = 'test-base-url/uploadKeystore';
 
     it('should successfully send encryption keystore', async () => {
       const mockType = KeystoreType.ENCRYPTION;
       vi.mocked(axios.post).mockResolvedValue(mockResponse);
-      const result = await sendEncryptionKeystore(mockEncryptedKeystore, mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+
+      const result = await sendEncryptionKeystoreToServer(mockEncryptedKeystore);
 
       expect(axios.post).toHaveBeenCalledWith(
-        `/api/keystore/${mockType}`,
+        url,
         {
           encryptedKeystore: mockEncryptedKeystore,
           userID: mockUserID,
@@ -58,10 +61,11 @@ describe('Test keystore send/get service functions', () => {
     it('should successfully send index keystore', async () => {
       const mockType = KeystoreType.INDEX;
       vi.mocked(axios.post).mockResolvedValue(mockResponse);
-      const result = await sendIndexKeystore(mockEncryptedKeystore, mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await sendIndexKeystoreToServer(mockEncryptedKeystore);
 
       expect(axios.post).toHaveBeenCalledWith(
-        `/api/keystore/${mockType}`,
+        url,
         {
           encryptedKeystore: mockEncryptedKeystore,
           userID: mockUserID,
@@ -75,10 +79,11 @@ describe('Test keystore send/get service functions', () => {
     it('should successfully send recovery keystore', async () => {
       const mockType = KeystoreType.RECOVERY;
       vi.mocked(axios.post).mockResolvedValue(mockResponse);
-      const result = await sendRecoveryKeystore(mockEncryptedKeystore, mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await sendRecoveryKeystoreToServer(mockEncryptedKeystore);
 
       expect(axios.post).toHaveBeenCalledWith(
-        `/api/keystore/${mockType}`,
+        url,
         {
           encryptedKeystore: mockEncryptedKeystore,
           userID: mockUserID,
@@ -91,10 +96,11 @@ describe('Test keystore send/get service functions', () => {
     it('should successfully send identity keystore', async () => {
       const mockType = KeystoreType.IDENTITY;
       vi.mocked(axios.post).mockResolvedValue(mockResponse);
-      const result = await sendIdentityKeystore(mockEncryptedKeystore, mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await sendIdentityKeystoreToServer(mockEncryptedKeystore);
 
       expect(axios.post).toHaveBeenCalledWith(
-        `/api/keystore/${mockType}`,
+        url,
         {
           encryptedKeystore: mockEncryptedKeystore,
           userID: mockUserID,
@@ -115,13 +121,15 @@ describe('Test keystore send/get service functions', () => {
       config: {},
     };
 
+    const url = `test-base-url/downloadKeystore/${mockUserID}`;
     it('should successfully retrieve encryption keystore', async () => {
       const mockType = KeystoreType.ENCRYPTION;
 
       vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-      const result = await getEncryptionKeystore(mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await getEncryptionKeystoreFromServer();
 
-      expect(axios.get).toHaveBeenCalledWith(`/api/keystore/${mockUserID}/${mockType}`, tokenField);
+      expect(axios.get).toHaveBeenCalledWith(url + `/${mockType}`, tokenField);
       expect(result).toEqual(mockEncryptedKeystore);
     });
 
@@ -129,9 +137,10 @@ describe('Test keystore send/get service functions', () => {
       const mockType = KeystoreType.IDENTITY;
 
       vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-      const result = await getIdentityKeystore(mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await getIdentityKeystoreFromServer();
 
-      expect(axios.get).toHaveBeenCalledWith(`/api/keystore/${mockUserID}/${mockType}`, tokenField);
+      expect(axios.get).toHaveBeenCalledWith(url + `/${mockType}`, tokenField);
       expect(result).toEqual(mockEncryptedKeystore);
     });
 
@@ -139,9 +148,10 @@ describe('Test keystore send/get service functions', () => {
       const mockType = KeystoreType.RECOVERY;
 
       vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-      const result = await getRecoveryKeystore(mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await getRecoveryKeystoreFromServer();
 
-      expect(axios.get).toHaveBeenCalledWith(`/api/keystore/${mockUserID}/${mockType}`, tokenField);
+      expect(axios.get).toHaveBeenCalledWith(url + `/${mockType}`, tokenField);
       expect(result).toEqual(mockEncryptedKeystore);
     });
 
@@ -149,9 +159,10 @@ describe('Test keystore send/get service functions', () => {
       const mockType = KeystoreType.INDEX;
 
       vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-      const result = await getIndexKeystore(mockUserID, mockToken);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      const result = await getIndexKeystoreFromServer();
 
-      expect(axios.get).toHaveBeenCalledWith(`/api/keystore/${mockUserID}/${mockType}`, tokenField);
+      expect(axios.get).toHaveBeenCalledWith(url + `/${mockType}`, tokenField);
       expect(result).toEqual(mockEncryptedKeystore);
     });
   });

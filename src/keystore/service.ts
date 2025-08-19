@@ -1,51 +1,35 @@
 import { AxiosResponse } from 'axios';
 import { KeystoreType } from '../utils/types';
-import { sendKeystore, getKeystore } from './api';
+import { sendKeystore, getKeystoreFromServer } from './api';
 
-export async function sendEncryptionKeystore(
-  encryptedKeystore: Uint8Array,
-  userID: string,
-  token: string,
-): Promise<AxiosResponse> {
-  return sendKeystore(encryptedKeystore, userID, token, KeystoreType.ENCRYPTION);
+export async function sendEncryptionKeystoreToServer(encryptedKeystore: Uint8Array): Promise<AxiosResponse> {
+  return sendKeystore(encryptedKeystore, KeystoreType.ENCRYPTION);
 }
 
-export async function sendIdentityKeystore(
-  encryptedKeystore: Uint8Array,
-  userID: string,
-  token: string,
-): Promise<AxiosResponse> {
-  return sendKeystore(encryptedKeystore, userID, token, KeystoreType.IDENTITY);
+export async function sendIdentityKeystoreToServer(encryptedKeystore: Uint8Array): Promise<AxiosResponse> {
+  return sendKeystore(encryptedKeystore, KeystoreType.IDENTITY);
 }
 
-export async function sendRecoveryKeystore(
-  encryptedKeystore: Uint8Array,
-  userID: string,
-  token: string,
-): Promise<AxiosResponse> {
-  return sendKeystore(encryptedKeystore, userID, token, KeystoreType.RECOVERY);
+export async function sendRecoveryKeystoreToServer(encryptedKeystore: Uint8Array): Promise<AxiosResponse> {
+  return sendKeystore(encryptedKeystore, KeystoreType.RECOVERY);
 }
 
-export async function sendIndexKeystore(
-  encryptedKeystore: Uint8Array,
-  userID: string,
-  token: string,
-): Promise<AxiosResponse> {
-  return sendKeystore(encryptedKeystore, userID, token, KeystoreType.INDEX);
+export async function sendIndexKeystoreToServer(encryptedKeystore: Uint8Array): Promise<AxiosResponse> {
+  return sendKeystore(encryptedKeystore, KeystoreType.INDEX);
 }
 
-export async function getEncryptionKeystore(userID: string, token: string): Promise<Uint8Array> {
-  return getKeystore(userID, token, KeystoreType.ENCRYPTION);
+export async function getEncryptionKeystoreFromServer(): Promise<Uint8Array> {
+  return getKeystoreFromServer(KeystoreType.ENCRYPTION);
 }
 
-export async function getIdentityKeystore(userID: string, token: string): Promise<Uint8Array> {
-  return getKeystore(userID, token, KeystoreType.IDENTITY);
+export async function getIdentityKeystoreFromServer(): Promise<Uint8Array> {
+  return getKeystoreFromServer(KeystoreType.IDENTITY);
 }
 
-export async function getRecoveryKeystore(userID: string, token: string): Promise<Uint8Array> {
-  return getKeystore(userID, token, KeystoreType.RECOVERY);
+export async function getRecoveryKeystoreFromServer(): Promise<Uint8Array> {
+  return getKeystoreFromServer(KeystoreType.RECOVERY);
 }
 
-export async function getIndexKeystore(userID: string, token: string): Promise<Uint8Array> {
-  return getKeystore(userID, token, KeystoreType.INDEX);
+export async function getIndexKeystoreFromServer(): Promise<Uint8Array> {
+  return getKeystoreFromServer(KeystoreType.INDEX);
 }

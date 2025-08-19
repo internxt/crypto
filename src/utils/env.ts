@@ -5,6 +5,7 @@ const variableList = {
   serviceID: 'VITE_SERVICE_ID',
   templateID: 'VITE_TEMPLATE_ID',
   publicKey: 'VITE_PUBLIC_KEY',
+  baseUrl: 'VITE_BASE_URL',
 };
 
 function getVariable(variable: keyof typeof variableList): string {
