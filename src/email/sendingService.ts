@@ -9,7 +9,7 @@ export async function sendHybridEmailToMultipleRecipients(encryptedEmails: Hybri
       await sendHybridEmail(encEmail);
     }
   } catch (error) {
-    console.error('Failed to email to multiple recipients:', error);
+    throw new Error('Failed to email to multiple recipients:', error);
   }
 }
 
@@ -19,33 +19,30 @@ export async function sendHybridEmail(encEmail: HybridEncryptedEmail) {
     const encKey = encHybridKeyToBase64(encEmail.encryptedKey);
     const body = JSON.stringify({ encText, encKey });
     await sendEmail(encEmail.subject, body, encEmail.sender, encEmail.encryptedFor);
+    console.log('sendHybridEmail: sendEmail completed successfully');
   } catch (error) {
-    console.error(`Failed to email to the recipient ${encEmail.encryptedFor}:`, error);
+    console.log('sendHybridEmail: about to throw new error', error);
+    throw new Error(`Failed to email to the recipient ${encEmail.encryptedFor.name}:`, error);
   }
 }
 
 export async function sendPwdProtectedEmailToMultipleRecipients(pwdProtectedEmail: PwdProtectedEmail) {
   try {
     for (const recipient of pwdProtectedEmail.recipients) {
-      await sendPwdProtectedEmail(pwdProtectedEmail, pwdProtectedEmail.subject, pwdProtectedEmail.sender, recipient);
+      await sendPwdProtectedEmail(pwdProtectedEmail, recipient);
     }
   } catch (error) {
-    console.error('Failed to email to multiple recipients:', error);
+    throw new Error('Failed to email to multiple recipients:', error);
   }
 }
 
-export async function sendPwdProtectedEmail(
-  encEmail: PwdProtectedEmail,
-  subject: string,
-  sender: User,
-  recipient: User,
-) {
+export async function sendPwdProtectedEmail(encEmail: PwdProtectedEmail, recipient: User) {
   try {
     const encText = ciphertextToBase64(encEmail.ciphertext);
     const encKey = pwdProtectedKeyToBase64(encEmail.encryptedKey);
     const body = JSON.stringify({ encText, encKey });
-    await sendEmail(subject, body, sender, recipient);
+    await sendEmail(encEmail.subject, body, encEmail.sender, recipient);
   } catch (error) {
-    console.error(`Failed to email to the recipient ${recipient}:`, error);
+    throw new Error(`Failed to email to the recipient ${recipient}:`, error);
   }
 }

@@ -9,7 +9,7 @@ import { User } from '../utils/types';
  * @param sender - The email sender
  * @param recipient - The email recipient
  */
-export async function sendEmail(subject: string, body: string, sender: User, recipient: User): Promise<void> {
+export async function sendEmail(subject: string, body: string, sender: User, recipient: User) {
   try {
     const templateParams = {
       from_email: sender.email,
@@ -28,14 +28,12 @@ export async function sendEmail(subject: string, body: string, sender: User, rec
     await emailjs.send(serviceId, templateId, templateParams, publicKey).then(
       (response) => {
         console.log('SUCCESS!', response.status, response.text);
-        return Promise.resolve;
       },
       (err) => {
-        console.log('Failed!', err);
-        return Promise.reject(new Error('emailjs error', err));
+        throw new Error(`emailjs error: ${err}`);
       },
     );
   } catch (error) {
-    return Promise.reject(new Error('Could not send an email', error));
+    throw new Error(`Could not send an email: ${error.message}`);
   }
 }
