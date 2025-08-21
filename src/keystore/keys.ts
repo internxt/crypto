@@ -1,18 +1,97 @@
-import { CONTEXT_LOGIN, CONTEXT_KEYSTORE, CONTEXT_RECOVERY, CONTEXT_INDEX } from '../utils/constants';
-import { getKeystoreCryptoKey } from './utils';
+import { generateEccKeys } from '../asymmetric/keys';
+import { generateKyberKeys } from '../post-quantum/kyber768';
+import {
+  IdentityKeys,
+  EncryptionKeys,
+  utf8ToUint8,
+  AES_KEY_BIT_LENGTH,
+  genMnemonic,
+  CONTEXT_LOGIN,
+  CONTEXT_KEYSTORE,
+  CONTEXT_RECOVERY,
+  CONTEXT_INDEX,
+} from '../utils';
+import { deriveSymmetricCryptoKeyFromContext } from '../derive/deriveKeys';
 
-export async function deriveIdentityKeystoreKey(baseKey: CryptoKey): Promise<CryptoKey> {
-  return getKeystoreCryptoKey(CONTEXT_LOGIN, baseKey);
+/**
+ * Generates recovery codes
+ * @returns The generated recovery codes
+ */
+export function generateRecoveryCodes(): string {
+  return genMnemonic(AES_KEY_BIT_LENGTH);
 }
 
-export async function deriveEncryptionKeystoreKey(baseKey: CryptoKey): Promise<CryptoKey> {
-  return getKeystoreCryptoKey(CONTEXT_KEYSTORE, baseKey);
+/**
+ * Generates idenity keys
+ * @returns The generated identity keys
+ */
+export async function generateIdentityKeys(): Promise<IdentityKeys> {
+  try {
+    const keyPair = await generateEccKeys();
+    const result: IdentityKeys = {
+      userPrivateKey: keyPair.privateKey,
+      userPublicKey: keyPair.publicKey,
+    };
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error(`Could not generate idenity keys: ${error}`));
+  }
 }
 
-export async function deriveIndexKey(baseKey: CryptoKey): Promise<CryptoKey> {
-  return getKeystoreCryptoKey(CONTEXT_INDEX, baseKey);
+/**
+ * Generates encryption keys
+ * @returns The generated encryption keys
+ */
+export async function generateEncryptionKeys(): Promise<EncryptionKeys> {
+  try {
+    const keyPair = await generateEccKeys();
+    const keyPairKyber = await generateKyberKeys();
+    const result: EncryptionKeys = {
+      userPrivateKey: keyPair.privateKey,
+      userPublicKey: keyPair.publicKey,
+      userPublicKyberKey: keyPairKyber.publicKey,
+      userPrivateKyberKey: keyPairKyber.secretKey,
+    };
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error(`Could not generate encryption keys: ${error}`));
+  }
 }
 
-export async function deriveRecoveryKey(recoveryCodes: CryptoKey): Promise<CryptoKey> {
-  return getKeystoreCryptoKey(CONTEXT_RECOVERY, recoveryCodes);
+/**
+ * Derives a secret key for protecting the idenity keystore
+ * @param baseKey - The base secret key from which a new key secret will be derived
+ * @returns The derived secret key for protecting the idenity keystore
+ */
+export async function deriveIdentityKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_LOGIN, baseKey);
+}
+
+/**
+ * Derives a secret key for protecting the encryption keystore
+ * @param baseKey - The base secret key from which a new key secret will be derived
+ * @returns The derived secret key for protecting the encryption keystore
+
+*/
+export async function deriveEncryptionKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_KEYSTORE, baseKey);
+}
+
+/**
+ * Derives a secret key for protecting the index keystore
+ * @param baseKey - The base secret key from which a new key secret will be derived
+ * @returns The derived secret key for protecting the index keystore
+ */
+export async function deriveIndexKey(baseKey: Uint8Array): Promise<CryptoKey> {
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_INDEX, baseKey);
+}
+
+/**
+ * Derives a secret key for protecting the recovery keystore
+ * @param recoveryCodes - The recovery codes
+ * @returns The derived secret key for protecting the idenity keystore
+ */
+export async function deriveRecoveryKey(recoveryCodes: string): Promise<CryptoKey> {
+  const recoveryCodesBuffer = utf8ToUint8(recoveryCodes);
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_RECOVERY, recoveryCodesBuffer);
 }

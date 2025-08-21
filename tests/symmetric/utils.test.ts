@@ -42,7 +42,7 @@ describe('Test symmetric functions', () => {
     const base64 = await ciphertextToBase64(enc);
     const result = await base64ToCiphertext(base64);
 
-    expect(enc).not.toEqual(result);
+    expect(enc).toStrictEqual(result);
   });
 
   it('should throw an error if cannot convert ciphertext to base64', async () => {

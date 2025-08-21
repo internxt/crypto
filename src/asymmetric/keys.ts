@@ -7,7 +7,7 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
         name: ECC_ALGORITHM,
         namedCurve: CURVE_NAME,
       },
-      false,
+      true,
       ['deriveBits'],
     );
   } catch (error) {
@@ -37,5 +37,29 @@ export async function importPublicKey(spkiKeyData: ArrayBuffer): Promise<CryptoK
     );
   } catch (error) {
     return Promise.reject(new Error(`Failed to import public key: ${error}`));
+  }
+}
+
+export async function exportPrivateKey(key: CryptoKey): Promise<ArrayBuffer> {
+  try {
+    return await window.crypto.subtle.exportKey('pkcs8', key);
+  } catch (error) {
+    return Promise.reject(new Error(`Failed to export private key: ${error}`));
+  }
+}
+export async function importPrivateKey(pkcs8KeyData: ArrayBuffer): Promise<CryptoKey> {
+  try {
+    return await window.crypto.subtle.importKey(
+      'pkcs8',
+      pkcs8KeyData,
+      {
+        name: ECC_ALGORITHM,
+        namedCurve: CURVE_NAME,
+      },
+      true,
+      ['deriveBits'],
+    );
+  } catch (error) {
+    return Promise.reject(new Error(`Failed to import private key: ${error}`));
   }
 }

@@ -4,17 +4,19 @@ import {
   deriveIdentityKeystoreKey,
   deriveIndexKey,
   deriveRecoveryKey,
+  generateRecoveryCodes,
 } from '../../src/keystore';
-import { genSymmetricCryptoKey, exportSymmetricCryptoKey } from '../../src/symmetric/keys';
+import { exportSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric/keys';
 
 describe('Test keystore key generation functions', () => {
   it('should give different derived keys for the same baseKey', async () => {
-    const baseKey = await genSymmetricCryptoKey();
+    const codes = generateRecoveryCodes();
+    const baseKey = await genSymmetricKey();
 
     const identityCryptoKey = await deriveIdentityKeystoreKey(baseKey);
     const encryptionCryoptoKey = await deriveEncryptionKeystoreKey(baseKey);
     const indexCryptoKey = await deriveIndexKey(baseKey);
-    const recoveryCryptoKey = await deriveRecoveryKey(baseKey);
+    const recoveryCryptoKey = await deriveRecoveryKey(codes);
 
     const identityKey = await exportSymmetricCryptoKey(identityCryptoKey);
     const encryptionKey = await exportSymmetricCryptoKey(encryptionCryoptoKey);

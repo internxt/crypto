@@ -5,6 +5,12 @@ export enum KeystoreType {
   INDEX = 'index',
 }
 
+export type EncryptedKeystore = {
+  userID: string;
+  type: KeystoreType;
+  encryptedKeys: SymmetricCiphertext;
+};
+
 export type User = {
   email: string;
   name: string;
@@ -23,16 +29,15 @@ export type PublicKeys = {
 };
 
 export type IdentityKeys = {
-  userPublicKey: string;
-  userPrivateKey: string;
-  serverPublicKey: string;
+  userPublicKey: CryptoKey;
+  userPrivateKey: CryptoKey;
 };
 
 export type EncryptionKeys = {
-  userPublicKey: string;
-  userPrivateKey: string;
-  userPublicKyberKey: string;
-  userPrivateKyberKey: string;
+  userPublicKey: CryptoKey;
+  userPrivateKey: CryptoKey;
+  userPublicKyberKey: Uint8Array;
+  userPrivateKyberKey: Uint8Array;
 };
 
 export type HybridEncryptedEmail = {

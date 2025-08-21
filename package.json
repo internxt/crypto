@@ -37,6 +37,7 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@noble/post-quantum": "^0.4.1",
+    "@scure/bip39": "^1.6.0",
     "axios": "^1.11.0",
     "buffer": "^6.0.3",
     "hash-wasm": "^4.12.0",

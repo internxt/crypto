@@ -1,124 +1,68 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
-  createEncryptionKeystore,
+  createEncryptionAndRecoveryKeystores,
   createIdentityKeystore,
   openEncryptionKeystore,
   openIdentityKeystore,
-  createRecoveryKeystore,
   openRecoveryKeystore,
 } from '../../src/keystore/keyStores';
 import { v4 as uuidv4 } from 'uuid';
-import { EncryptionKeys, IdentityKeys } from '../../src/utils/types';
-import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
-import { generateEccKeys } from '../../src/asymmetric';
+import { genSymmetricKey } from '../../src/symmetric/keys';
+import sessionStorageService from '../../src/utils/sessionStorageService';
+import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH, uint8ArrayToBase64 } from '../../src/utils';
 
-describe('Test keystore create/open functions', () => {
+describe('Test keystore create/open functions', async () => {
+  const mockUserID = uuidv4();
+  const secretKey = await genSymmetricKey();
+  const secretKyeBase64 = uint8ArrayToBase64(secretKey);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should successfully create and open identity keystore', async () => {
-    const userID = uuidv4();
-    const nonce = 14;
-    const keys: IdentityKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      serverPublicKey: 'server public key',
-    };
-    const secretKey = await genSymmetricCryptoKey();
-    const encKeystore = await createIdentityKeystore(secretKey, nonce, keys, userID);
-    const result = await openIdentityKeystore(secretKey, encKeystore, userID);
-
-    expect(result).toStrictEqual(keys);
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKyeBase64);
+    const encKeystore = await createIdentityKeystore();
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(secretKyeBase64);
+    const result = await openIdentityKeystore(encKeystore);
+    expect(result.userPrivateKey).instanceOf(CryptoKey);
+    expect(result.userPublicKey).instanceOf(CryptoKey);
   });
 
   it('should successfully create and open encryption keystore', async () => {
-    const userID = uuidv4();
-    const nonce = 14;
-    const keys: EncryptionKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      userPrivateKyberKey: 'user private kyber key',
-      userPublicKyberKey: 'user public kyber key',
-    };
-    const secretKey = await genSymmetricCryptoKey();
-    const encKeystore = await createEncryptionKeystore(secretKey, nonce, keys, userID);
-    const result = await openEncryptionKeystore(secretKey, encKeystore, userID);
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKyeBase64);
+    const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores();
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(secretKyeBase64);
+    const result_enc = await openEncryptionKeystore(encryptionKeystore);
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(secretKyeBase64);
+    const result_rec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
-    expect(result).toStrictEqual(keys);
+    expect(result_enc).toStrictEqual(result_rec);
+    expect(result_enc.userPrivateKey).instanceOf(CryptoKey);
+    expect(result_enc.userPublicKey).instanceOf(CryptoKey);
+    expect(result_enc.userPrivateKyberKey.length).toBe(KYBER768_SECRET_KEY_LENGTH);
+    expect(result_enc.userPublicKyberKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
   });
 
-  it('should successfully create and open recovery keystore', async () => {
-    const userID = uuidv4();
-    const nonce = 14;
-    const keys: EncryptionKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      userPrivateKyberKey: 'user private kyber key',
-      userPublicKyberKey: 'user public kyber key',
-    };
-    const recoveryKey = await genSymmetricCryptoKey();
-    const encKeystore = await createRecoveryKeystore(recoveryKey, nonce, keys, userID);
-    const result = await openRecoveryKeystore(recoveryKey, encKeystore, userID);
+  it('should throw an error if no base key for keystore creation', async () => {
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-    expect(result).toStrictEqual(keys);
-  });
-
-  it('should throw an error if not symmetric key is given for keystore creation', async () => {
-    const userID = uuidv4();
-    const nonce = 14;
-    const keys: IdentityKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      serverPublicKey: 'server public key',
-    };
-    const encKeys: EncryptionKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      userPrivateKyberKey: 'user private kyber key',
-      userPublicKyberKey: 'user public kyber key',
-    };
-    const eccKeys = await generateEccKeys();
-    const badKey = eccKeys.privateKey;
-
-    await expect(createIdentityKeystore(badKey, nonce, keys, userID)).rejects.toThrowError(
-      /Identity keystore creation failed/,
-    );
-    await expect(createEncryptionKeystore(badKey, nonce, encKeys, userID)).rejects.toThrowError(
-      /Encryption keystore creation failed/,
-    );
-    await expect(createRecoveryKeystore(badKey, nonce, encKeys, userID)).rejects.toThrowError(
-      /Recovery keystore creation failed/,
+    await expect(createIdentityKeystore()).rejects.toThrowError(/Identity keystore creation failed/);
+    await expect(createEncryptionAndRecoveryKeystores()).rejects.toThrowError(
+      /Encryption and recovery keystores creation failed/,
     );
   });
 
-  it('should throw an error if not symmetric key is given for keystore opening', async () => {
-    const userID = uuidv4();
-    const nonce = 14;
+  it('should throw an error if no base key for keystore opening', async () => {
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKyeBase64);
+    const encKeystore = await createIdentityKeystore();
+    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKyeBase64);
+    const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores();
 
-    const keys: IdentityKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      serverPublicKey: 'server public key',
-    };
-    const encKeys: EncryptionKeys = {
-      userPublicKey: 'user public key',
-      userPrivateKey: 'user private key',
-      userPrivateKyberKey: 'user private kyber key',
-      userPublicKyberKey: 'user public kyber key',
-    };
-    const key = await genSymmetricCryptoKey();
-    const identKeystore = await createIdentityKeystore(key, nonce, keys, userID);
-    const encKeystore = await createEncryptionKeystore(key, nonce, encKeys, userID);
-    const recoveryKeystore = await createRecoveryKeystore(key, nonce, encKeys, userID);
+    vi.spyOn(sessionStorageService, 'get').mockResolvedValueOnce('');
 
-    const eccKeys = await generateEccKeys();
-    const badKey = eccKeys.privateKey;
-
-    await expect(openIdentityKeystore(badKey, identKeystore, userID)).rejects.toThrowError(
-      /Opening identity keystore failed/,
-    );
-    await expect(openEncryptionKeystore(badKey, encKeystore, userID)).rejects.toThrowError(
-      /Opening encryption keystore failed/,
-    );
-    await expect(openRecoveryKeystore(badKey, recoveryKeystore, userID)).rejects.toThrowError(
-      /Opening recovery keystore failed/,
-    );
+    await expect(openIdentityKeystore(encKeystore)).rejects.toThrowError(/Opening identity keystore failed/);
+    await expect(openEncryptionKeystore(encryptionKeystore)).rejects.toThrowError(/Opening encryption keystore failed/);
+    await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Opening recovery keystore failed/);
   });
 });

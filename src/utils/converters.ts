@@ -1,4 +1,26 @@
 import { Buffer } from 'buffer';
+import * as bip39 from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
+
+/**
+ *  Generates a mnemonic of required bit strength
+ *
+ * @param bits - The bit strength.
+ * @returns The generated mnemonic.
+ */
+export function genMnemonic(bits: number): string {
+  return bip39.generateMnemonic(wordlist, bits);
+}
+
+/**
+ *  Decodes base64 string into UTF-8 string
+ *
+ * @param base64 - The base64 string.
+ * @returns The UTF-8 string created from the base64 string.
+ */
+export function decodeBase64(base64: string): string {
+  return Buffer.from(base64, 'base64').toString('utf-8');
+}
 
 /**
  * Converts a Uint8Array into a hexadecimal string.
@@ -8,6 +30,16 @@ import { Buffer } from 'buffer';
  */
 export function uint8ArrayToHex(array: Uint8Array): string {
   return Buffer.from(array).toString('hex');
+}
+
+/**
+ * Converts a UTF-8 string into a Uint8Array.
+ *
+ * @param str - The UTF-8 string to convert.
+ * @returns A Uint8Array created from the UTF-8 string.
+ */
+export function utf8ToUint8(str: string): Uint8Array {
+  return new Uint8Array(Buffer.from(str, 'utf8'));
 }
 
 /**

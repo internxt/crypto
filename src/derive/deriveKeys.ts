@@ -1,39 +1,25 @@
 import { blake3, createBLAKE3 } from 'hash-wasm';
 import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN } from '../utils/constants';
-import { Buffer } from 'buffer';
 import { importSymmetricCryptoKey } from '../symmetric';
+import { hexToUint8Array } from '../utils/converters';
 
-export async function deriveSymmetricKeyFromBaseKey(context: string, baseKey: Uint8Array): Promise<Uint8Array> {
+export async function deriveSymmetricCryptoKeyFromContext(context: string, baseKey: Uint8Array): Promise<CryptoKey> {
   try {
-    const key = await deriveBitsFromBaseKey(context, baseKey, AES_KEY_BIT_LENGTH);
-    return key;
-  } catch (error) {
-    return Promise.reject(new Error(`Key derivation from base key failed: ${error}`));
-  }
-}
+    if (baseKey.length < AES_KEY_BIT_LENGTH / 8) {
+      throw new Error('Base key is too short');
+    }
+    if (!context) {
+      throw new Error('Context is not provided');
+    }
+    const context_key = await blake3(context);
+    const buffer_context_key = hexToUint8Array(context_key);
+    const result = await blake3(baseKey, AES_KEY_BIT_LENGTH, buffer_context_key);
+    const keyBytes = hexToUint8Array(result);
 
-export async function deriveSymmetricCryptoKeyFromBaseKey(context: string, baseKey: Uint8Array): Promise<CryptoKey> {
-  try {
-    const keyBytes = await deriveSymmetricKeyFromBaseKey(context, baseKey);
     const key = await importSymmetricCryptoKey(keyBytes);
     return key;
   } catch (error) {
     return Promise.reject(new Error(`CryptoKey derivation from base key failed: ${error}`));
-  }
-}
-
-export async function deriveBitsFromBaseKey(
-  context: string,
-  baseKey: string | Uint8Array,
-  bits: number,
-): Promise<Uint8Array> {
-  try {
-    const context_key = await blake3(context);
-
-    const result = await blake3(baseKey, bits, Buffer.from(context_key, 'hex'));
-    return new Uint8Array(Buffer.from(result, 'hex'));
-  } catch (error) {
-    return Promise.reject(new Error(`Bit derivation from base key failed: ${error}`));
   }
 }
 

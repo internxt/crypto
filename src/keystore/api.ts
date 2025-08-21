@@ -1,20 +1,18 @@
 import axios, { AxiosResponse } from 'axios';
-import { KeystoreType } from '../utils/types';
-import sessionStorageService from '../utils/sessionStorageService';
 import envService from '../utils/env';
+
 /**
- * Sends a user's keystore to the server
- * @param encryptedKeystore - The encrypted keystore
- * @param type - The keystore's type
+ * Sends a user's encrypted keystore to the server
+ * @param keystore - The encrypted keystore
+ * @param url - The user's url
  * @returns Server response
  */
-export async function sendKeystore(encryptedKeystore: Uint8Array, type: KeystoreType): Promise<AxiosResponse> {
+export async function sendEncryptedKeystoreToServer(encryptedKeystore: string, url: string): Promise<AxiosResponse> {
   try {
-    const userID = sessionStorageService.get('userID');
     const baseUrl = envService.getVariable('baseUrl');
     const response = await axios.post(
-      baseUrl + '/uploadKeystore',
-      { encryptedKeystore, userID, type },
+      baseUrl + `${url}`,
+      { encryptedKeystore },
       {
         withCredentials: true,
         headers: {
@@ -40,15 +38,14 @@ export async function sendKeystore(encryptedKeystore: Uint8Array, type: Keystore
 }
 
 /**
- * Requests a user's keystore from the server
- * @param type - The requested keystore's type
- * @returns The user's keystore
+ * Requests a user's encrypted keystore from the server
+ * @param url - The user's url
+ * @returns The user's encrypted keystore in base64
  */
-export async function getKeystoreFromServer(type: KeystoreType): Promise<Uint8Array> {
+export async function requestEncryptedKeystore(url: string): Promise<string> {
   try {
-    const userID = sessionStorageService.get('userID');
     const baseUrl = envService.getVariable('baseUrl');
-    const response = await axios.get<Uint8Array>(baseUrl + `/downloadKeystore/${userID}/${type}`, {
+    const response = await axios.get<string>(baseUrl + `${url}`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',

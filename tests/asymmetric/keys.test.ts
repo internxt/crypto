@@ -13,7 +13,7 @@ describe('Test ecc functions', () => {
     expect(keyPair.privateKey).toBeInstanceOf(CryptoKey);
     expect(keyPair.publicKey.type).toBe('public');
     expect(keyPair.privateKey.type).toBe('private');
-    expect(keyPair.privateKey.extractable).toBeFalsy();
+    expect(keyPair.privateKey.extractable).toBeTruthy();
     expect(keyPair.privateKey.usages).toContain('deriveBits');
 
     const alg = keyPair.publicKey.algorithm as EcKeyAlgorithm;

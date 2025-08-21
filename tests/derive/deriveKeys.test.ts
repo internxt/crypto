@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import {
-  deriveBitsFromBaseKey,
-  deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricKeyFromBaseKey,
-  deriveSymmetricCryptoKeyFromBaseKey,
-} from '../../src/derive/deriveKeys';
+import { deriveSymmetricKeyFromTwoKeys, deriveSymmetricCryptoKeyFromContext } from '../../src/derive/deriveKeys';
 import { deriveEncryptionKeystoreKey } from '../../src/keystore/keys';
 import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/utils/constants';
-import { genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric/keys';
+import { genSymmetricKey } from '../../src/symmetric/keys';
 
 describe('Test derive key', () => {
   function createTestInput(size): Uint8Array {
@@ -21,14 +16,22 @@ describe('Test derive key', () => {
   it('should derive symmetric key', async () => {
     const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
     const baseKey = createTestInput(64);
-    const key = await deriveSymmetricKeyFromBaseKey(context, baseKey);
-    expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
+    const key = await deriveSymmetricCryptoKeyFromContext(context, baseKey);
+    expect(key).instanceOf(CryptoKey);
   });
 
-  it('derive symmetric key should throw an error if context is null', async () => {
-    const context = null as any;
+  it('derive symmetric key should throw an error if context is an empty string', async () => {
+    const context = '';
     const baseKey = createTestInput(64);
-    await expect(deriveSymmetricKeyFromBaseKey(context, baseKey)).rejects.toThrowError(
+    await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
+      /Key derivation from base key failed/,
+    );
+  });
+
+  it('derive symmetric key should throw an error if base key is too short', async () => {
+    const context = 'test context';
+    const baseKey = createTestInput(2);
+    await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
       /Key derivation from base key failed/,
     );
   });
@@ -36,7 +39,7 @@ describe('Test derive key', () => {
   it('should derive symmetric crypto key', async () => {
     const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
     const baseKey = createTestInput(64);
-    const key = await deriveSymmetricCryptoKeyFromBaseKey(context, baseKey);
+    const key = await deriveSymmetricCryptoKeyFromContext(context, baseKey);
     expect(key).toBeInstanceOf(CryptoKey);
     const alg = key.algorithm as AesKeyAlgorithm;
     expect(alg.name).toBe(AES_ALGORITHM);
@@ -46,30 +49,13 @@ describe('Test derive key', () => {
   it('derive symmetric crypto key should throw an error if context is null', async () => {
     const context = null as any;
     const baseKey = createTestInput(64);
-    await expect(deriveSymmetricCryptoKeyFromBaseKey(context, baseKey)).rejects.toThrowError(
+    await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
       /CryptoKey derivation from base key failed/,
     );
   });
 
-  it('should derive the specified number of bits', async () => {
-    const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-    const baseKey = createTestInput(64);
-    const test_length = 128;
-    const key = await deriveBitsFromBaseKey(context, baseKey, test_length);
-    expect(key.length).toBe(test_length / 8);
-  });
-
-  it('bits derivation should throw an error if number of bits is not multiple to 8', async () => {
-    const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-    const baseKey = createTestInput(64);
-    const test_length = 127;
-    await expect(deriveBitsFromBaseKey(context, baseKey, test_length)).rejects.toThrowError(
-      /Bit derivation from base key failed/,
-    );
-  });
-
   it('correct symmetric key length', async () => {
-    const baseKey = await genSymmetricCryptoKey();
+    const baseKey = await genSymmetricKey();
     const key = await deriveEncryptionKeystoreKey(baseKey);
     const alg = key.algorithm as AesKeyAlgorithm;
     expect(alg.length).toBe(AES_KEY_BIT_LENGTH);
