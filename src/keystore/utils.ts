@@ -1,6 +1,6 @@
-import { encryptSymmetrically, decryptSymmetrically } from '../symmetric';
+import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { SymmetricCiphertext, base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
-import sessionStorageService from '../utils/sessionStorageService';
+import sessionStorageService from '../storage-service/sessionStorageService';
 
 export async function createKeystore(
   secretKey: CryptoKey,

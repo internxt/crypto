@@ -8,9 +8,9 @@ import {
   identityKeysToBase64,
 } from '../../src/keystore/converters';
 import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KeystoreType } from '../../src/utils/types';
-import { generateEccKeys } from '../../src/asymmetric/keys';
-import { generateKyberKeys } from '../../src/post-quantum/kyber768';
-import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric';
+import { generateEccKeys } from '../../src/asymmetric-crypto';
+import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
+import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
 describe('Test converter functions', () => {
   it('should sucessfully serialize and decerialize an identity key', async () => {

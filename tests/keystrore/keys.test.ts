@@ -6,7 +6,7 @@ import {
   deriveRecoveryKey,
   generateRecoveryCodes,
 } from '../../src/keystore';
-import { exportSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric/keys';
+import { exportSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto/keys';
 
 describe('Test keystore key generation functions', () => {
   it('should give different derived keys for the same baseKey', async () => {

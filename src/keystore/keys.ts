@@ -1,5 +1,5 @@
-import { generateEccKeys } from '../asymmetric/keys';
-import { generateKyberKeys } from '../post-quantum/kyber768';
+import { generateEccKeys } from '../asymmetric-crypto/keys';
+import { generateKyberKeys } from '../post-quantum-crypto/kyber768';
 import {
   IdentityKeys,
   EncryptionKeys,
@@ -10,7 +10,7 @@ import {
   CONTEXT_RECOVERY,
   CONTEXT_INDEX,
 } from '../utils';
-import { deriveSymmetricCryptoKeyFromContext } from '../derive/deriveKeys';
+import { deriveSymmetricCryptoKeyFromContext } from '../derive-key/deriveKeys';
 import { getHash } from '../hash/blake3';
 
 /**

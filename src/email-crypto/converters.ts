@@ -1,0 +1,136 @@
+import { exportPublicKey, importPublicKey } from '../asymmetric-crypto';
+import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8, decodeBase64 } from '../utils/converters';
+import { EmailBody, PublicKeys, PublicKeysBase64, HybridEncKey, PwdProtectedKey } from '../utils/types';
+
+/**
+ * Converts an EmailBody type into a Uint8Array array.
+ * @param body - The email body.
+ * @returns The Uint8Array array representation of the EmailBody type.
+ */
+export function emailBodyToBinary(body: EmailBody): Uint8Array {
+  try {
+    const json = JSON.stringify(body);
+    return UTF8ToUint8(json);
+  } catch (error) {
+    throw new Error('Cannot convert EmailBody to Uint8Array', error);
+  }
+}
+
+/**
+ * Converts an Uint8Array array into EmailBody type.
+ * @param array - The Uint8Array array.
+ * @returns The EmailBody type representation of the Uint8Array.
+ */
+export function binaryToEmailBody(array: Uint8Array): EmailBody {
+  try {
+    const json = uint8ToUTF8(array);
+    const email: EmailBody = JSON.parse(json);
+    return email;
+  } catch (error) {
+    throw new Error('Cannot convert Uint8Array to EmailBody', error);
+  }
+}
+
+/**
+ * Converts a PublicKeysBase64 type into PublicKeys type.
+ * @param key - The PublicKeysBase64 key.
+ * @returns The resulting PublicKeys.
+ */
+export async function base64ToPublicKey(key: PublicKeysBase64): Promise<PublicKeys> {
+  try {
+    const eccPublicKeyBytes = base64ToUint8Array(key.eccPublicKey);
+    const eccPublicKey = await importPublicKey(eccPublicKeyBytes);
+    const kyberPublicKey = base64ToUint8Array(key.kyberPublicKey);
+    return { eccPublicKey, kyberPublicKey, user: key.user };
+  } catch (error) {
+    return Promise.reject(new Error('Cannot convert key of the type PublicKeysBase64 to PublicKeys', error));
+  }
+}
+
+/**
+ * Converts a PublicKeys type into PublicKeysBase64 type.
+ * @param key - The PublicKeys key.
+ * @returns The resulting PublicKeysBase64.
+ */
+export async function publicKeyToBase64(key: PublicKeys): Promise<PublicKeysBase64> {
+  try {
+    const eccPublicKeyArray = await exportPublicKey(key.eccPublicKey);
+    const eccPublicKey = uint8ArrayToBase64(eccPublicKeyArray);
+    const kyberPublicKey = uint8ArrayToBase64(key.kyberPublicKey);
+    return { eccPublicKey, kyberPublicKey, user: key.user };
+  } catch (error) {
+    return Promise.reject(new Error('Cannot convert key of the type PublicKeys to PublicKeysBase64', error));
+  }
+}
+
+/**
+ * Converts a hybrid key of the type HybridEncKey into base64 string.
+ * @param encHybridKey - The HybridEncKey key.
+ * @returns The resulting base64 key encoding.
+ */
+export function encHybridKeyToBase64(encHybridKey: HybridEncKey): string {
+  try {
+    const json = JSON.stringify({
+      kyberCiphertext: uint8ArrayToBase64(encHybridKey.kyberCiphertext),
+      encryptedKey: uint8ArrayToBase64(encHybridKey.encryptedKey),
+    });
+    const base64 = btoa(json);
+    return base64;
+  } catch (error) {
+    throw new Error(`Cannot convert hybrid key to base64: ${error}`);
+  }
+}
+
+/**
+ * Converts a base64 string into a hybrid key of the type HybridEncKey.
+ * @param base - The base64 encoding of the hybrid key.
+ * @returns The resulting HybridEncKey key.
+ */
+export function base64ToEncHybridKey(base64: string): HybridEncKey {
+  try {
+    const json = decodeBase64(base64);
+    const obj = JSON.parse(json);
+    return {
+      encryptedKey: base64ToUint8Array(obj.encryptedKey),
+      kyberCiphertext: base64ToUint8Array(obj.kyberCiphertext),
+    };
+  } catch (error) {
+    throw new Error('Cannot convert base64 to hybrid key', error);
+  }
+}
+
+/**
+ * Converts a password-protected key of the type PwdProtectedKey into base64 string.
+ * @param pwdProtectedKey - The password-protected key of the type PwdProtectedKey.
+ * @returns The resulting base64 key encoding.
+ */
+export function pwdProtectedKeyToBase64(pwdProtectedKey: PwdProtectedKey): string {
+  try {
+    const json = JSON.stringify({
+      encryptedKey: uint8ArrayToBase64(pwdProtectedKey.encryptedKey),
+      salt: uint8ArrayToBase64(pwdProtectedKey.salt),
+    });
+    const base64 = btoa(json);
+    return base64;
+  } catch (error) {
+    throw new Error('Cannot convert password-protected key to base64', error);
+  }
+}
+
+/**
+ * Converts a base64 string into a password-protected key of the type PwdProtectedKey.
+ * @param pwdProtectedKey - The password-protected key of the type PwdProtectedKey.
+ * @returns The resulting HybridEncKey key.
+ */
+export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
+  try {
+    const json = decodeBase64(base64);
+    const obj = JSON.parse(json);
+    return {
+      encryptedKey: base64ToUint8Array(obj.encryptedKey),
+      salt: base64ToUint8Array(obj.salt),
+    };
+  } catch (error) {
+    throw new Error('Cannot convert base64 to password-protected key', error);
+  }
+}

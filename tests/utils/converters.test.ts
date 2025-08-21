@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { hexToUint8Array, base64ToUint8Array, uint8ArrayToHex, uint8ArrayToBase64 } from '../../src/utils/converters';
+import { hexToUint8Array, base64ToUint8Array, uint8ArrayToHex, uint8ArrayToBase64 } from '../../src/utils';
 
 describe('arrayToHex', () => {
   it('converts a simple Uint8Array to hex and back', () => {

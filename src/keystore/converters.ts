@@ -1,7 +1,7 @@
 import { IdentityKeys, EncryptionKeys, EncryptedKeystore } from '../utils/types';
 import { uint8ArrayToBase64, base64ToUint8Array, decodeBase64 } from '../utils/converters';
-import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric/keys';
-import { base64ToCiphertext, ciphertextToBase64 } from '../symmetric/utils';
+import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric-crypto/keys';
+import { base64ToCiphertext, ciphertextToBase64 } from '../symmetric-crypto/utils';
 
 /**
  * Converts identity keys to base64

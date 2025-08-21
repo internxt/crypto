@@ -9,7 +9,7 @@ import {
   getRecoveryKeystoreFromServer,
   encryptedKeystoreToBase64,
 } from '../../src/keystore';
-import sessionStorageService from '../../src/utils/sessionStorageService';
+import sessionStorageService from '../../src/storage-service/sessionStorageService';
 
 vi.mock('axios');
 
