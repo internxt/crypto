@@ -19,9 +19,7 @@ export async function sendHybridEmail(encEmail: HybridEncryptedEmail) {
     const encKey = encHybridKeyToBase64(encEmail.encryptedKey);
     const body = JSON.stringify({ encText, encKey });
     await sendEmail(encEmail.subject, body, encEmail.sender, encEmail.encryptedFor);
-    console.log('sendHybridEmail: sendEmail completed successfully');
   } catch (error) {
-    console.log('sendHybridEmail: about to throw new error', error);
     throw new Error(`Failed to email to the recipient ${encEmail.encryptedFor.name}:`, error);
   }
 }

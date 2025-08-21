@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { generateEccKeys, deriveEccBits } from '../../src/asymmetric';
+import { generateEccKeys, deriveSecretKey } from '../../src/asymmetric';
 
 describe('Test ecc functions', () => {
   it('should derive the same keys for Bob and Alice', async () => {
     const keysAlice = await generateEccKeys();
     const keysBob = await generateEccKeys();
 
-    const resultAlice = await deriveEccBits(keysBob.publicKey, keysAlice.privateKey);
-    const resultBob = await deriveEccBits(keysAlice.publicKey, keysBob.privateKey);
+    const resultAlice = await deriveSecretKey(keysBob.publicKey, keysAlice.privateKey);
+    const resultBob = await deriveSecretKey(keysAlice.publicKey, keysBob.privateKey);
 
     expect(resultAlice).toStrictEqual(resultBob);
   });
@@ -17,8 +17,8 @@ describe('Test ecc functions', () => {
     const keysBob = await generateEccKeys();
     const keysEve = await generateEccKeys();
 
-    const resultAliceEve = await deriveEccBits(keysEve.publicKey, keysAlice.privateKey);
-    const resultAliceBob = await deriveEccBits(keysBob.publicKey, keysAlice.privateKey);
+    const resultAliceEve = await deriveSecretKey(keysEve.publicKey, keysAlice.privateKey);
+    const resultAliceBob = await deriveSecretKey(keysBob.publicKey, keysAlice.privateKey);
 
     expect(resultAliceBob).not.toStrictEqual(resultAliceEve);
   });
@@ -26,8 +26,8 @@ describe('Test ecc functions', () => {
   it('should throw an error if cannot derive', async () => {
     const keysAlice = await generateEccKeys();
 
-    await expect(deriveEccBits(keysAlice.privateKey, keysAlice.privateKey)).rejects.toThrowError(
-      /Failed to derive ECC bits:/,
+    await expect(deriveSecretKey(keysAlice.privateKey, keysAlice.privateKey)).rejects.toThrowError(
+      /Failed to derive elliptic curve secret key/,
     );
   });
 });

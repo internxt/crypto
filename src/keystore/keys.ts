@@ -3,7 +3,6 @@ import { generateKyberKeys } from '../post-quantum/kyber768';
 import {
   IdentityKeys,
   EncryptionKeys,
-  utf8ToUint8,
   AES_KEY_BIT_LENGTH,
   genMnemonic,
   CONTEXT_LOGIN,
@@ -12,6 +11,7 @@ import {
   CONTEXT_INDEX,
 } from '../utils';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive/deriveKeys';
+import { getHash } from '../hash/blake3';
 
 /**
  * Generates recovery codes
@@ -92,6 +92,6 @@ export async function deriveIndexKey(baseKey: Uint8Array): Promise<CryptoKey> {
  * @returns The derived secret key for protecting the idenity keystore
  */
 export async function deriveRecoveryKey(recoveryCodes: string): Promise<CryptoKey> {
-  const recoveryCodesBuffer = utf8ToUint8(recoveryCodes);
+  const recoveryCodesBuffer = await getHash(AES_KEY_BIT_LENGTH, [recoveryCodes]);
   return deriveSymmetricCryptoKeyFromContext(CONTEXT_RECOVERY, recoveryCodesBuffer);
 }

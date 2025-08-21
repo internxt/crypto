@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { generateEccKeys, importPublicKey, exportPublicKey, deriveEccBits } from '../../src/asymmetric';
+import { generateEccKeys, importPublicKey, exportPublicKey, deriveSecretKey } from '../../src/asymmetric';
 import { CURVE_NAME, ECC_ALGORITHM } from '../../src/utils/constants';
 import { genSymmetricKey } from '../../src/symmetric';
 
@@ -28,7 +28,9 @@ describe('Test ecc functions', () => {
       throw new Error('simulated failure');
     }) as any;
 
-    await expect(generateEccKeys()).rejects.toThrowError('Failed to generate ECC keys: simulated failure');
+    await expect(generateEccKeys()).rejects.toThrowError(
+      'Failed to generate elliptic curve key pair: simulated failure',
+    );
 
     window.crypto.subtle.generateKey = originalGenerateKey;
   });
@@ -43,8 +45,8 @@ describe('Test ecc functions', () => {
     await expect(publicKey).toStrictEqual(originalPublicKey);
 
     const keyPairSecond = await generateEccKeys();
-    const resultOriginal = await deriveEccBits(originalPublicKey, keyPairSecond.privateKey);
-    const result = await deriveEccBits(publicKey, keyPairSecond.privateKey);
+    const resultOriginal = await deriveSecretKey(originalPublicKey, keyPairSecond.privateKey);
+    const result = await deriveSecretKey(publicKey, keyPairSecond.privateKey);
 
     expect(resultOriginal).toStrictEqual(result);
   });

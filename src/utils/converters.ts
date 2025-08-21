@@ -23,6 +23,16 @@ export function decodeBase64(base64: string): string {
 }
 
 /**
+ *  Encodes an UTF-8 string into base64 string
+ *
+ * @param str - The UTF-8 string.
+ * @returns The base64 string created from the UTF-8 string.
+ */
+export function encodeBase64(str: string): string {
+  return Buffer.from(str).toString('base64');
+}
+
+/**
  * Converts a Uint8Array into a hexadecimal string.
  *
  * @param array - The Uint8Array to convert.
@@ -38,8 +48,18 @@ export function uint8ArrayToHex(array: Uint8Array): string {
  * @param str - The UTF-8 string to convert.
  * @returns A Uint8Array created from the UTF-8 string.
  */
-export function utf8ToUint8(str: string): Uint8Array {
+export function UTF8ToUint8(str: string): Uint8Array {
   return new Uint8Array(Buffer.from(str, 'utf8'));
+}
+
+/**
+ * Converts an Uint8Array into a UTF-8 string.
+ *
+ * @param array - The Uint8Array to convert.
+ * @returns The UTF-8 string representation of the array.
+ */
+export function uint8ToUTF8(array: Uint8Array): string {
+  return Buffer.from(array).toString('utf8');
 }
 
 /**

@@ -1,6 +1,5 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric';
-import { Buffer } from 'buffer';
-import { SymmetricCiphertext, base64ToUint8Array } from '../utils';
+import { SymmetricCiphertext, base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import sessionStorageService from '../utils/sessionStorageService';
 
 export async function createKeystore(
@@ -11,7 +10,9 @@ export async function createKeystore(
   tag: string,
 ): Promise<SymmetricCiphertext> {
   const aux = userID + tag;
-  return await encryptSymmetrically(secretKey, nonce, Buffer.from(content), aux);
+  const message = base64ToUint8Array(content);
+  const result = await encryptSymmetrically(secretKey, nonce, message, aux);
+  return result;
 }
 
 export async function openKeystore(
@@ -22,7 +23,7 @@ export async function openKeystore(
 ): Promise<string> {
   const aux = userID + tag;
   const content = await decryptSymmetrically(secretKey, encryptedKeys, aux);
-  const result = Buffer.from(content).toString('utf-8');
+  const result = uint8ArrayToBase64(content);
   return result;
 }
 

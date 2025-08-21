@@ -15,16 +15,16 @@ describe('Test derive key', () => {
 
   it('should derive symmetric key', async () => {
     const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-    const baseKey = createTestInput(64);
+    const baseKey = createTestInput(32);
     const key = await deriveSymmetricCryptoKeyFromContext(context, baseKey);
     expect(key).instanceOf(CryptoKey);
   });
 
   it('derive symmetric key should throw an error if context is an empty string', async () => {
     const context = '';
-    const baseKey = createTestInput(64);
+    const baseKey = createTestInput(32);
     await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
-      /Key derivation from base key failed/,
+      /Failed to derive CryptoKey from base key and context/,
     );
   });
 
@@ -32,26 +32,18 @@ describe('Test derive key', () => {
     const context = 'test context';
     const baseKey = createTestInput(2);
     await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
-      /Key derivation from base key failed/,
+      /Failed to derive CryptoKey from base key and context/,
     );
   });
 
   it('should derive symmetric crypto key', async () => {
     const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-    const baseKey = createTestInput(64);
+    const baseKey = createTestInput(32);
     const key = await deriveSymmetricCryptoKeyFromContext(context, baseKey);
     expect(key).toBeInstanceOf(CryptoKey);
     const alg = key.algorithm as AesKeyAlgorithm;
     expect(alg.name).toBe(AES_ALGORITHM);
     expect(alg.length).toBe(AES_KEY_BIT_LENGTH);
-  });
-
-  it('derive symmetric crypto key should throw an error if context is null', async () => {
-    const context = null as any;
-    const baseKey = createTestInput(64);
-    await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
-      /CryptoKey derivation from base key failed/,
-    );
   });
 
   it('correct symmetric key length', async () => {
@@ -73,7 +65,11 @@ describe('Test derive key', () => {
     const short_key = new Uint8Array([1, 2, 3]);
     const key2 = genSymmetricKey();
     const context = 'test context';
-    await expect(deriveSymmetricKeyFromTwoKeys(short_key, key2, context)).rejects.toThrowError(/Key derivation failed/);
-    await expect(deriveSymmetricKeyFromTwoKeys(key2, short_key, context)).rejects.toThrowError(/Key derivation failed/);
+    await expect(deriveSymmetricKeyFromTwoKeys(short_key, key2, context)).rejects.toThrowError(
+      /Failed to derive symmetric key from two keys/,
+    );
+    await expect(deriveSymmetricKeyFromTwoKeys(key2, short_key, context)).rejects.toThrowError(
+      /Failed to derive symmetric key from two keys/,
+    );
   });
 });

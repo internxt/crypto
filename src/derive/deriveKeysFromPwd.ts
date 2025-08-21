@@ -1,62 +1,82 @@
-import {
-  ARGON2ID_ITERATIONS,
-  ARGON2ID_MEMORY_SIZE,
-  ARGON2ID_PARALLELISM,
-  ARGON2ID_SALT_BYTE_LENGTH,
-  ARGON2ID_OUTPUT_BYTE_LENGTH,
-} from '../utils/constants';
+import { hexToUint8Array, uint8ArrayToHex } from '../utils';
+import { argon2, sampleSalt } from './utils';
 
-import { argon2, argon2Hex } from './utils';
-
+/**
+ * Derives a symmetric key from a user's password with a randomly sampled salt
+ * @param password - The user's password
+ * @returns The derived secret key and randomly sampled salt
+ */
 export async function getKeyFromPassword(password: string): Promise<{ key: Uint8Array; salt: Uint8Array }> {
   try {
-    const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
-    window.crypto.getRandomValues(salt);
-    const key = await getKeyFromPasswordAndSalt(password, salt);
+    if (!password) {
+      throw new Error('No password given');
+    }
+    const salt = sampleSalt();
+    const key = await argon2(password, salt);
     return { key, salt };
   } catch (error) {
-    return Promise.reject(new Error(`Key derivation from password failed: ${error}`));
+    return Promise.reject(new Error('Failed to derive key from password', error));
   }
 }
 
-export async function getKeyFromPasswordHex(password: string): Promise<{ hash: string; salt: Uint8Array }> {
+/**
+ * Derives a symmetric key from a user's password and salt
+ * @param password - The user's password
+ * @param saltHex - The given HEX salt
+ * @returns The derived secret key
+ */
+export async function getKeyFromPasswordAndSalt(password: string, saltHex: string): Promise<Uint8Array> {
   try {
-    const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
-    window.crypto.getRandomValues(salt);
-    const result = await getKeyFromPasswordAndSaltHex(password, salt);
-    return { hash: result, salt };
+    if (!saltHex) {
+      throw new Error('No salt given');
+    }
+    if (!password) {
+      throw new Error('No password given');
+    }
+    const salt = hexToUint8Array(saltHex);
+    return await argon2(password, salt);
   } catch (error) {
-    return Promise.reject(new Error(`Key derivation from password failed: ${error}`));
+    return Promise.reject(new Error('Failed to derive key from password and salt', error));
   }
 }
 
-export async function getKeyFromPasswordAndSaltHex(password: string, salt: string | Uint8Array): Promise<string> {
-  return argon2Hex(
-    password,
-    salt,
-    ARGON2ID_PARALLELISM,
-    ARGON2ID_ITERATIONS,
-    ARGON2ID_MEMORY_SIZE,
-    ARGON2ID_OUTPUT_BYTE_LENGTH,
-  );
+/**
+ * Derives a HEX symmetric key from a user's password with a randomly sampled salt
+ * @param password - The user's password
+ * @returns The derived HEX secret key and randomly sampled HEX salt
+ */
+export async function getKeyFromPasswordHex(password: string): Promise<{ keyHex: string; saltHex: string }> {
+  try {
+    const { key, salt } = await getKeyFromPassword(password);
+    return { keyHex: uint8ArrayToHex(key), saltHex: uint8ArrayToHex(salt) };
+  } catch (error) {
+    return Promise.reject(new Error('Failed to derive key from password', error));
+  }
 }
 
-export async function getKeyFromPasswordAndSalt(password: string, salt: string | Uint8Array): Promise<Uint8Array> {
-  return argon2(
-    password,
-    salt,
-    ARGON2ID_PARALLELISM,
-    ARGON2ID_ITERATIONS,
-    ARGON2ID_MEMORY_SIZE,
-    ARGON2ID_OUTPUT_BYTE_LENGTH,
-  );
+/**
+ * Derives a HEX symmetric key from a user's password and salt
+ * @param password - The user's password
+ * @param saltHex - The given HEX salt
+ * @returns The derived HEX secret key
+ */
+export async function getKeyFromPasswordAndSaltHex(password: string, saltHex: string): Promise<string> {
+  try {
+    const key = await getKeyFromPasswordAndSalt(password, saltHex);
+    return uint8ArrayToHex(key);
+  } catch (error) {
+    return Promise.reject(new Error('Failed to derive key from password and salt', error));
+  }
 }
 
-export async function verifyKeyFromPasswordAndSaltHex(
-  password: string,
-  salt: string | Uint8Array,
-  keyHex: string,
-): Promise<boolean> {
-  const hashHex = await getKeyFromPasswordAndSaltHex(password, salt);
-  return keyHex === hashHex;
+/**
+ * Verifies the derived key
+ * @param password - The user's password
+ * @param saltHex - The given HEX salt
+ * @param keyHex - The derived HEX key
+ * @returns The result of the key verification
+ */
+export async function verifyKeyFromPasswordHex(password: string, saltHex: string, keyHex: string): Promise<boolean> {
+  const result = await getKeyFromPasswordAndSaltHex(password, saltHex);
+  return keyHex === result;
 }

@@ -2,12 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { genSymmetricCryptoKey } from '../../src/symmetric/keys';
 import { createKeystore, getBaseKey, getUserID, openKeystore } from '../../src/keystore/utils';
 import sessionStorageService from '../../src/utils/sessionStorageService';
-import { base64ToUint8Array } from '../../src/utils';
+import { base64ToUint8Array, encodeBase64 } from '../../src/utils';
 
 describe('Test keystore keys functions', () => {
   it('should sucessfully create and open a keystore', async () => {
     const key = await genSymmetricCryptoKey();
-    const mockContext = 'mock context string';
+    const mockContext = encodeBase64('mock context string');
     const mockUserID = 'mock user ID';
     const mockTag = 'mock tag';
     const keystore = await createKeystore(key, 0, mockContext, mockUserID, mockTag);

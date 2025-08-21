@@ -1,5 +1,9 @@
 import { CURVE_NAME, ECC_ALGORITHM } from '../utils/constants';
 
+/**
+ * Generates elliptic curve key pair
+ * @returns The generated key pair
+ */
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
   try {
     return window.crypto.subtle.generateKey(
@@ -11,19 +15,28 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
       ['deriveBits'],
     );
   } catch (error) {
-    return Promise.reject(new Error(`Failed to generate ECC keys: ${error.message}`));
+    return Promise.reject(new Error(`Failed to generate elliptic curve key pair: ${error.message}`));
   }
 }
 
-export async function exportPublicKey(key: CryptoKey): Promise<ArrayBuffer> {
+/**
+ * Converts public CryptoKey into Uint8Array using SubjectPublicKeyInfo format (RFC 5280)
+ * @returns The Uint8Array representation of the public key
+ */
+export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
   try {
-    return await window.crypto.subtle.exportKey('spki', key);
+    const result = await window.crypto.subtle.exportKey('spki', key);
+    return new Uint8Array(result);
   } catch (error) {
     return Promise.reject(new Error(`Failed to export public key: ${error}`));
   }
 }
 
-export async function importPublicKey(spkiKeyData: ArrayBuffer): Promise<CryptoKey> {
+/**
+ * Converts public key in SubjectPublicKeyInfo format (RFC 5280) to CryptoKey
+ * @returns The CryptoKey representation of the public key
+ */
+export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKey> {
   try {
     return await window.crypto.subtle.importKey(
       'spki',
@@ -40,14 +53,24 @@ export async function importPublicKey(spkiKeyData: ArrayBuffer): Promise<CryptoK
   }
 }
 
-export async function exportPrivateKey(key: CryptoKey): Promise<ArrayBuffer> {
+/**
+ * Converts private key in CryptoKey to PKCS #8 format (RFC 5208)
+ * @returns The Uint8Array representation of the private key
+ */
+export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
   try {
-    return await window.crypto.subtle.exportKey('pkcs8', key);
+    const result = await window.crypto.subtle.exportKey('pkcs8', key);
+    return new Uint8Array(result);
   } catch (error) {
     return Promise.reject(new Error(`Failed to export private key: ${error}`));
   }
 }
-export async function importPrivateKey(pkcs8KeyData: ArrayBuffer): Promise<CryptoKey> {
+
+/**
+ * Converts private key in PKCS #8 format (RFC 5208) to CryptoKey
+ * @returns The CryptoKey representation of the private key
+ */
+export async function importPrivateKey(pkcs8KeyData: Uint8Array): Promise<CryptoKey> {
   try {
     return await window.crypto.subtle.importKey(
       'pkcs8',

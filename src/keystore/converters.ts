@@ -13,8 +13,8 @@ export async function identityKeysToBase64(keys: IdentityKeys): Promise<string> 
     const pkArray = await exportPublicKey(keys.userPublicKey);
     const skArray = await exportPrivateKey(keys.userPrivateKey);
     const json = JSON.stringify({
-      userPublicKey: uint8ArrayToBase64(new Uint8Array(pkArray)),
-      userPrivateKey: uint8ArrayToBase64(new Uint8Array(skArray)),
+      userPublicKey: uint8ArrayToBase64(pkArray),
+      userPrivateKey: uint8ArrayToBase64(skArray),
     });
     const base64 = btoa(json);
     return base64;
@@ -33,8 +33,8 @@ export async function encryptionKeysToBase64(keys: EncryptionKeys): Promise<stri
     const pkArray = await exportPublicKey(keys.userPublicKey);
     const skArray = await exportPrivateKey(keys.userPrivateKey);
     const json = JSON.stringify({
-      userPublicKey: uint8ArrayToBase64(new Uint8Array(pkArray)),
-      userPrivateKey: uint8ArrayToBase64(new Uint8Array(skArray)),
+      userPublicKey: uint8ArrayToBase64(pkArray),
+      userPrivateKey: uint8ArrayToBase64(skArray),
       userPublicKyberKey: uint8ArrayToBase64(keys.userPublicKyberKey),
       userPrivateKyberKey: uint8ArrayToBase64(keys.userPrivateKyberKey),
     });
