@@ -28,6 +28,11 @@ export type PublicKeys = {
   kyberPublicKey: Uint8Array;
 };
 
+export type PrivateKeys = {
+  eccPrivateKey: CryptoKey;
+  kyberPrivateKey: Uint8Array;
+};
+
 export type IdentityKeys = {
   userPublicKey: CryptoKey;
   userPrivateKey: CryptoKey;

@@ -1,5 +1,7 @@
 export * as asymmetric from './asymmetric-crypto';
-export * as email from './email-crypto';
+export * as emailCrypto from './email-crypto';
+export * as emailSearch from './email-search';
+export * as emailService from './email-service';
 export * as deriveKey from './derive-key';
 export * as utils from './utils';
 export * as keystore from './keystore';
@@ -7,5 +9,4 @@ export * as symmetric from './symmetric-crypto';
 export * as hash from './hash';
 export * as pq from './post-quantum-crypto';
 export * as keyWrapper from './key-wrapper';
-export * as searchEmail from './email-search';
 export * as storage from './storage-service';

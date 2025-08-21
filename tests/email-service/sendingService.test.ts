@@ -1,16 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { HybridEncryptedEmail, Email, EmailBody, User, PublicKeys, PwdProtectedEmail } from '../../src/utils/types';
-import { encryptEmailHybrid, encryptEmailHybridForMultipleRecipients } from '../../src/email-crypto/hybridEncEmail';
-import { generateEccKeys } from '../../src/asymmetric-crypto';
-import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
+import { HybridEncryptedEmail, Email, EmailBody, User, PwdProtectedEmail } from '../../src/utils';
+import {
+  encryptEmailHybrid,
+  encryptEmailHybridForMultipleRecipients,
+  createPwdProtectedEmail,
+} from '../../src/email-crypto';
+import { generateEmailKeys } from '../../src/email-crypto';
 import {
   sendHybridEmail,
   sendHybridEmailToMultipleRecipients,
   sendPwdProtectedEmail,
   sendPwdProtectedEmailToMultipleRecipients,
-} from '../../src/email-crypto/sendingService';
+} from '../../src/email-service/sendingService';
 import emailjs from '@emailjs/browser';
-import { createPwdProtectedEmail } from '../../src/email-crypto/pwdProtectedEmail';
 
 vi.mock('@emailjs/browser', () => ({
   default: {
@@ -39,24 +41,9 @@ describe('Test sending email functions', async () => {
     labels: ['test label 1', 'test label2'],
   };
 
-  const bobKeys = await generateEccKeys();
-  const bobKyberKeys = generateKyberKeys();
-
-  const bobPublicKeys: PublicKeys = {
-    user: userBob,
-    eccPublicKey: bobKeys.publicKey,
-    kyberPublicKey: bobKyberKeys.publicKey,
-  };
-
-  const eveKeys = await generateEccKeys();
-  const eveKyberKeys = generateKyberKeys();
-
-  const evePublicKeys: PublicKeys = {
-    user: userEve,
-    eccPublicKey: eveKeys.publicKey,
-    kyberPublicKey: eveKyberKeys.publicKey,
-  };
-  const senderKeyPair = await generateEccKeys();
+  const { privateKeys: alicePrivateKeys } = await generateEmailKeys(userAlice);
+  const { publicKeys: bobPublicKeys } = await generateEmailKeys(userBob);
+  const { publicKeys: evePublicKeys } = await generateEmailKeys(userEve);
 
   const mockPassword = 'mock pwd';
 
@@ -70,7 +57,7 @@ describe('Test sending email functions', async () => {
       emailChainLength: 1,
     };
 
-    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(bobPublicKeys, senderKeyPair.privateKey, email);
+    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
 
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
     await sendHybridEmail(encEmail);
@@ -100,7 +87,7 @@ describe('Test sending email functions', async () => {
       emailChainLength: 1,
     };
 
-    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(bobPublicKeys, senderKeyPair.privateKey, email);
+    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
 
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 404, text: 'Mocked Error' });
 
@@ -118,9 +105,9 @@ describe('Test sending email functions', async () => {
     };
 
     const encEmails: HybridEncryptedEmail[] = await encryptEmailHybridForMultipleRecipients(
-      [bobPublicKeys, evePublicKeys],
-      senderKeyPair.privateKey,
       email,
+      [bobPublicKeys, evePublicKeys],
+      alicePrivateKeys,
     );
 
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
@@ -165,9 +152,9 @@ describe('Test sending email functions', async () => {
     };
 
     const encEmails: HybridEncryptedEmail[] = await encryptEmailHybridForMultipleRecipients(
-      [bobPublicKeys, evePublicKeys],
-      senderKeyPair.privateKey,
       email,
+      [bobPublicKeys, evePublicKeys],
+      alicePrivateKeys,
     );
 
     vi.spyOn(emailjs, 'send')
@@ -188,7 +175,7 @@ describe('Test sending email functions', async () => {
       emailChainLength: 1,
     };
 
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(mockPassword, email);
+    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
 
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
     await sendPwdProtectedEmail(encEmail, userBob);
@@ -218,7 +205,7 @@ describe('Test sending email functions', async () => {
       emailChainLength: 1,
     };
 
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(mockPassword, email);
+    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
 
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 401, text: 'Mock Error' });
 
@@ -235,7 +222,7 @@ describe('Test sending email functions', async () => {
       emailChainLength: 1,
     };
 
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(mockPassword, email);
+    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
 
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
     await sendPwdProtectedEmailToMultipleRecipients(encEmail);
@@ -278,7 +265,7 @@ describe('Test sending email functions', async () => {
       emailChainLength: 1,
     };
 
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(mockPassword, email);
+    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
 
     vi.spyOn(emailjs, 'send')
       .mockResolvedValueOnce({ status: 200, text: 'OK' })

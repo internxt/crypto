@@ -1,31 +1,47 @@
-import { importWrappingKey, wrapKey, unwrapKey } from '../key-wrapper';
-import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
-import { PwdProtectedEmail, Email, PwdProtectedKey } from '../utils';
-import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './core';
+import { PwdProtectedEmail, Email } from '../utils';
+import {
+  encryptEmailSymmetrically,
+  decryptEmailSymmetrically,
+  passwordProtectKey,
+  removePasswordProtection,
+} from './core';
 
-export async function createPwdProtectedEmail(sharedSecret: string, email: Email): Promise<PwdProtectedEmail> {
-  const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);
-
-  const { key, salt } = await getKeyFromPassword(sharedSecret);
-  const wrappingKey = await importWrappingKey(key);
-  const encryptedKey = await wrapKey(encryptionKey, wrappingKey);
-  const encKey: PwdProtectedKey = { encryptedKey, salt };
-  const result: PwdProtectedEmail = {
-    sender: email.sender,
-    recipients: email.recipients,
-    subject: email.subject,
-    emailChainLength: email.emailChainLength,
-    ciphertext: encEmail,
-    encryptedKey: encKey,
-  };
-  return result;
+/**
+ * Creates a password-protected email.
+ * @param email - The email to protect
+ * @param password - The secret password shared among recipients.
+ * @returns The password-protected email
+ */
+export async function createPwdProtectedEmail(email: Email, password: string): Promise<PwdProtectedEmail> {
+  try {
+    const { encEmail: ciphertext, encryptionKey } = await encryptEmailSymmetrically(email);
+    const encryptedKey = await passwordProtectKey(encryptionKey, password);
+    const result: PwdProtectedEmail = {
+      sender: email.sender,
+      recipients: email.recipients,
+      subject: email.subject,
+      emailChainLength: email.emailChainLength,
+      ciphertext,
+      encryptedKey,
+    };
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error('Could not password-protect email', error));
+  }
 }
 
-export async function decryptPwdProtectedEmail(sharedSecret: string, encryptedEmail: PwdProtectedEmail) {
-  const encKey = encryptedEmail.encryptedKey;
-  const key = await getKeyFromPasswordAndSalt(sharedSecret, encKey.salt);
-  const wrappingKey = await importWrappingKey(key);
-  const encryptionKey = await unwrapKey(encKey.encryptedKey, wrappingKey);
-  const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
-  return result;
+/**
+ * Opens a password-protected email.
+ * @param email - The email to protect
+ * @param password - The secret password shared among recipients.
+ * @returns The password-protected email
+ */
+export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail, password: string) {
+  try {
+    const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
+    const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
+    return result;
+  } catch (error) {
+    return Promise.reject(new Error('Could not decrypt password-protect email', error));
+  }
 }

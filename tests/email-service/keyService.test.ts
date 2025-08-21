@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { getRecipientsPublicKeys } from '../../src/email-crypto/keyService';
-import { PublicKeys, User } from '../../src/utils/types';
-import { generateEccKeys } from '../../src/asymmetric-crypto';
-import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
 import { publicKeyToBase64 } from '../../src/email-crypto';
+import { PublicKeys, User } from '../../src/utils';
+import { generateEccKeys } from '../../src/asymmetric-crypto';
+import { generateKyberKeys } from '../../src/post-quantum-crypto';
+import { getRecipientsPublicKeys } from '../../src/email-service';
 
 vi.mock('axios');
 

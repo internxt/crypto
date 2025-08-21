@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { PublicKeysBase64, PublicKeys } from '../utils';
-import { base64ToPublicKey } from './converters';
+import { base64ToPublicKey } from '../email-crypto/converters';
 
 /**
  * Requests recipients public keys from the server

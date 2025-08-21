@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto/pwdProtectedEmail';
-import { EmailBody, Email } from '../../src/utils/types';
+import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
+import { EmailBody, Email } from '../../src/utils';
 
 describe('Test email crypto functions', () => {
   it('should encrypt and decrypt email sucessfully', async () => {
@@ -29,8 +29,8 @@ describe('Test email crypto functions', () => {
       emailChainLength: 2,
     };
 
-    const encryptedEmail = await createPwdProtectedEmail(sharedSecret, email);
-    const decryptedEmail = await decryptPwdProtectedEmail(sharedSecret, encryptedEmail);
+    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
+    const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
     expect(decryptedEmail).toStrictEqual(emailBody);
   });
 });
