@@ -1,4 +1,4 @@
-import { CURVE_NAME, ECC_ALGORITHM } from '../utils/constants';
+import { CURVE_NAME, ECC_ALGORITHM } from '../utils';
 
 /**
  * Generates elliptic curve key pair

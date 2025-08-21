@@ -1,2 +1,2 @@
-export * as localStorage from './localStorageService';
-export * as sessionStorage from './sessionStorageService';
+export * as localStorageService from './localStorageService';
+export * as sessionStorageService from './sessionStorageService';

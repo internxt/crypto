@@ -7,7 +7,7 @@ import {
   getKeyFromPassword,
 } from '../../src/derive-key/deriveKeysFromPwd';
 
-import { argon2, sampleSalt } from '../../src/derive-key/utils';
+import { argon2, sampleSalt } from '../../src/derive-key/core';
 import { uint8ArrayToHex } from '../../src/utils';
 
 describe('Test Argon2', () => {
@@ -48,7 +48,7 @@ describe('Test Argon2', () => {
 
   it('should give the same result for the same password and salt', async () => {
     const test_password = 'text demo';
-    const test_salt = uint8ArrayToHex(sampleSalt());
+    const test_salt = sampleSalt();
     const result1 = await getKeyFromPasswordAndSalt(test_password, test_salt);
     const result2 = await getKeyFromPasswordAndSalt(test_password, test_salt);
     expect(result1).toStrictEqual(result2);

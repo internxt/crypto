@@ -1,7 +1,6 @@
 import { blake3 } from 'hash-wasm';
-import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN } from '../utils/constants';
+import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN, hexToUint8Array } from '../utils';
 import { importSymmetricCryptoKey } from '../symmetric-crypto';
-import { hexToUint8Array } from '../utils/converters';
 
 /**
  * Derives a symmetric key from the base key and context string

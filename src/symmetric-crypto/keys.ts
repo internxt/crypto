@@ -1,4 +1,4 @@
-import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../utils/constants';
+import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../utils';
 
 export async function importSymmetricCryptoKey(keyData: Uint8Array): Promise<CryptoKey> {
   return crypto.subtle.importKey(

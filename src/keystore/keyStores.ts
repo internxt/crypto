@@ -7,7 +7,7 @@ import {
   ENCRYPTION_KEYSTORE_TAG,
   RECOVERY_KEYSTORE_TAG,
 } from '../utils';
-import { createKeystore, openKeystore, getUserID, getBaseKey } from './utils';
+import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
 import {
   deriveIdentityKeystoreKey,
   deriveEncryptionKeystoreKey,

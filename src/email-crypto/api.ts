@@ -1,6 +1,6 @@
 import emailjs from '@emailjs/browser';
 import envService from '../utils/env';
-import { User } from '../utils/types';
+import { User } from '../utils';
 
 /**
  * Sends a user's  email to the server

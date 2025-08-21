@@ -1,6 +1,5 @@
-import { AES_ALGORITHM } from '../utils/constants';
-import { createIV, genAuxFromParams } from './utils';
-import { SymmetricCiphertext } from '../utils/types';
+import { AES_ALGORITHM, SymmetricCiphertext } from '../utils';
+import { createIV, genAuxFromParams } from './core';
 
 export async function encryptSymmetrically(
   encryptionKey: CryptoKey,

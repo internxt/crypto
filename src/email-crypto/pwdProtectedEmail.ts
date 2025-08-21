@@ -1,7 +1,7 @@
 import { importWrappingKey, wrapKey, unwrapKey } from '../key-wrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
-import { PwdProtectedEmail, Email, PwdProtectedKey } from '../utils/types';
-import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './utils';
+import { PwdProtectedEmail, Email, PwdProtectedKey } from '../utils';
+import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './core';
 
 export async function createPwdProtectedEmail(sharedSecret: string, email: Email): Promise<PwdProtectedEmail> {
   const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);

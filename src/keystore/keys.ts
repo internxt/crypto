@@ -1,5 +1,5 @@
-import { generateEccKeys } from '../asymmetric-crypto/keys';
-import { generateKyberKeys } from '../post-quantum-crypto/kyber768';
+import { generateEccKeys } from '../asymmetric-crypto';
+import { generateKyberKeys } from '../post-quantum-crypto';
 import {
   IdentityKeys,
   EncryptionKeys,
@@ -10,8 +10,8 @@ import {
   CONTEXT_RECOVERY,
   CONTEXT_INDEX,
 } from '../utils';
-import { deriveSymmetricCryptoKeyFromContext } from '../derive-key/deriveKeys';
-import { getHash } from '../hash/blake3';
+import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
+import { getHash } from '../hash';
 
 /**
  * Generates recovery codes

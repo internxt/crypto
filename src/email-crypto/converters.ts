@@ -1,6 +1,16 @@
 import { exportPublicKey, importPublicKey } from '../asymmetric-crypto';
-import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8, decodeBase64 } from '../utils/converters';
-import { EmailBody, PublicKeys, PublicKeysBase64, HybridEncKey, PwdProtectedKey } from '../utils/types';
+import {
+  uint8ArrayToBase64,
+  base64ToUint8Array,
+  UTF8ToUint8,
+  uint8ToUTF8,
+  decodeBase64,
+  EmailBody,
+  PublicKeys,
+  PublicKeysBase64,
+  HybridEncKey,
+  PwdProtectedKey,
+} from '../utils';
 
 /**
  * Converts an EmailBody type into a Uint8Array array.

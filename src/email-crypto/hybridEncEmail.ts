@@ -1,8 +1,8 @@
 import { deriveSecretKey } from '../asymmetric-crypto';
 import { deriveWrappingKey, wrapKey, unwrapKey } from '../key-wrapper';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
-import { Email, HybridEncKey, PublicKeys, HybridEncryptedEmail } from '../utils/types';
-import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './utils';
+import { Email, HybridEncKey, PublicKeys, HybridEncryptedEmail } from '../utils';
+import { encryptEmailSymmetrically, decryptEmailSymmetrically } from './core';
 
 export async function encryptEmailHybrid(
   recipientPublicKeys: PublicKeys,

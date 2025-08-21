@@ -1,6 +1,6 @@
-import { HybridEncryptedEmail, PwdProtectedEmail, User } from '../utils/types';
+import { HybridEncryptedEmail, PwdProtectedEmail, User } from '../utils';
 import { encHybridKeyToBase64, pwdProtectedKeyToBase64 } from './converters';
-import { ciphertextToBase64 } from '../symmetric-crypto/utils';
+import { ciphertextToBase64 } from '../symmetric-crypto';
 import { sendEmail } from './api';
 
 export async function sendHybridEmailToMultipleRecipients(encryptedEmails: HybridEncryptedEmail[]) {

@@ -1,5 +1,5 @@
 import { hexToUint8Array, uint8ArrayToHex } from '../utils';
-import { argon2, sampleSalt } from './utils';
+import { argon2, sampleSalt } from './core';
 
 /**
  * Derives a symmetric key from a user's password with a randomly sampled salt

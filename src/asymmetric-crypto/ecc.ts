@@ -1,4 +1,4 @@
-import { ECC_ALGORITHM, AES_KEY_BIT_LENGTH } from '../utils/constants';
+import { ECC_ALGORITHM, AES_KEY_BIT_LENGTH } from '../utils';
 
 /**
  * Derives secret key from the other user's public key and own private key
