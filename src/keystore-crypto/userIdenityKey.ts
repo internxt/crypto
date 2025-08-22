@@ -1,4 +1,5 @@
-import { IdentityKeys, EncryptedKeystore, KeystoreType, IDENTITY_KEYSTORE_TAG, CONTEXT_LOGIN } from '../utils';
+import { IdentityKeys, EncryptedKeystore, KeystoreType } from '../utils';
+import { IDENTITY_KEYSTORE_TAG, CONTEXT_LOGIN } from '../constants';
 import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
 import { base64ToIdentityKeys, identityKeysToBase64 } from './converters';
 import { generateEccKeys } from '../asymmetric-crypto';

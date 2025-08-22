@@ -1,6 +1,6 @@
 import { randomBytes } from '@noble/post-quantum/utils.js';
 import { hashString } from '../hash';
-import { AUX_LEN, AES_ALGORITHM } from '../utils';
+import { AUX_LEN, AES_ALGORITHM } from '../constants';
 
 /**
  * Creates an initialization vector (IV) using RGB-based construction (8.2.2 NIST Special Publication 800-38D)

@@ -1,6 +1,6 @@
 import { getHash } from '../hash';
 
-import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../utils';
+import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../constants';
 
 export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
   try {

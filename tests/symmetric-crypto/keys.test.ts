@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { exportSymmetricCryptoKey, genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto';
-import { AES_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/utils';
+import { AES_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/constants';
 
 describe('Test symmetric key functions', () => {
   it('should sucessfully generate crypto key', async () => {

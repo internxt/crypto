@@ -1,14 +1,11 @@
+import { EncryptionKeys, EncryptedKeystore, KeystoreType, genMnemonic } from '../utils';
 import {
-  EncryptionKeys,
-  EncryptedKeystore,
-  KeystoreType,
   ENCRYPTION_KEYSTORE_TAG,
   RECOVERY_KEYSTORE_TAG,
   CONTEXT_ENC_KEYSTORE,
   AES_KEY_BIT_LENGTH,
-  genMnemonic,
   CONTEXT_RECOVERY,
-} from '../utils';
+} from '../constants';
 import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
 import { encryptionKeysToBase64, base64ToEncryptionKeys } from './converters';
 import { generateEccKeys } from '../asymmetric-crypto';

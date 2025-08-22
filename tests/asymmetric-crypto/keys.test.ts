@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { generateEccKeys, importPublicKey, exportPublicKey, deriveSecretKey } from '../../src/asymmetric-crypto';
-import { CURVE_NAME, ECC_ALGORITHM } from '../../src/utils';
+import { CURVE_NAME, ECC_ALGORITHM } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test ecc functions', () => {

@@ -1,4 +1,4 @@
-import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../utils';
+import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../constants';
 
 /**
  * Converts Uint8Array into CryptoKey

@@ -1,11 +1,5 @@
-import {
-  EncryptedKeystore,
-  KeystoreType,
-  SearchIndices,
-  CONTEXT_INDEX,
-  INDEX_KEYSTORE_TAG,
-  uint8ArrayToBase64,
-} from '../utils';
+import { EncryptedKeystore, KeystoreType, SearchIndices, uint8ArrayToBase64 } from '../utils';
+import { CONTEXT_INDEX, INDEX_KEYSTORE_TAG } from '../constants';
 import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
 import { base64ToSearchIndices, searchIndicesToBase64 } from './converters';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';

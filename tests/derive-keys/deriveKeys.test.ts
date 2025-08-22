@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { deriveSymmetricKeyFromTwoKeys, deriveSymmetricCryptoKeyFromContext } from '../../src/derive-key';
 import { deriveEncryptionKeystoreKey } from '../../src/keystore-crypto';
-import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/utils';
+import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test derive key', () => {

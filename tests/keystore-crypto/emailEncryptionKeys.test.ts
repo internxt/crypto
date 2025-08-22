@@ -7,7 +7,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
-import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH, uint8ArrayToBase64 } from '../../src/utils';
+import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH } from '../../src/constants';
+import { uint8ArrayToBase64 } from '../../src/utils';
 
 describe('Test keystore create/open functions', async () => {
   const mockUserID = uuidv4();

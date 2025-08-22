@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateKyberKeys, encapsulateKyber, decapsulateKyber } from '../../src/post-quantum-crypto/kyber512';
-import { KYBER512_PUBLIC_KEY_LENGTH, KYBER512_SECRET_KEY_LENGTH, KYBER_SEED_LENGTH } from '../../src/utils';
+import { KYBER512_PUBLIC_KEY_LENGTH, KYBER512_SECRET_KEY_LENGTH, KYBER_SEED_LENGTH } from '../../src/constants';
 
 describe('Test kyber functions', () => {
   it('should generate keys sucessfully', async () => {

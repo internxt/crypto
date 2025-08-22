@@ -5,7 +5,7 @@ import {
   ARGON2ID_PARALLELISM,
   ARGON2ID_SALT_BYTE_LENGTH,
   ARGON2ID_OUTPUT_BYTE_LENGTH,
-} from '../utils/constants';
+} from '../constants';
 
 /**
  * Calculates hash using the argon2id password-hashing function

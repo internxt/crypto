@@ -1,5 +1,6 @@
 import { blake3 } from 'hash-wasm';
-import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN, hexToUint8Array } from '../utils';
+import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN } from '../constants';
+import { hexToUint8Array } from '../utils';
 import { importSymmetricCryptoKey } from '../symmetric-crypto';
 
 /**
