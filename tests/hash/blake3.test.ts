@@ -1,16 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { getHash, getHashHex } from '../../src/hash';
+import { getHash } from '../../src/hash';
 import { hexToUint8Array } from '../../src/utils';
 
 describe('Test getHash with blake3 test vectors', () => {
-  it('getHash should pass test with input length 0 from blake3 team', async () => {
-    const message = '';
-    const result = await getHashHex(1048, [message]);
-    const testResult =
-      'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262e00f03e7b69af26b7faaf09fcd333050338ddfe085b8cc869ca98b206c08243a26f5487789e8f660afe6c99ef9e0c52b92e7393024a80459cf91f476f9ffdbda7001c22e159b402631f277ca96f2defdf1078282314e763699a31c5363165421cce14d';
-    expect(result).toStrictEqual(testResult);
-  });
-
   it('getHash should pass test with input length 0 from blake3 team', async () => {
     const message = '';
     const result = await getHash(1048, [message]);

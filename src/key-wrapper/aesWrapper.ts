@@ -1,7 +1,12 @@
-import { getHash } from '../hash';
+import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, CONTEXT_WRAPPING, AES_ALGORITHM } from '../constants';
+import { deriveSymmetricKeyFromTwoKeys } from '../derive-key';
 
-import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../constants';
-
+/**
+ * Converts wrapping key in Uint8Array into CryptoKey
+ *
+ * @param key - The wrapping key in Uint8Array representation
+ * @returns The resulting CryptoKey
+ */
 export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
   try {
     return await window.crypto.subtle.importKey(KEY_FORMAT, key, KEY_WRAPPING_ALGORITHM, false, [
@@ -13,12 +18,20 @@ export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
     throw new Error(`Failed to import wrapping key: ${errorMessage}`);
   }
 }
+
+/**
+ * Derives wrapping key from two secrets
+ *
+ * @param eccSecret - The secret exchanged via elliptic curves
+ * @param kyberSecret - The secret exchanged via Kyber KEM
+ * @returns The resulting wrapping CryptoKey
+ */
 export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint8Array): Promise<CryptoKey> {
   try {
     if (eccSecret.length !== kyberSecret.length) {
       throw new Error('secrets must have equal length');
     }
-    const key = await getHash(AES_KEY_BIT_LENGTH, [kyberSecret, eccSecret]);
+    const key = await deriveSymmetricKeyFromTwoKeys(eccSecret, kyberSecret, CONTEXT_WRAPPING);
     return await importWrappingKey(key);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -26,6 +39,13 @@ export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint
   }
 }
 
+/**
+ * Unwraps the given wrapped key
+ *
+ * @param encryptedKey - The encrypted key
+ * @param wrappingKey - The secret key used for decryption
+ * @returns The resulting wrapping CryptoKey
+ */
 export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey): Promise<CryptoKey> {
   try {
     return await window.crypto.subtle.unwrapKey(
@@ -43,6 +63,13 @@ export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey
   }
 }
 
+/**
+ * Wraps the given CryptoKey
+ *
+ * @param encryptionKey - The CryptoKey to be wrapped
+ * @param wrappingKey - The secret key used for wrapping
+ * @returns The resulting ciphertext
+ */
 export async function wrapKey(encryptionKey: CryptoKey, wrappingKey: CryptoKey): Promise<Uint8Array> {
   try {
     const result = await window.crypto.subtle.wrapKey(KEY_FORMAT, encryptionKey, wrappingKey, KEY_WRAPPING_ALGORITHM);

@@ -6,7 +6,13 @@ const options = {
   storeFields: ['sender'],
 };
 
-export function getMiniSearchIndices(emails: Email[]) {
+/**
+ * Creates a MiniSearch index based on a set of emails
+ *
+ * @param emails - The list of emails
+ * @returns The MiniSearch index
+ */
+export function getMiniSearchIndices(emails: Email[]): MiniSearch {
   try {
     const miniSearch = new MiniSearch(options);
 
@@ -19,7 +25,13 @@ export function getMiniSearchIndices(emails: Email[]) {
   }
 }
 
-export function searializeIndices(miniSearch: MiniSearch) {
+/**
+ * Converts a MiniSearch index into Uint8Array
+ *
+ * @param miniSearch - The MiniSearch index
+ * @returns The Uint8Array representation of the MiniSearch index
+ */
+export function searializeIndices(miniSearch: MiniSearch): Uint8Array {
   try {
     const serializedIndex = JSON.stringify(miniSearch.toJSON());
     const encoder = new TextEncoder();
@@ -32,6 +44,12 @@ export function searializeIndices(miniSearch: MiniSearch) {
   }
 }
 
+/**
+ * Converts an Uint8Array array into a MiniSearch index
+ *
+ * @param miniSearch - The Uint8Array array representation of the MiniSearch index
+ * @returns The resulting MiniSearch index
+ */
 export function desearializeIndices(uint8Array: Uint8Array) {
   try {
     const decoder = new TextDecoder();

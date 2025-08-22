@@ -11,6 +11,7 @@ import { base64ToCiphertext, ciphertextToBase64 } from '../symmetric-crypto';
 
 /**
  * Converts identity keys to base64
+ *
  * @param keys - The identity keys
  * @returns The resulting base64 string
  */
@@ -32,6 +33,7 @@ export async function identityKeysToBase64(keys: IdentityKeys): Promise<string> 
 
 /**
  * Converts encryption keys to base64
+ *
  * @param keys - The encryption keys
  * @returns The resulting base64 string
  */
@@ -55,6 +57,7 @@ export async function encryptionKeysToBase64(keys: EncryptionKeys): Promise<stri
 
 /**
  * Converts encrypted keystore to base64
+ *
  * @param keystore - The encrypted keystore
  * @returns The resulting base64 string
  */
@@ -76,6 +79,7 @@ export function encryptedKeystoreToBase64(keystore: EncryptedKeystore): string {
 
 /**
  * Converts base64 to identity keys
+ *
  * @param base64 - The base64 input
  * @returns The resulting idenity keys
  */
@@ -100,6 +104,7 @@ export async function base64ToIdentityKeys(base64: string): Promise<IdentityKeys
 
 /**
  * Converts base64 to encryption keys
+ *
  * @param base64 - The base64 input
  * @returns The resulting encryption keys
  */
@@ -128,6 +133,7 @@ export async function base64ToEncryptionKeys(base64: string): Promise<Encryption
 
 /**
  * Converts base64 to encrypted keystore
+ *
  * @param base64 - The base64 input
  * @returns The resulting encrypted keystore
  */
@@ -150,6 +156,7 @@ export function base64ToEncryptedKeystore(base64: string): EncryptedKeystore {
 
 /**
  * Converts search indices to base64
+ *
  * @param indices - The search indices
  * @returns The resulting base64 string
  */
@@ -172,6 +179,7 @@ export function searchIndicesToBase64(incides: SearchIndices): string {
 
 /**
  * Converts base64 to search indices
+ *
  * @param base64 - The base64 input
  * @returns The resulting search indices
  */

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sendEmail } from '../../src/email-service/coreSend';
+import { sendEmail } from '../../src/email-service/api-send';
 import { User } from '../../src/utils/types';
 
 describe('Check sending api', () => {

@@ -1,18 +1,15 @@
 import { EncryptedKeystore, KeystoreType, SearchIndices, uint8ArrayToBase64 } from '../utils';
-import { CONTEXT_INDEX, INDEX_KEYSTORE_TAG } from '../constants';
-import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
+import { INDEX_KEYSTORE_TAG } from '../constants';
+import { encryptKeystoreContent, decryptKeystoreContent, getUserID, getBaseKey, deriveIndexKey } from './core';
 import { base64ToSearchIndices, searchIndicesToBase64 } from './converters';
-import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
 
 /**
- * Derives a secret key for protecting the index keystore
- * @param baseKey - The base secret key from which a new key secret will be derived
- * @returns The derived secret key for protecting the index keystore
+ * Creates an encrypted keystore for search indices
+ * The encryption key is derived from the base key (stored in session storage)
+ *
+ * @param indices - The email search indices
+ * @returns The encrypted keystore containing search indices
  */
-export async function deriveIndexKey(baseKey: Uint8Array): Promise<CryptoKey> {
-  return deriveSymmetricCryptoKeyFromContext(CONTEXT_INDEX, baseKey);
-}
-
 export async function encryptCurrentSearchIndices(indices: SearchIndices): Promise<EncryptedKeystore> {
   try {
     const userID = getUserID();
@@ -21,7 +18,7 @@ export async function encryptCurrentSearchIndices(indices: SearchIndices): Promi
     console.log('HOLA: ', userID, uint8ArrayToBase64(baseKey));
     const indexKey = await deriveIndexKey(baseKey);
     const content = searchIndicesToBase64(indices);
-    const encKeys = await createKeystore(indexKey, content, userID, INDEX_KEYSTORE_TAG);
+    const encKeys = await encryptKeystoreContent(indexKey, content, userID, INDEX_KEYSTORE_TAG);
     const indexKeystrore: EncryptedKeystore = {
       userID,
       type: KeystoreType.INDEX,
@@ -34,6 +31,13 @@ export async function encryptCurrentSearchIndices(indices: SearchIndices): Promi
   }
 }
 
+/**
+ * Opens an encrypted keystore with search indices
+ * The decryption key is derived from the base key (stored in session storage)
+ *
+ * @param encryptedKeystore - The encrypted keystore containing search indices
+ * @returns The email search indices
+ */
 export async function decryptCurrentSearchIndices(encryptedKeystore: EncryptedKeystore): Promise<SearchIndices> {
   try {
     if (encryptedKeystore.type != KeystoreType.INDEX) {
@@ -41,7 +45,7 @@ export async function decryptCurrentSearchIndices(encryptedKeystore: EncryptedKe
     }
     const baseKey = getBaseKey();
     const indexKey = await deriveIndexKey(baseKey);
-    const json = await openKeystore(
+    const json = await decryptKeystoreContent(
       indexKey,
       encryptedKeystore.encryptedKeys,
       encryptedKeystore.userID,

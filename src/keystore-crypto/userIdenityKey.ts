@@ -1,22 +1,19 @@
 import { IdentityKeys, EncryptedKeystore, KeystoreType } from '../utils';
-import { IDENTITY_KEYSTORE_TAG, CONTEXT_LOGIN } from '../constants';
-import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
+import { IDENTITY_KEYSTORE_TAG } from '../constants';
+import {
+  encryptKeystoreContent,
+  decryptKeystoreContent,
+  getUserID,
+  getBaseKey,
+  deriveIdentityKeystoreKey,
+} from './core';
 import { base64ToIdentityKeys, identityKeysToBase64 } from './converters';
 import { generateEccKeys } from '../asymmetric-crypto';
-import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
 
 /**
- * Derives a secret key for protecting the idenity keystore
- * @param baseKey - The base secret key from which a new key secret will be derived
- * @returns The derived secret key for protecting the idenity keystore
- */
-export async function deriveIdentityKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
-  return deriveSymmetricCryptoKeyFromContext(CONTEXT_LOGIN, baseKey);
-}
-
-/**
- * Generates idenity keys
- * @returns The generated identity keys
+ * Generates user idenity keys
+ *
+ * @returns The user identity keys
  */
 export async function generateIdentityKeys(): Promise<IdentityKeys> {
   try {
@@ -33,7 +30,8 @@ export async function generateIdentityKeys(): Promise<IdentityKeys> {
 }
 
 /**
- * Generates idenity keys and encrypts them with a key derived from the base key (stored in session storage)
+ * Generates user identity keys and creates an encrypted identity keystore
+ * The encryption key is derived from the base key (stored in session storage)
  *
  * @returns The encrypted idenity keystore
  */
@@ -45,7 +43,7 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
     const keys = await generateIdentityKeys();
     const content = await identityKeysToBase64(keys);
     const secretKey = await deriveIdentityKeystoreKey(baseKey);
-    const encryptedKeys = await createKeystore(secretKey, content, userID, IDENTITY_KEYSTORE_TAG);
+    const encryptedKeys = await encryptKeystoreContent(secretKey, content, userID, IDENTITY_KEYSTORE_TAG);
     const result: EncryptedKeystore = {
       userID,
       type,
@@ -60,8 +58,9 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
 
 /**
  * Opens the encrypted identity keystore
+ * The decryption key is derived from the base key (stored in session storage)
  *
- * @param recoveryCodes - The encrypted identity keystore
+ * @param encryptedKeystore - The encrypted identity keystore
  * @returns The identity keys
  */
 export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore): Promise<IdentityKeys> {
@@ -71,7 +70,7 @@ export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore)
     }
     const baseKey = getBaseKey();
     const secretKey = await deriveIdentityKeystoreKey(baseKey);
-    const json = await openKeystore(
+    const json = await decryptKeystoreContent(
       secretKey,
       encryptedKeystore.encryptedKeys,
       encryptedKeystore.userID,

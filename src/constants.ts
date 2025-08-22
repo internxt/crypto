@@ -4,6 +4,7 @@ export const AUX_LEN = 128;
 
 export const KEY_WRAPPING_ALGORITHM = 'AES-KW';
 export const KEY_FORMAT = 'raw';
+export const CONTEXT_WRAPPING = 'PQ MAIL 2025-08-22 18:10:00 key derived from ecc and kyber secrets';
 
 export const CURVE_NAME = 'P-521';
 export const ECC_ALGORITHM = 'ECDH';

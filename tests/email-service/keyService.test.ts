@@ -31,7 +31,7 @@ describe('Test key service functions', async () => {
 
   it('should successfully return recipient public keys with valid parameters', async () => {
     const mockResponse = {
-      data: [{ user: alice, eccPublicKey: pkBase64.eccPublicKey, kyberPublicKey: pkBase64.kyberPublicKey }],
+      data: [pkBase64],
       status: 200,
       statusText: 'OK',
       headers: {},

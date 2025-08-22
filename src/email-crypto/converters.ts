@@ -6,10 +6,43 @@ import {
   uint8ToUTF8,
   EmailBody,
   PublicKeys,
-  PublicKeysBase64,
   HybridEncKey,
   PwdProtectedKey,
+  User,
 } from '../utils';
+
+/**
+ * Converts a User type into a base64 string.
+ *
+ * @param user - The given user.
+ * @returns The base64 representation of the user.
+ */
+export function userToBase64(user: User): string {
+  try {
+    const json = JSON.stringify(user);
+    return btoa(json);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert User to base64: ${errorMessage}`);
+  }
+}
+
+/**
+ * Converts a base64 string into a User type
+ *
+ * @param base64 - The base64 representation of the user.
+ * @returns The User type.
+ */
+export function base64ToUser(base64: string): User {
+  try {
+    const json = atob(base64);
+    const user: User = JSON.parse(json);
+    return user;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to User: ${errorMessage}`);
+  }
+}
 
 /**
  * Converts an EmailBody type into a Uint8Array array.
@@ -45,42 +78,48 @@ export function binaryToEmailBody(array: Uint8Array): EmailBody {
 }
 
 /**
- * Converts a PublicKeysBase64 type into PublicKeys type.
+ * Converts a base64 string into PublicKeys type.
  *
- * @param key - The PublicKeysBase64 key.
+ * @param base64 - The base64 representation of the public key.
  * @returns The resulting PublicKeys.
  */
-export async function base64ToPublicKey(key: PublicKeysBase64): Promise<PublicKeys> {
+export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
   try {
-    const eccPublicKeyBytes = base64ToUint8Array(key.eccPublicKey);
+    const json = atob(base64);
+    const obj = JSON.parse(json);
+    const eccPublicKeyBytes = base64ToUint8Array(obj.eccPublicKey);
     const eccPublicKey = await importPublicKey(eccPublicKeyBytes);
-    const kyberPublicKey = base64ToUint8Array(key.kyberPublicKey);
-    return { eccPublicKey, kyberPublicKey, user: key.user };
+    const kyberPublicKey = base64ToUint8Array(obj.kyberPublicKey);
+    return {
+      user: base64ToUser(obj.user),
+      eccPublicKey: eccPublicKey,
+      kyberPublicKey: kyberPublicKey,
+    };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(
-      new Error(`Failed to convert key of the type PublicKeysBase64 to PublicKeys: ${errorMessage}`),
-    );
+    return Promise.reject(new Error(`Failed to convert base64 to PublicKeys: ${errorMessage}`));
   }
 }
 
 /**
- * Converts a PublicKeys type into PublicKeysBase64 type.
+ * Converts a PublicKeys type into base64 string.
  *
  * @param key - The PublicKeys key.
- * @returns The resulting PublicKeysBase64.
+ * @returns The resulting base64 string.
  */
-export async function publicKeyToBase64(key: PublicKeys): Promise<PublicKeysBase64> {
+export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
   try {
     const eccPublicKeyArray = await exportPublicKey(key.eccPublicKey);
-    const eccPublicKey = uint8ArrayToBase64(eccPublicKeyArray);
-    const kyberPublicKey = uint8ArrayToBase64(key.kyberPublicKey);
-    return { eccPublicKey, kyberPublicKey, user: key.user };
+    const json = JSON.stringify({
+      user: userToBase64(key.user),
+      eccPublicKey: uint8ArrayToBase64(eccPublicKeyArray),
+      kyberPublicKey: uint8ArrayToBase64(key.kyberPublicKey),
+    });
+    const base64 = btoa(json);
+    return base64;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(
-      new Error(`Failed to convert key of the type PublicKeys to PublicKeysBase64: ${errorMessage}`),
-    );
+    return Promise.reject(new Error(`Failed to convert key of the type PublicKeys to base64: ${errorMessage}`));
   }
 }
 

@@ -4,7 +4,7 @@ import envService from '../utils/env';
 /**
  * Sends a user's encrypted keystore to the server
  * @param keystore - The encrypted keystore
- * @param url - The user's url
+ * @param url - The user specific part of the url
  * @returns Server response
  */
 export async function sendEncryptedKeystoreToServer(encryptedKeystore: string, url: string): Promise<AxiosResponse> {
@@ -39,8 +39,8 @@ export async function sendEncryptedKeystoreToServer(encryptedKeystore: string, u
 
 /**
  * Requests a user's encrypted keystore from the server
- * @param url - The user's url
- * @returns The user's encrypted keystore in base64
+ * @param url - The user-specific part of the url
+ * @returns The user's encrypted keystore as base64 string
  */
 export async function requestEncryptedKeystore(url: string): Promise<string> {
   try {

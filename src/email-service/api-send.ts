@@ -3,7 +3,8 @@ import envService from '../utils/env';
 import { User } from '../utils';
 
 /**
- * Sends a user's  email to the server
+ * Sends an email to the server
+ *
  * @param subject - The email subject
  * @param body - The email body
  * @param sender - The email sender

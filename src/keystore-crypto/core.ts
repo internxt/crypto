@@ -1,8 +1,20 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { SymmetricCiphertext, base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import sessionStorageService from '../storage-service/sessionStorageService';
+import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
+import { CONTEXT_LOGIN, CONTEXT_INDEX, CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
+import { hashString } from '../hash';
 
-export async function createKeystore(
+/**
+ * Encrypts the keystore content using symmetric encryption
+ *
+ * @param secretKey - The symmetric key to encrypt the keystore content
+ * @param content - The content of the keystore
+ * @param userID - The ID of the user
+ * @param tag - The keystore type-specific tag string
+ * @returns The encrypted keystore content
+ */
+export async function encryptKeystoreContent(
   secretKey: CryptoKey,
   content: string,
   userID: string,
@@ -15,11 +27,20 @@ export async function createKeystore(
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to create keystore: ${errorMessage}`));
+    return Promise.reject(new Error(`Failed to encrypt keystore content: ${errorMessage}`));
   }
 }
 
-export async function openKeystore(
+/**
+ * Decrypts the keystore content using symmetric encryption
+ *
+ * @param secretKey - The symmetric key to decrypt the keystore content
+ * @param encryptedKeys - The encrypted keystore content
+ * @param userID - The ID of the user
+ * @param tag - The keystore type-specific tag string
+ * @returns The decrypted keystore content
+ */
+export async function decryptKeystoreContent(
   secretKey: CryptoKey,
   encryptedKeys: SymmetricCiphertext,
   userID: string,
@@ -32,10 +53,15 @@ export async function openKeystore(
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to open keystore: ${errorMessage}`));
+    return Promise.reject(new Error(`Failed to decrypt keystore content: ${errorMessage}`));
   }
 }
 
+/**
+ * Gets User ID from the session storage
+ *
+ * @returns The ID of the user
+ */
 export function getUserID(): string {
   try {
     const userID = sessionStorageService.get('userID');
@@ -49,6 +75,11 @@ export function getUserID(): string {
   }
 }
 
+/**
+ * Gets user's base key from the session storage
+ *
+ * @returns The user's base key
+ */
 export function getBaseKey(): Uint8Array {
   try {
     const baseKeyBase64 = sessionStorageService.get('baseKey');
@@ -60,4 +91,46 @@ export function getBaseKey(): Uint8Array {
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to get base key from session storage: ${errorMessage}`);
   }
+}
+
+/**
+ * Derives a secret key for protecting the idenity keystore
+ *
+ * @param baseKey - The base secret key from which a new key secret will be derived
+ * @returns The derived secret key for protecting the idenity keystore
+ */
+export async function deriveIdentityKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_LOGIN, baseKey);
+}
+
+/**
+ * Derives a secret key for protecting the keystore for search indices
+ *
+ * @param baseKey - The base secret key from which a new key secret will be derived
+ * @returns The derived secret key for protecting he keystore for search indices
+ */
+export async function deriveIndexKey(baseKey: Uint8Array): Promise<CryptoKey> {
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_INDEX, baseKey);
+}
+
+/**
+ * Derives a secret key for protecting the recovery keystore
+ *
+ * @param recoveryCodes - The recovery codes
+ * @returns The derived secret key for protecting the recovery keystore
+ */
+export async function deriveRecoveryKey(recoveryCodes: string): Promise<CryptoKey> {
+  const recoveryCodesBuffer = await hashString(AES_KEY_BIT_LENGTH, recoveryCodes);
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_RECOVERY, recoveryCodesBuffer);
+}
+
+/**
+ * Derives a secret key for protecting the encryption keystore
+ * 
+ * @param baseKey - The base secret key from which a new key secret will be derived
+ * @returns The derived secret key for protecting the encryption keystore
+
+*/
+export async function deriveEncryptionKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
+  return deriveSymmetricCryptoKeyFromContext(CONTEXT_ENC_KEYSTORE, baseKey);
 }

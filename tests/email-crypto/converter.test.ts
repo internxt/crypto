@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, PublicKeys, PublicKeysBase64, User, HybridEncKey, PwdProtectedKey } from '../../src/utils/types';
+import { EmailBody, PublicKeys, User, HybridEncKey, PwdProtectedKey } from '../../src/utils/types';
 import {
   emailBodyToBinary,
   binaryToEmailBody,
@@ -9,6 +9,8 @@ import {
   base64ToPwdProtectedKey,
   encHybridKeyToBase64,
   base64ToEncHybridKey,
+  userToBase64,
+  base64ToUser,
 } from '../../src/email-crypto';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
@@ -64,6 +66,17 @@ describe('Test email crypto functions', () => {
     expect(result).toEqual(key);
   });
 
+  it('user converter to base64 and back works', async () => {
+    const alice: User = {
+      name: 'Alice',
+      email: 'alice@email.com',
+    };
+
+    const base64 = await userToBase64(alice);
+    const result = await base64ToUser(base64);
+    expect(result).toEqual(alice);
+  });
+
   it('throws error if public key converter to base64 fails', async () => {
     const eccKeyPair = await generateEccKeys();
     const kyberKeyPair = await generateKyberKeys();
@@ -77,22 +90,12 @@ describe('Test email crypto functions', () => {
       kyberPublicKey: kyberKeyPair.publicKey,
     };
     await expect(publicKeyToBase64(bad_key)).rejects.toThrowError(
-      /Failed to convert key of the type PublicKeys to PublicKeysBase64/,
+      /Failed to convert key of the type PublicKeys to base64/,
     );
   });
   it('throws error if base64 to public key converter fails', async () => {
-    const alice: User = {
-      name: 'Alice',
-      email: 'alice@email.com',
-    };
-    const bad_key: PublicKeysBase64 = {
-      user: alice,
-      eccPublicKey: 'not valid key',
-      kyberPublicKey: 'not valid key',
-    };
-    await expect(base64ToPublicKey(bad_key)).rejects.toThrowError(
-      /Failed to convert key of the type PublicKeysBase64 to PublicKeys/,
-    );
+    const bad_key = 'base base 64 key';
+    await expect(base64ToPublicKey(bad_key)).rejects.toThrowError(/Failed to convert base64 to PublicKeys/);
   });
 
   it('pwd protected key converter to base64 and back works', async () => {

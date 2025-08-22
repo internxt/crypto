@@ -22,12 +22,6 @@ export type User = {
   name: string;
 };
 
-export type PublicKeysBase64 = {
-  user: User;
-  eccPublicKey: string;
-  kyberPublicKey: string;
-};
-
 export type PublicKeys = {
   user: User;
   eccPublicKey: CryptoKey;
