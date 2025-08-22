@@ -4,7 +4,6 @@ import sessionStorageService from '../storage-service/sessionStorageService';
 
 export async function createKeystore(
   secretKey: CryptoKey,
-  nonce: number,
   content: string,
   userID: string,
   tag: string,
@@ -12,7 +11,7 @@ export async function createKeystore(
   try {
     const aux = userID + tag;
     const message = base64ToUint8Array(content);
-    const result = await encryptSymmetrically(secretKey, nonce, message, aux);
+    const result = await encryptSymmetrically(secretKey, message, aux);
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

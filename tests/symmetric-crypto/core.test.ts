@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createIV } from '../../src/symmetric-crypto/core';
-import { IV_LENGTH, NONCE_LENGTH } from '../../src/utils/constants';
+import { createNISTbasedIV } from '../../src/symmetric-crypto/core';
 import {
   genSymmetricCryptoKey,
   encryptSymmetrically,
@@ -8,41 +7,31 @@ import {
   ciphertextToBase64,
 } from '../../src/symmetric-crypto';
 import { SymmetricCiphertext } from '../../src/utils/types';
+import { hashString } from '../../src/hash';
 
 describe('Test symmetric functions', () => {
   it('should generate iv as expected', async () => {
-    const n = 4;
-    const iv = createIV(n);
-    const view = new DataView(iv.buffer, 12, 4);
-    const number = view.getUint32(0, false);
+    const freeField = '4';
+    const iv = await createNISTbasedIV(freeField);
+    const number = iv.slice(12);
 
-    expect(number).toBe(n);
-    expect(iv.length).toBe(IV_LENGTH);
+    const hash = await hashString(32, freeField);
 
-    const iv_new = createIV(n);
+    expect(number).toStrictEqual(hash);
+    expect(iv.length).toBe(16);
+
+    const iv_new = createNISTbasedIV(freeField);
     expect(iv).not.toEqual(iv_new);
-  });
 
-  it('should handle the modules bigger than NONE_LENGTH', async () => {
-    const n = 4;
-    const max_value = Math.pow(2, NONCE_LENGTH * 8);
-    const iv = createIV(n + max_value);
-    const view = new DataView(iv.buffer, 12, 4);
-    const number = view.getUint32(0, false);
-
-    expect(number).toBe(n);
-    expect(iv.length).toBe(IV_LENGTH);
-
-    const iv_new = createIV(n);
-    expect(iv).not.toEqual(iv_new);
+    const iv_empry_free_field = createNISTbasedIV();
+    expect((await iv_empry_free_field).length).toEqual(16);
   });
 
   it('should convert ciphertext to base64 and back', async () => {
     const key = await genSymmetricCryptoKey();
-    const nonce = 1;
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
     const aux = 'additional data';
-    const enc = await encryptSymmetrically(key, nonce, message, aux);
+    const enc = await encryptSymmetrically(key, message, aux);
 
     const base64 = await ciphertextToBase64(enc);
     const result = await base64ToCiphertext(base64);

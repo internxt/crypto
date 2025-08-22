@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  desearializeIndices,
-  getCurrentSearchIndex,
-  searializeIndices,
-} from '../../src/email-search/createSearchIndex';
+import { desearializeIndices, getMiniSearchIndices, searializeIndices } from '../../src/email-search/core';
 import { Email } from '../../src/utils/types';
 import MiniSearch from 'minisearch';
 
@@ -21,7 +17,7 @@ const emails: Email[] = [
     subject: 'Moby Dick',
     sender: alice,
     recipients: [bob],
-    emailChainLength: 0,
+    replyToEmailID: 0,
   },
   {
     id: '2',
@@ -33,7 +29,7 @@ const emails: Email[] = [
     },
     sender: bob,
     recipients: [alice, eve],
-    emailChainLength: 3,
+    replyToEmailID: 3,
   },
   {
     id: '3',
@@ -45,7 +41,7 @@ const emails: Email[] = [
     },
     sender: eve,
     recipients: [alice, bob],
-    emailChainLength: 1,
+    replyToEmailID: 1,
   },
   {
     id: '4',
@@ -57,13 +53,13 @@ const emails: Email[] = [
     },
     recipients: [alice, eve],
     sender: bob,
-    emailChainLength: 5,
+    replyToEmailID: 5,
   },
 ];
 
 describe('Test dummy search functions', () => {
   it('should sucessfully generate search index', async () => {
-    const indices = getCurrentSearchIndex(emails);
+    const indices = getMiniSearchIndices(emails);
     const results = indices.search('zen art motorcycle');
     const expectedResult = [
       {
@@ -101,7 +97,7 @@ describe('Test dummy search functions', () => {
   });
 
   it('should sucessfully generate search index', async () => {
-    const indices = getCurrentSearchIndex(emails);
+    const indices = getMiniSearchIndices(emails);
     const results = indices.search('zen art motorcycle');
 
     const uint8 = searializeIndices(indices);

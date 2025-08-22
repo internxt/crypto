@@ -1,21 +1,25 @@
-import { AES_ALGORITHM, SymmetricCiphertext } from '../utils';
-import { createIV, genAuxFromParams } from './core';
+import { SymmetricCiphertext } from '../utils';
+import { createNISTbasedIV, makeAuxFixedLength, encryptMessage, decryptMessage } from './core';
 
+/**
+ * Symmetrically encrypts the message
+ *
+ * @param encryptionKey - The symmetric CryptoKey used for message encryption
+ * @param message - The message to encrypt
+ * @param freeField - The context of the message (required for IV generation)
+ * @param aux - The auxilary string
+ * @returns The resulting ciphertext.
+ */
 export async function encryptSymmetrically(
   encryptionKey: CryptoKey,
-  nonce: number,
   message: Uint8Array,
   aux: string,
+  freeField?: string,
 ): Promise<SymmetricCiphertext> {
   try {
-    const iv = createIV(nonce);
-    const additionalData = await genAuxFromParams([aux, AES_ALGORITHM]);
-    const encrypted = await window.crypto.subtle.encrypt(
-      { name: AES_ALGORITHM, iv, additionalData },
-      encryptionKey,
-      message,
-    );
-    const ciphertext = new Uint8Array(encrypted);
+    const iv = await createNISTbasedIV(freeField);
+    const additionalData = await makeAuxFixedLength(aux);
+    const ciphertext = await encryptMessage(message, encryptionKey, iv, additionalData);
     return { ciphertext, iv };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -23,19 +27,28 @@ export async function encryptSymmetrically(
   }
 }
 
+/**
+ * Decryps symmetrically encrypted message
+ *
+ * @param encryptionKey - The symmetric CryptoKey used for message encryption
+ * @param encryptedMessage - The ciphertext
+ * @param aux - The auxilary string
+ * @returns The resulting ciphertext.
+ */
 export async function decryptSymmetrically(
   encryptionKey: CryptoKey,
-  encText: SymmetricCiphertext,
+  encryptedMessage: SymmetricCiphertext,
   aux: string,
 ): Promise<Uint8Array> {
   try {
-    const additionalData = await genAuxFromParams([aux, AES_ALGORITHM]);
-    const decrypted = await window.crypto.subtle.decrypt(
-      { name: AES_ALGORITHM, iv: encText.iv, additionalData },
+    const additionalData = await makeAuxFixedLength(aux);
+    const result = await decryptMessage(
+      encryptedMessage.ciphertext,
+      encryptedMessage.iv,
       encryptionKey,
-      encText.ciphertext,
+      additionalData,
     );
-    return new Uint8Array(decrypted);
+    return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return Promise.reject(new Error(`Failed to decrypt symmetrically:${errorMessage}`));

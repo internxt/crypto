@@ -49,4 +49,15 @@ describe('Test kyber functions', () => {
     const publicKey = new Uint8Array([1, 2, 3]);
     expect(() => encapsulateKyber(publicKey)).toThrowError(/Failed to encapsulate/);
   });
+
+  it('should throw an error if no ciphertext given', () => {
+    const ciphertext = new Uint8Array();
+    const keys = generateKyberKeys();
+    expect(() => decapsulateKyber(ciphertext, keys.secretKey)).toThrowError(/Failed to decapsulate/);
+  });
+
+  it('should throw an error if short seed given', () => {
+    const seed = new Uint8Array([1, 2, 3]);
+    expect(() => generateKyberKeys(seed)).toThrowError(/Failed to generate Kyber key/);
+  });
 });

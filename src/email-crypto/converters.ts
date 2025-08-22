@@ -4,7 +4,6 @@ import {
   base64ToUint8Array,
   UTF8ToUint8,
   uint8ToUTF8,
-  decodeBase64,
   EmailBody,
   PublicKeys,
   PublicKeysBase64,
@@ -113,7 +112,7 @@ export function encHybridKeyToBase64(encHybridKey: HybridEncKey): string {
  */
 export function base64ToEncHybridKey(base64: string): HybridEncKey {
   try {
-    const json = decodeBase64(base64);
+    const json = atob(base64);
     const obj = JSON.parse(json);
     return {
       encryptedKey: base64ToUint8Array(obj.encryptedKey),
@@ -153,7 +152,7 @@ export function pwdProtectedKeyToBase64(pwdProtectedKey: PwdProtectedKey): strin
  */
 export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
   try {
-    const json = decodeBase64(base64);
+    const json = atob(base64);
     const obj = JSON.parse(json);
     return {
       encryptedKey: base64ToUint8Array(obj.encryptedKey),

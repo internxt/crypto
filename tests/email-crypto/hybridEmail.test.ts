@@ -34,7 +34,7 @@ describe('Test email crypto functions', async () => {
     body: emailBody,
     sender: userAlice,
     recipients: [userBob],
-    emailChainLength: 2,
+    replyToEmailID: 2,
   };
 
   const { privateKeys: alicePrivateKeys, publicKeys: alicePublicKeys } = await generateEmailKeys(userAlice);
@@ -64,7 +64,7 @@ describe('Test email crypto functions', async () => {
   it('should throw an error if hybrid email decryption fails', async () => {
     const key = await genSymmetricCryptoKey();
 
-    const emailCiphertext = await encryptSymmetrically(key, 42, new Uint8Array([1, 2, 3]), 'aux');
+    const emailCiphertext = await encryptSymmetrically(key, new Uint8Array([1, 2, 3]), 'aux', 'userID');
     const encKey: HybridEncKey = {
       kyberCiphertext: new Uint8Array([1, 2, 3]),
       encryptedKey: new Uint8Array([4, 5, 6, 7]),
@@ -76,7 +76,7 @@ describe('Test email crypto functions', async () => {
       sender: userAlice,
       encryptedFor: userBob,
       recipients: [userBob],
-      emailChainLength: 2,
+      replyToEmailID: 2,
     };
 
     await expect(decryptEmailHybrid(bad_encrypted_email, alicePublicKeys, bobPrivateKeys)).rejects.toThrowError(

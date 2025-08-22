@@ -3,9 +3,12 @@ import {
   EncryptionKeys,
   EncryptedKeystore,
   KeystoreType,
+  SearchIndices,
   IDENTITY_KEYSTORE_TAG,
   ENCRYPTION_KEYSTORE_TAG,
   RECOVERY_KEYSTORE_TAG,
+  INDEX_KEYSTORE_TAG,
+  uint8ArrayToBase64,
 } from '../utils';
 import { createKeystore, openKeystore, getUserID, getBaseKey } from './core';
 import {
@@ -15,12 +18,15 @@ import {
   generateEncryptionKeys,
   generateRecoveryCodes,
   deriveRecoveryKey,
+  deriveIndexKey,
 } from './keys';
 import {
   base64ToEncryptionKeys,
   base64ToIdentityKeys,
+  base64ToSearchIndices,
   encryptionKeysToBase64,
   identityKeysToBase64,
+  searchIndicesToBase64,
 } from './converters';
 
 /**
@@ -36,7 +42,7 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
     const keys = await generateIdentityKeys();
     const content = await identityKeysToBase64(keys);
     const secretKey = await deriveIdentityKeystoreKey(baseKey);
-    const encryptedKeys = await createKeystore(secretKey, 0, content, userID, IDENTITY_KEYSTORE_TAG);
+    const encryptedKeys = await createKeystore(secretKey, content, userID, IDENTITY_KEYSTORE_TAG);
     const result: EncryptedKeystore = {
       userID,
       type,
@@ -89,11 +95,12 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
   try {
     const userID = getUserID();
     const baseKey = getBaseKey();
+    console.log('HOLA: ENC ', userID, uint8ArrayToBase64(baseKey));
     const keys = await generateEncryptionKeys();
     const content = await encryptionKeysToBase64(keys);
 
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
-    const ciphertext = await createKeystore(secretKey, 0, content, userID, ENCRYPTION_KEYSTORE_TAG);
+    const ciphertext = await createKeystore(secretKey, content, userID, ENCRYPTION_KEYSTORE_TAG);
     const encryptionKeystore: EncryptedKeystore = {
       userID,
       type: KeystoreType.ENCRYPTION,
@@ -101,7 +108,7 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
     };
     const recoveryCodes = generateRecoveryCodes();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
-    const encKeys = await createKeystore(recoveryKey, 0, content, userID, RECOVERY_KEYSTORE_TAG);
+    const encKeys = await createKeystore(recoveryKey, content, userID, RECOVERY_KEYSTORE_TAG);
     const recoveryKeystore: EncryptedKeystore = {
       userID,
       type: KeystoreType.RECOVERY,
@@ -167,5 +174,47 @@ export async function openRecoveryKeystore(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return Promise.reject(new Error(`Failed to open recovery keystore: ${errorMessage}`));
+  }
+}
+
+export async function encryptCurrentSearchIndices(indices: SearchIndices): Promise<EncryptedKeystore> {
+  try {
+    const userID = getUserID();
+    const baseKey = getBaseKey();
+
+    console.log('HOLA: ', userID, uint8ArrayToBase64(baseKey));
+    const indexKey = await deriveIndexKey(baseKey);
+    const content = searchIndicesToBase64(indices);
+    const encKeys = await createKeystore(indexKey, content, userID, INDEX_KEYSTORE_TAG);
+    const indexKeystrore: EncryptedKeystore = {
+      userID,
+      type: KeystoreType.INDEX,
+      encryptedKeys: encKeys,
+    };
+    return indexKeystrore;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to encrypt search indices: ${errorMessage}`);
+  }
+}
+
+export async function decryptCurrentSearchIndices(encryptedKeystore: EncryptedKeystore): Promise<SearchIndices> {
+  try {
+    if (encryptedKeystore.type != KeystoreType.INDEX) {
+      throw new Error('Input is invalid');
+    }
+    const baseKey = getBaseKey();
+    const indexKey = await deriveIndexKey(baseKey);
+    const json = await openKeystore(
+      indexKey,
+      encryptedKeystore.encryptedKeys,
+      encryptedKeystore.userID,
+      INDEX_KEYSTORE_TAG,
+    );
+    const indices: SearchIndices = await base64ToSearchIndices(json);
+    return indices;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to decrypt search index: ${errorMessage}`);
   }
 }

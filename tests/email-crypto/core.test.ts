@@ -26,7 +26,7 @@ describe('Test email crypto functions', () => {
       body: emailBody,
       sender: userAlice,
       recipients: [userBob],
-      emailChainLength: 2,
+      replyToEmailID: 2,
     };
     const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);
     const encKey: HybridEncKey = { kyberCiphertext: new Uint8Array(), encryptedKey: new Uint8Array() };
@@ -34,7 +34,7 @@ describe('Test email crypto functions', () => {
       ciphertext: encEmail,
       sender: userAlice,
       recipients: [userBob],
-      emailChainLength: 2,
+      replyToEmailID: 2,
       subject: 'test subject',
       encryptedFor: userBob,
       encryptedKey: encKey,
@@ -65,7 +65,7 @@ describe('Test email crypto functions', () => {
       body: emailBody,
       sender: userAlice,
       recipients: [userBob],
-      emailChainLength: 2,
+      replyToEmailID: 2,
     };
     const { encEmail } = await encryptEmailSymmetrically(email);
     const encKey: HybridEncKey = { kyberCiphertext: new Uint8Array(), encryptedKey: new Uint8Array() };
@@ -73,7 +73,7 @@ describe('Test email crypto functions', () => {
       ciphertext: encEmail,
       sender: userAlice,
       recipients: [userBob],
-      emailChainLength: 2,
+      replyToEmailID: 2,
       subject: 'test subject',
       encryptedFor: userBob,
       encryptedKey: encKey,

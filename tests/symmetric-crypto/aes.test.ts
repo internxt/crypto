@@ -4,13 +4,17 @@ import { encryptSymmetrically, decryptSymmetrically, genSymmetricCryptoKey } fro
 describe('Test symmetric functions', () => {
   it('should sucessfully encrypt and decrypt', async () => {
     const key = await genSymmetricCryptoKey();
-    const nonce = 1;
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
     const aux = 'additional data';
 
-    const enc = await encryptSymmetrically(key, nonce, message, aux);
+    const enc = await encryptSymmetrically(key, message, aux, 'userID');
     const result = await decryptSymmetrically(key, enc, aux);
 
     expect(result).toStrictEqual(message);
+
+    const enc_2 = await encryptSymmetrically(key, message, aux);
+    const result_2 = await decryptSymmetrically(key, enc_2, aux);
+    expect(result_2).toStrictEqual(message);
+    expect(enc_2).not.toBe(enc);
   });
 });

@@ -22,7 +22,7 @@ export async function encryptEmailHybrid(
       encryptedFor: recipientPublicKeys.user,
       sender: email.sender,
       subject: email.subject,
-      emailChainLength: email.emailChainLength,
+      replyToEmailID: email.replyToEmailID,
       ciphertext,
       encryptedKey,
     };
@@ -58,7 +58,7 @@ export async function encryptEmailHybridForMultipleRecipients(
         sender: email.sender,
         encryptedFor: keys.user,
         subject: email.subject,
-        emailChainLength: email.emailChainLength,
+        replyToEmailID: email.replyToEmailID,
         ciphertext,
         encryptedKey,
       };

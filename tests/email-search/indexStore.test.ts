@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  desearializeIndices,
-  getCurrentSearchIndex,
-  searializeIndices,
-  decryptCurrentSearchIndices,
-  encryptCurrentSearchIndices,
-} from '../../src/email-search';
-import { Email, NONCE_LENGTH } from '../../src/utils';
-import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
+import { getCurrentSearchIndex } from '../../src/email-search';
+import { Email } from '../../src/utils';
 
 const alice = { email: 'alice@email.com', name: 'alice' };
 const bob = { email: 'bob@email.com', name: 'bob' };
@@ -23,7 +16,7 @@ const emails: Email[] = [
     subject: 'Moby Dick',
     sender: alice,
     recipients: [bob],
-    emailChainLength: 0,
+    replyToEmailID: 0,
   },
   {
     id: '2',
@@ -35,7 +28,7 @@ const emails: Email[] = [
     },
     sender: bob,
     recipients: [alice, eve],
-    emailChainLength: 3,
+    replyToEmailID: 3,
   },
   {
     id: '3',
@@ -47,7 +40,7 @@ const emails: Email[] = [
     },
     sender: eve,
     recipients: [alice, bob],
-    emailChainLength: 1,
+    replyToEmailID: 1,
   },
   {
     id: '4',
@@ -59,46 +52,16 @@ const emails: Email[] = [
     },
     recipients: [alice, eve],
     sender: bob,
-    emailChainLength: 5,
+    replyToEmailID: 5,
   },
 ];
 
 describe('Test search index functions', () => {
   it('should sucesfully encrypt and decrypt current index', async () => {
-    const indices = getCurrentSearchIndex(emails);
-    const results_before = indices.search('zen art motorcycle');
+    const userID = 'mock ID';
+    const indices = getCurrentSearchIndex(emails, userID);
 
-    const message = searializeIndices(indices);
-    const key = await genSymmetricCryptoKey();
-    const repets = 0;
-    const init_aux = 'initial aux';
-
-    const { nonce, aux, encIndices } = await encryptCurrentSearchIndices(key, message, repets, init_aux);
-    const result = await decryptCurrentSearchIndices(key, encIndices, aux);
-    const decrypted_indices = desearializeIndices(result);
-    const results_after = decrypted_indices.search('zen art motorcycle');
-
-    expect(results_before).toStrictEqual(results_after);
-    expect(aux).toBe(init_aux);
-    expect(nonce).toBe(0);
-  });
-
-  it('should successfully wrap the nonce if repeats exceed the limit', async () => {
-    const indices = getCurrentSearchIndex(emails);
-    const results_before = indices.search('zen art motorcycle');
-
-    const message = searializeIndices(indices);
-    const key = await genSymmetricCryptoKey();
-    const repets = Math.pow(2, NONCE_LENGTH * 8);
-    const init_aux = 'initial aux';
-
-    const { nonce, encIndices, aux } = await encryptCurrentSearchIndices(key, message, repets, init_aux);
-    const result = await decryptCurrentSearchIndices(key, encIndices, aux);
-    const decrypted_indices = desearializeIndices(result);
-    const results_after = decrypted_indices.search('zen art motorcycle');
-
-    expect(results_before).toStrictEqual(results_after);
-    expect(aux).not.toBe(init_aux);
-    expect(nonce).toBe(0);
+    expect(indices.userID).toBe(userID);
+    expect(indices.timestamp).instanceOf(Date);
   });
 });

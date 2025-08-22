@@ -26,7 +26,7 @@ describe('Test email crypto functions', () => {
       subject: 'test subject',
       sender: userAlice,
       recipients: [userBob],
-      emailChainLength: 2,
+      replyToEmailID: 2,
     };
 
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);

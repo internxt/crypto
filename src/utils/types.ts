@@ -11,6 +11,12 @@ export type EncryptedKeystore = {
   encryptedKeys: SymmetricCiphertext;
 };
 
+export type SearchIndices = {
+  userID: string;
+  data: Uint8Array;
+  timestamp: Date;
+};
+
 export type User = {
   email: string;
   name: string;
@@ -52,7 +58,7 @@ export type HybridEncryptedEmail = {
   subject: string;
   encryptedFor: User;
   recipients: User[];
-  emailChainLength: number;
+  replyToEmailID?: number;
 };
 
 export type PwdProtectedEmail = {
@@ -61,7 +67,7 @@ export type PwdProtectedEmail = {
   sender: User;
   subject: string;
   recipients: User[];
-  emailChainLength: number;
+  replyToEmailID?: number;
 };
 
 export type SymmetricCiphertext = {
@@ -91,5 +97,5 @@ export type Email = {
   subject: string;
   sender: User;
   recipients: User[];
-  emailChainLength: number;
+  replyToEmailID?: number;
 };

@@ -38,6 +38,7 @@ export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
 
 /**
  * Converts public key in SubjectPublicKeyInfo format (RFC 5280) to CryptoKey
+ *
  * @returns The CryptoKey representation of the public key
  */
 export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKey> {
@@ -60,6 +61,7 @@ export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKe
 
 /**
  * Converts private key in CryptoKey to PKCS #8 format (RFC 5208)
+ *
  * @returns The Uint8Array representation of the private key
  */
 export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
@@ -74,6 +76,7 @@ export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
 
 /**
  * Converts private key in PKCS #8 format (RFC 5208) to CryptoKey
+ *
  * @returns The CryptoKey representation of the private key
  */
 export async function importPrivateKey(pkcs8KeyData: Uint8Array): Promise<CryptoKey> {

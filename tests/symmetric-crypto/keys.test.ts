@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto';
+import { exportSymmetricCryptoKey, genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto';
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/utils';
 
 describe('Test symmetric key functions', () => {
@@ -22,5 +22,19 @@ describe('Test symmetric key functions', () => {
 
     expect(key).toBeInstanceOf(Uint8Array);
     expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
+  });
+
+  it('should throw an error if secret key is non exportable', async () => {
+    const non_exportable_key = await window.crypto.subtle.generateKey(
+      {
+        name: AES_ALGORITHM,
+        length: AES_KEY_BIT_LENGTH,
+      },
+      false,
+      ['encrypt', 'decrypt'],
+    );
+    await expect(exportSymmetricCryptoKey(non_exportable_key)).rejects.toThrowError(
+      /Failed to export symmetric CryptoKey/,
+    );
   });
 });

@@ -24,8 +24,8 @@ import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
  */
 export function getAux(email: HybridEncryptedEmail | PwdProtectedEmail | Email): string {
   try {
-    const { subject, emailChainLength, sender, recipients } = email;
-    const aux = JSON.stringify({ subject, emailChainLength, sender, recipients });
+    const { subject, replyToEmailID, sender, recipients } = email;
+    const aux = JSON.stringify({ subject, replyToEmailID, sender, recipients });
     return aux;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -47,7 +47,8 @@ export async function encryptEmailSymmetrically(
     const encryptionKey = await genSymmetricCryptoKey();
     const emailBody = email.body;
     const binaryEmail = emailBodyToBinary(emailBody);
-    const { ciphertext, iv } = await encryptSymmetrically(encryptionKey, email.emailChainLength, binaryEmail, aux);
+    const freeField = email.sender.email;
+    const { ciphertext, iv } = await encryptSymmetrically(encryptionKey, binaryEmail, aux, freeField);
     const encEmail: SymmetricCiphertext = { ciphertext, iv };
     return { encEmail, encryptionKey };
   } catch (error) {

@@ -21,7 +21,7 @@ export async function createPwdProtectedEmail(email: Email, password: string): P
       sender: email.sender,
       recipients: email.recipients,
       subject: email.subject,
-      emailChainLength: email.emailChainLength,
+      replyToEmailID: email.replyToEmailID,
       ciphertext,
       encryptedKey,
     };

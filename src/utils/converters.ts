@@ -13,26 +13,6 @@ export function genMnemonic(bits: number): string {
 }
 
 /**
- * Decodes base64 string into UTF-8 string
- *
- * @param base64 - The base64 string.
- * @returns The UTF-8 string created from the base64 string.
- */
-export function decodeBase64(base64: string): string {
-  return Buffer.from(base64, 'base64').toString('utf-8');
-}
-
-/**
- * Encodes an UTF-8 string into base64 string
- *
- * @param str - The UTF-8 string.
- * @returns The base64 string created from the UTF-8 string.
- */
-export function encodeBase64(str: string): string {
-  return Buffer.from(str).toString('base64');
-}
-
-/**
  * Converts a Uint8Array into a hexadecimal string.
  *
  * @param array - The Uint8Array to convert.

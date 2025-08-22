@@ -54,7 +54,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
@@ -84,7 +84,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
@@ -101,7 +101,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob, userEve],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmails: HybridEncryptedEmail[] = await encryptEmailHybridForMultipleRecipients(
@@ -148,7 +148,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob, userEve],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmails: HybridEncryptedEmail[] = await encryptEmailHybridForMultipleRecipients(
@@ -172,7 +172,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
@@ -202,7 +202,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
@@ -219,7 +219,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob, userEve],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
@@ -262,7 +262,7 @@ describe('Test sending email functions', async () => {
       subject: 'test subject',
       recipients: [userBob, userEve],
       id: '1',
-      emailChainLength: 1,
+      replyToEmailID: 1,
     };
 
     const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);

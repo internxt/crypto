@@ -25,5 +25,10 @@ export function encapsulateKyber(publicKey: Uint8Array): {
 }
 
 export function decapsulateKyber(cipherText: Uint8Array, secretKey: Uint8Array): Uint8Array {
-  return ml_kem768.decapsulate(cipherText, secretKey);
+  try {
+    return ml_kem768.decapsulate(cipherText, secretKey);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to decapsulate: ${errorMessage}`);
+  }
 }

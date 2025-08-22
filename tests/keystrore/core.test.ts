@@ -2,15 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 import { createKeystore, getBaseKey, getUserID, openKeystore } from '../../src/keystore/core';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
-import { base64ToUint8Array, encodeBase64 } from '../../src/utils';
+import { base64ToUint8Array } from '../../src/utils';
 
 describe('Test keystore keys functions', () => {
   it('should sucessfully create and open a keystore', async () => {
     const key = await genSymmetricCryptoKey();
-    const mockContext = encodeBase64('mock context string');
+    const mockContext = btoa('mock context string');
     const mockUserID = 'mock user ID';
     const mockTag = 'mock tag';
-    const keystore = await createKeystore(key, 0, mockContext, mockUserID, mockTag);
+    const keystore = await createKeystore(key, mockContext, mockUserID, mockTag);
     const decryptedContent = await openKeystore(key, keystore, mockUserID, mockTag);
 
     expect(mockContext).toBe(decryptedContent);
