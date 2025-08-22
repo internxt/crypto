@@ -5,7 +5,7 @@ import {
   getKeyFromPasswordAndSaltHex,
   getKeyFromPasswordHex,
   getKeyFromPassword,
-} from '../../src/derive-key/deriveKeysFromPwd';
+} from '../../src/derive-key';
 
 import { argon2, sampleSalt } from '../../src/derive-key/core';
 import { uint8ArrayToHex } from '../../src/utils';

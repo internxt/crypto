@@ -1,4 +1,4 @@
-export * from './hybridEncEmail';
+export * from './hybridEncyptedEmail';
 export * from './pwdProtectedEmail';
 export * from './converters';
-export * from './keys';
+export * from './emailKeys';

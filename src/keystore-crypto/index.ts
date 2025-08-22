@@ -1,4 +1,4 @@
 export * from './emailEncryptionKey';
 export * from './userIdenityKey';
-export * from './emailSerchIndex';
+export * from './emailSearchIndex';
 export * from './converters';

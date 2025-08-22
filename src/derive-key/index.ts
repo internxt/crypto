@@ -1,2 +1,2 @@
-export * from './deriveKeys';
-export * from './deriveKeysFromPwd';
+export * from './deriveKeysFromKey';
+export * from './deriveKeysFromPassword';

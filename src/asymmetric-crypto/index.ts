@@ -1,2 +1,2 @@
-export * from './ecc';
+export * from './ellipticCurve';
 export * from './keys';
