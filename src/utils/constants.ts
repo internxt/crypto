@@ -9,7 +9,7 @@ export const CURVE_NAME = 'P-521';
 export const ECC_ALGORITHM = 'ECDH';
 
 export const CONTEXT_LOGIN = 'PQ MAIL 2025-07-26 16:18:03 key for opening identity keystore';
-export const CONTEXT_KEYSTORE = 'PQ MAIL 2025-07-30 16:18:03 key for opening encryption keys keystore';
+export const CONTEXT_ENC_KEYSTORE = 'PQ MAIL 2025-07-30 16:18:03 key for opening encryption keys keystore';
 export const CONTEXT_RECOVERY = 'PQ MAIL 2025-07-30 16:20:00 key for account recovery';
 export const CONTEXT_INDEX = 'PQ MAIL 2025-07-30 17:20:00 key for protecting current search indices';
 

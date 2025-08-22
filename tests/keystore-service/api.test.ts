@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { KeystoreType, EncryptedKeystore } from '../../src/utils';
-import { sendEncryptedKeystoreToServer, requestEncryptedKeystore } from '../../src/keystore/api';
+import { sendEncryptedKeystoreToServer, requestEncryptedKeystore } from '../../src/keystore-service/api';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
-import { encryptedKeystoreToBase64 } from '../../src/keystore';
+import { encryptedKeystoreToBase64 } from '../../src/keystore-crypto';
 
 vi.mock('axios');
 

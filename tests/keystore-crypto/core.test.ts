@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
-import { createKeystore, getBaseKey, getUserID, openKeystore } from '../../src/keystore/core';
+import { createKeystore, getBaseKey, getUserID, openKeystore } from '../../src/keystore-crypto/core';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
 import { base64ToUint8Array } from '../../src/utils';
 

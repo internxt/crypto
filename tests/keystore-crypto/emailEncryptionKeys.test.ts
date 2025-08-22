@@ -1,22 +1,13 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
   createEncryptionAndRecoveryKeystores,
-  createIdentityKeystore,
-  decryptCurrentSearchIndices,
-  encryptCurrentSearchIndices,
   openEncryptionKeystore,
-  openIdentityKeystore,
   openRecoveryKeystore,
-} from '../../src/keystore';
+} from '../../src/keystore-crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
-import {
-  KYBER768_PUBLIC_KEY_LENGTH,
-  KYBER768_SECRET_KEY_LENGTH,
-  uint8ArrayToBase64,
-  SearchIndices,
-} from '../../src/utils';
+import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH, uint8ArrayToBase64 } from '../../src/utils';
 
 describe('Test keystore create/open functions', async () => {
   const mockUserID = uuidv4();
@@ -26,15 +17,6 @@ describe('Test keystore create/open functions', async () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
-  });
-
-  it('should successfully create and open identity keystore', async () => {
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKeyBase64);
-    const encKeystore = await createIdentityKeystore();
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(secretKeyBase64);
-    const result = await openIdentityKeystore(encKeystore);
-    expect(result.userPrivateKey).instanceOf(CryptoKey);
-    expect(result.userPublicKey).instanceOf(CryptoKey);
   });
 
   it('should successfully create and open encryption keystore', async () => {
@@ -51,23 +33,9 @@ describe('Test keystore create/open functions', async () => {
     expect(result_enc.userPublicKyberKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
   });
 
-  it('should successfully encrypt and decrypt search indices', async () => {
-    const indices: SearchIndices = {
-      userID: 'mock user ID',
-      timestamp: new Date(),
-      data: new Uint8Array([42, 13, 250, 4, 0]),
-    };
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKeyBase64);
-    const encKeystore = await encryptCurrentSearchIndices(indices);
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(secretKeyBase64);
-    const result = await decryptCurrentSearchIndices(encKeystore);
-    expect(indices).toStrictEqual(result);
-  });
-
   it('should throw an error if no base key for keystore creation', async () => {
     vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-    await expect(createIdentityKeystore()).rejects.toThrowError(/Failed to create identity keystore/);
     await expect(createEncryptionAndRecoveryKeystores()).rejects.toThrowError(
       /Failed to create encryption and recovery keystores/,
     );
@@ -75,13 +43,10 @@ describe('Test keystore create/open functions', async () => {
 
   it('should throw an error if no base key for keystore opening', async () => {
     vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKeyBase64);
-    const encKeystore = await createIdentityKeystore();
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKeyBase64);
     const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores();
 
     vi.spyOn(sessionStorageService, 'get').mockResolvedValueOnce('');
 
-    await expect(openIdentityKeystore(encKeystore)).rejects.toThrowError(/Failed to open identity keystore/);
     await expect(openEncryptionKeystore(encryptionKeystore)).rejects.toThrowError(/Failed to open encryption keystore/);
     await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Failed to open recovery keystore/);
   });

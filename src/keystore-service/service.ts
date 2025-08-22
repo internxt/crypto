@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import { KeystoreType, EncryptedKeystore } from '../utils/types';
 import { sendEncryptedKeystoreToServer, requestEncryptedKeystore } from './api';
-import { getUserID } from './core';
-import { base64ToEncryptedKeystore, encryptedKeystoreToBase64 } from './converters';
+import { getUserID } from '../keystore-crypto/core';
+import { base64ToEncryptedKeystore, encryptedKeystoreToBase64 } from '../keystore-crypto/converters';
 
 /**
  * Uploads encrypted keystore to the server

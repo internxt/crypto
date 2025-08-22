@@ -8,7 +8,7 @@ import {
   encryptionKeysToBase64,
   identityKeysToBase64,
   searchIndicesToBase64,
-} from '../../src/keystore/converters';
+} from '../../src/keystore-crypto';
 import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KeystoreType, SearchIndices } from '../../src/utils/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';

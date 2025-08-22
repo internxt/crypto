@@ -5,7 +5,7 @@ import {
   deriveIndexKey,
   deriveRecoveryKey,
   generateRecoveryCodes,
-} from '../../src/keystore';
+} from '../../src/keystore-crypto';
 import { exportSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto/keys';
 
 describe('Test keystore key generation functions', () => {
