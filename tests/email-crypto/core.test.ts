@@ -80,18 +80,18 @@ describe('Test email crypto functions', () => {
     };
     const bad_encryptionKey = await genSymmetricCryptoKey();
     await expect(decryptEmailSymmetrically(encryptedEmail, bad_encryptionKey)).rejects.toThrowError(
-      /Cannot decrypt email/,
+      /Failed to symmetrically decrypt email/,
     );
   });
 
   it('should throw an error if cannot create aux', async () => {
     const bad_email = { subject: BigInt(423) };
-    expect(() => getAux(bad_email as any as Email)).toThrowError(/Cannot create aux/);
+    expect(() => getAux(bad_email as any as Email)).toThrowError(/Failed to create aux/);
   });
 
   it('should throw an error if cannot encrypt', async () => {
     const bad_email: any = {};
     bad_email.self = bad_email;
-    await expect(encryptEmailSymmetrically(bad_email)).rejects.toThrowError(/Cannot encrypt email/);
+    await expect(encryptEmailSymmetrically(bad_email)).rejects.toThrowError(/Failed to symmetrically encrypt email/);
   });
 });

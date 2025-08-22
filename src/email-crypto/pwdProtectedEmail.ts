@@ -8,6 +8,7 @@ import {
 
 /**
  * Creates a password-protected email.
+ *
  * @param email - The email to protect
  * @param password - The secret password shared among recipients.
  * @returns The password-protected email
@@ -26,12 +27,14 @@ export async function createPwdProtectedEmail(email: Email, password: string): P
     };
     return result;
   } catch (error) {
-    return Promise.reject(new Error('Could not password-protect email', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to password-protect email: ${errorMessage}`));
   }
 }
 
 /**
  * Opens a password-protected email.
+ *
  * @param email - The email to protect
  * @param password - The secret password shared among recipients.
  * @returns The password-protected email
@@ -42,6 +45,7 @@ export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail
     const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
     return result;
   } catch (error) {
-    return Promise.reject(new Error('Could not decrypt password-protect email', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to decrypt password-protect email: ${errorMessage}`));
   }
 }

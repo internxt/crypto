@@ -54,12 +54,12 @@ describe('Test symmetric functions', () => {
     const bad_ciphertext: any = {};
     bad_ciphertext.self = bad_ciphertext;
     expect(() => ciphertextToBase64(bad_ciphertext as SymmetricCiphertext)).toThrowError(
-      /Cannot convert ciphertext to base64/,
+      /Failed to convert ciphertext to base64/,
     );
   });
 
   it('should throw an error if cannot convert base64 to ciphertext', async () => {
     const bad_base64 = 'bad base 64';
-    expect(() => base64ToCiphertext(bad_base64)).toThrowError(/Cannot convert base64 to ciphertext/);
+    expect(() => base64ToCiphertext(bad_base64)).toThrowError(/Failed to convert base64 to ciphertext/);
   });
 });

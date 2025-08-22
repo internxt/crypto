@@ -9,7 +9,8 @@ export async function sendHybridEmailToMultipleRecipients(encryptedEmails: Hybri
       await sendHybridEmail(encEmail);
     }
   } catch (error) {
-    throw new Error('Failed to email to multiple recipients:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to email to multiple recipients: ${errorMessage}`);
   }
 }
 
@@ -20,7 +21,8 @@ export async function sendHybridEmail(encEmail: HybridEncryptedEmail) {
     const body = JSON.stringify({ encText, encKey });
     await sendEmail(encEmail.subject, body, encEmail.sender, encEmail.encryptedFor);
   } catch (error) {
-    throw new Error(`Failed to email to the recipient ${encEmail.encryptedFor.name}:`, error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to email to the recipient ${encEmail.encryptedFor.name}: ${errorMessage}`);
   }
 }
 
@@ -30,7 +32,8 @@ export async function sendPwdProtectedEmailToMultipleRecipients(pwdProtectedEmai
       await sendPwdProtectedEmail(pwdProtectedEmail, recipient);
     }
   } catch (error) {
-    throw new Error('Failed to email to multiple recipients:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to email to multiple recipients: ${errorMessage}`);
   }
 }
 
@@ -41,6 +44,7 @@ export async function sendPwdProtectedEmail(encEmail: PwdProtectedEmail, recipie
     const body = JSON.stringify({ encText, encKey });
     await sendEmail(encEmail.subject, body, encEmail.sender, recipient);
   } catch (error) {
-    throw new Error(`Failed to email to the recipient ${recipient}:`, error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to email to the recipient ${recipient}: ${errorMessage}`);
   }
 }

@@ -9,6 +9,7 @@ import {
 
 /**
  * Calculates hash using the argon2id password-hashing function
+ *
  * @param password - The user's password
  * @param salt - The given salt
  * @param parallelism - The degree of parallelism
@@ -38,6 +39,7 @@ export async function argon2(
 
 /**
  * Samples a salt
+ *
  * @returns The salt
  */
 export function sampleSalt(): Uint8Array {
@@ -46,6 +48,7 @@ export function sampleSalt(): Uint8Array {
     window.crypto.getRandomValues(salt);
     return salt;
   } catch (error) {
-    throw new Error('Failed to sample salt:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to sample salt: ${errorMessage}`);
   }
 }

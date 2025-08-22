@@ -4,7 +4,12 @@ export function generateKyberKeys(seed?: Uint8Array): {
   publicKey: Uint8Array;
   secretKey: Uint8Array;
 } {
-  return ml_kem768.keygen(seed);
+  try {
+    return ml_kem768.keygen(seed);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to generate Kyber keys: ${errorMessage}`);
+  }
 }
 
 export function encapsulateKyber(publicKey: Uint8Array): {
@@ -12,12 +17,10 @@ export function encapsulateKyber(publicKey: Uint8Array): {
   sharedSecret: Uint8Array;
 } {
   try {
-    if (!publicKey?.length) {
-      throw Error('No public key given');
-    }
     return ml_kem768.encapsulate(publicKey);
   } catch (error) {
-    throw new Error(`Failed to encapsulate: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to encapsulate: ${errorMessage}`);
   }
 }
 

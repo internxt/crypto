@@ -57,7 +57,7 @@ describe('Test email crypto functions', async () => {
     };
 
     await expect(encryptEmailHybrid(email, bobPublicKeys, bad_alicePrivateKey)).rejects.toThrowError(
-      /Could not encrypt email with hybrid encryption/,
+      /Failed to encrypt email with hybrid encryption/,
     );
   });
 
@@ -80,7 +80,7 @@ describe('Test email crypto functions', async () => {
     };
 
     await expect(decryptEmailHybrid(bad_encrypted_email, alicePublicKeys, bobPrivateKeys)).rejects.toThrowError(
-      /Could not decrypt emails with hybrid encryption/,
+      /Failed to decrypt emails with hybrid encryption/,
     );
   });
 
@@ -125,6 +125,6 @@ describe('Test email crypto functions', async () => {
     };
     await expect(
       encryptEmailHybridForMultipleRecipients(email, [bobPublicKeys, bad_evePublicKeys], alicePrivateKeys),
-    ).rejects.toThrowError(/Could not encrypt email to multiple recipients with hybrid encryption/);
+    ).rejects.toThrowError(/Failed to encrypt email to multiple recipients with hybrid encryption/);
   });
 });

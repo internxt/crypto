@@ -34,7 +34,8 @@ export async function generateIdentityKeys(): Promise<IdentityKeys> {
     };
     return result;
   } catch (error) {
-    return Promise.reject(new Error(`Could not generate idenity keys: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to generate idenity keys: ${errorMessage}`));
   }
 }
 
@@ -54,7 +55,8 @@ export async function generateEncryptionKeys(): Promise<EncryptionKeys> {
     };
     return result;
   } catch (error) {
-    return Promise.reject(new Error(`Could not generate encryption keys: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to generate encryption keys: ${errorMessage}`));
   }
 }
 

@@ -25,6 +25,7 @@ import {
 
 /**
  * Generates idenity keys and encrypts them with a key derived from the base key (stored in session storage)
+ *
  * @returns The encrypted idenity keystore
  */
 export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
@@ -43,12 +44,14 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
     };
     return result;
   } catch (error) {
-    return Promise.reject(new Error(`Identity keystore creation failed: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to create identity keystore: ${errorMessage}`));
   }
 }
 
 /**
  * Opens the encrypted identity keystore
+ *
  * @param recoveryCodes - The encrypted identity keystore
  * @returns The identity keys
  */
@@ -68,12 +71,14 @@ export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore)
     const keys: IdentityKeys = await base64ToIdentityKeys(json);
     return keys;
   } catch (error) {
-    return Promise.reject(new Error(`Opening identity keystore failed: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to open identity keystore: ${errorMessage}`));
   }
 }
 
 /**
  * Generates idenity keys and encrypts them with a key derived from the base key (stored in session storage)
+ *
  * @returns The encrypted idenity keystore
  */
 export async function createEncryptionAndRecoveryKeystores(): Promise<{
@@ -104,12 +109,14 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
     };
     return { encryptionKeystore, recoveryKeystore, recoveryCodes };
   } catch (error) {
-    return Promise.reject(new Error(`Encryption and recovery keystores creation failed: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to create encryption and recovery keystores: ${errorMessage}`));
   }
 }
 
 /**
  * Opens the encrypted keystore containing the encrypiton keys
+ *
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
  * @returns The encryption keys
  */
@@ -129,7 +136,8 @@ export async function openEncryptionKeystore(encryptedKeystore: EncryptedKeystor
     const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
     return keys;
   } catch (error) {
-    return Promise.reject(new Error(`Opening encryption keystore failed: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to open encryption keystore: ${errorMessage}`));
   }
 }
 
@@ -157,6 +165,7 @@ export async function openRecoveryKeystore(
     const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
     return keys;
   } catch (error) {
-    return Promise.reject(new Error(`Opening recovery keystore failed: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to open recovery keystore: ${errorMessage}`));
   }
 }

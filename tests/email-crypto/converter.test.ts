@@ -29,7 +29,7 @@ describe('Test email crypto functions', () => {
       49, 34, 44, 34, 116, 101, 115, 116, 32, 114, 101, 99, 105, 112, 105, 101, 110, 116, 32, 50, 34, 44, 34, 116, 101,
       115, 116, 32, 114, 101, 99, 105, 112, 105, 101, 110, 116, 32, 51, 34, 93, 44, 34,
     ]);
-    expect(() => binaryToEmailBody(bad_binary)).toThrowError(/Cannot convert Uint8Array to EmailBody/);
+    expect(() => binaryToEmailBody(bad_binary)).toThrowError(/Failed to convert Uint8Array to EmailBody/);
   });
 
   it('throws error if binary to email converter fails', async () => {
@@ -43,7 +43,7 @@ describe('Test email crypto functions', () => {
       labels: ['test label 1', 'test label2'],
     };
     expect(() => emailBodyToBinary(bad_email as any as EmailBody)).toThrowError(
-      /Cannot convert EmailBody to Uint8Array/,
+      /Failed to convert EmailBody to Uint8Array/,
     );
   });
 
@@ -77,7 +77,7 @@ describe('Test email crypto functions', () => {
       kyberPublicKey: kyberKeyPair.publicKey,
     };
     await expect(publicKeyToBase64(bad_key)).rejects.toThrowError(
-      /Cannot convert key of the type PublicKeys to PublicKeysBase64/,
+      /Failed to convert key of the type PublicKeys to PublicKeysBase64/,
     );
   });
   it('throws error if base64 to public key converter fails', async () => {
@@ -91,7 +91,7 @@ describe('Test email crypto functions', () => {
       kyberPublicKey: 'not valid key',
     };
     await expect(base64ToPublicKey(bad_key)).rejects.toThrowError(
-      /Cannot convert key of the type PublicKeysBase64 to PublicKeys/,
+      /Failed to convert key of the type PublicKeysBase64 to PublicKeys/,
     );
   });
 
@@ -110,13 +110,13 @@ describe('Test email crypto functions', () => {
       salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
     };
     expect(() => pwdProtectedKeyToBase64(bad_key as any)).toThrowError(
-      /Cannot convert password-protected key to base64/,
+      /Failed to convert password-protected key to base64/,
     );
   });
 
   it('throws error if base64 to pwd protected key convertion fails', async () => {
     const bad_key = 'bad key';
-    expect(() => base64ToPwdProtectedKey(bad_key)).toThrowError(/Cannot convert base64 to password-protected key/);
+    expect(() => base64ToPwdProtectedKey(bad_key)).toThrowError(/Failed to convert base64 to password-protected key/);
   });
 
   it('enc hybrid key converter to base64 and back works', async () => {
@@ -133,11 +133,11 @@ describe('Test email crypto functions', () => {
     const bad_key = {
       salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
     };
-    expect(() => encHybridKeyToBase64(bad_key as any)).toThrowError(/Cannot convert hybrid key to base64/);
+    expect(() => encHybridKeyToBase64(bad_key as any)).toThrowError(/Failed to convert hybrid key to base64/);
   });
 
   it('throws error if base64 to enc hybrid key convertion fails', async () => {
     const bad_key = 'bad key';
-    expect(() => base64ToEncHybridKey(bad_key)).toThrowError(/Cannot convert base64 to hybrid key/);
+    expect(() => base64ToEncHybridKey(bad_key)).toThrowError(/Failed to convert base64 to hybrid key/);
   });
 });

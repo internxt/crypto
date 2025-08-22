@@ -25,7 +25,7 @@ describe('Test keystore keys functions', () => {
   });
 
   it('should throw an error if cannot return userID', async () => {
-    expect(() => getUserID()).toThrowError(/Cannot get UserID from session storage/);
+    expect(() => getUserID()).toThrowError(/Failed to get UserID from session storage/);
   });
 
   it('should sucessfully return base key', async () => {
@@ -37,6 +37,6 @@ describe('Test keystore keys functions', () => {
   });
 
   it('should throw an error if cannot return base key', async () => {
-    expect(() => getBaseKey()).toThrowError(/Cannot get base key from session storage/);
+    expect(() => getBaseKey()).toThrowError(/Failed to get base key from session storage/);
   });
 });

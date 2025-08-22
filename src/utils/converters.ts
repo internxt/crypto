@@ -3,7 +3,7 @@ import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 
 /**
- *  Generates a mnemonic of required bit strength
+ * Generates a mnemonic of required bit strength
  *
  * @param bits - The bit strength.
  * @returns The generated mnemonic.
@@ -13,7 +13,7 @@ export function genMnemonic(bits: number): string {
 }
 
 /**
- *  Decodes base64 string into UTF-8 string
+ * Decodes base64 string into UTF-8 string
  *
  * @param base64 - The base64 string.
  * @returns The UTF-8 string created from the base64 string.
@@ -23,7 +23,7 @@ export function decodeBase64(base64: string): string {
 }
 
 /**
- *  Encodes an UTF-8 string into base64 string
+ * Encodes an UTF-8 string into base64 string
  *
  * @param str - The UTF-8 string.
  * @returns The base64 string created from the UTF-8 string.

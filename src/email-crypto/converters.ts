@@ -14,6 +14,7 @@ import {
 
 /**
  * Converts an EmailBody type into a Uint8Array array.
+ *
  * @param body - The email body.
  * @returns The Uint8Array array representation of the EmailBody type.
  */
@@ -22,12 +23,14 @@ export function emailBodyToBinary(body: EmailBody): Uint8Array {
     const json = JSON.stringify(body);
     return UTF8ToUint8(json);
   } catch (error) {
-    throw new Error('Cannot convert EmailBody to Uint8Array', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert EmailBody to Uint8Array: ${errorMessage}`);
   }
 }
 
 /**
  * Converts an Uint8Array array into EmailBody type.
+ *
  * @param array - The Uint8Array array.
  * @returns The EmailBody type representation of the Uint8Array.
  */
@@ -37,12 +40,14 @@ export function binaryToEmailBody(array: Uint8Array): EmailBody {
     const email: EmailBody = JSON.parse(json);
     return email;
   } catch (error) {
-    throw new Error('Cannot convert Uint8Array to EmailBody', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert Uint8Array to EmailBody: ${errorMessage}`);
   }
 }
 
 /**
  * Converts a PublicKeysBase64 type into PublicKeys type.
+ *
  * @param key - The PublicKeysBase64 key.
  * @returns The resulting PublicKeys.
  */
@@ -53,12 +58,16 @@ export async function base64ToPublicKey(key: PublicKeysBase64): Promise<PublicKe
     const kyberPublicKey = base64ToUint8Array(key.kyberPublicKey);
     return { eccPublicKey, kyberPublicKey, user: key.user };
   } catch (error) {
-    return Promise.reject(new Error('Cannot convert key of the type PublicKeysBase64 to PublicKeys', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(
+      new Error(`Failed to convert key of the type PublicKeysBase64 to PublicKeys: ${errorMessage}`),
+    );
   }
 }
 
 /**
  * Converts a PublicKeys type into PublicKeysBase64 type.
+ *
  * @param key - The PublicKeys key.
  * @returns The resulting PublicKeysBase64.
  */
@@ -69,12 +78,16 @@ export async function publicKeyToBase64(key: PublicKeys): Promise<PublicKeysBase
     const kyberPublicKey = uint8ArrayToBase64(key.kyberPublicKey);
     return { eccPublicKey, kyberPublicKey, user: key.user };
   } catch (error) {
-    return Promise.reject(new Error('Cannot convert key of the type PublicKeys to PublicKeysBase64', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(
+      new Error(`Failed to convert key of the type PublicKeys to PublicKeysBase64: ${errorMessage}`),
+    );
   }
 }
 
 /**
  * Converts a hybrid key of the type HybridEncKey into base64 string.
+ *
  * @param encHybridKey - The HybridEncKey key.
  * @returns The resulting base64 key encoding.
  */
@@ -87,12 +100,14 @@ export function encHybridKeyToBase64(encHybridKey: HybridEncKey): string {
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    throw new Error(`Cannot convert hybrid key to base64: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert hybrid key to base64: ${errorMessage}`);
   }
 }
 
 /**
  * Converts a base64 string into a hybrid key of the type HybridEncKey.
+ *
  * @param base - The base64 encoding of the hybrid key.
  * @returns The resulting HybridEncKey key.
  */
@@ -105,12 +120,14 @@ export function base64ToEncHybridKey(base64: string): HybridEncKey {
       kyberCiphertext: base64ToUint8Array(obj.kyberCiphertext),
     };
   } catch (error) {
-    throw new Error('Cannot convert base64 to hybrid key', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to hybrid key: ${errorMessage}`);
   }
 }
 
 /**
  * Converts a password-protected key of the type PwdProtectedKey into base64 string.
+ *
  * @param pwdProtectedKey - The password-protected key of the type PwdProtectedKey.
  * @returns The resulting base64 key encoding.
  */
@@ -123,12 +140,14 @@ export function pwdProtectedKeyToBase64(pwdProtectedKey: PwdProtectedKey): strin
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    throw new Error('Cannot convert password-protected key to base64', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert password-protected key to base64: ${errorMessage}`);
   }
 }
 
 /**
  * Converts a base64 string into a password-protected key of the type PwdProtectedKey.
+ *
  * @param pwdProtectedKey - The password-protected key of the type PwdProtectedKey.
  * @returns The resulting HybridEncKey key.
  */
@@ -141,6 +160,7 @@ export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
       salt: base64ToUint8Array(obj.salt),
     };
   } catch (error) {
-    throw new Error('Cannot convert base64 to password-protected key', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to password-protected key: ${errorMessage}`);
   }
 }

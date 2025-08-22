@@ -9,6 +9,6 @@ describe('Check sending api', () => {
     const subject = 'test email subject';
     const emailBody = 'mock enc text $mock enc key';
 
-    await expect(sendEmail(subject, emailBody, userAlice, userBob)).rejects.toThrowError(/Could not send an email/);
+    await expect(sendEmail(subject, emailBody, userAlice, userBob)).rejects.toThrowError(/Failed to send an email/);
   });
 });

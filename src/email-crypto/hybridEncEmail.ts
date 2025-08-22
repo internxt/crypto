@@ -3,6 +3,7 @@ import { encryptEmailSymmetrically, decryptEmailSymmetrically, encryptKeysHybrid
 
 /**
  * Encrypts the email using hybrid encryption.
+ *
  * @param email - The email to encrypt.
  * @param recipientPublicKeys - The public keys of the recipient.
  * @param senderPrivateKey - The private key of the sender.
@@ -28,12 +29,14 @@ export async function encryptEmailHybrid(
 
     return result;
   } catch (error) {
-    return Promise.reject(new Error('Could not encrypt email with hybrid encryption', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to encrypt email with hybrid encryption: ${errorMessage}`));
   }
 }
 
 /**
  * Encrypts the email using hybrid encryption for multiple recipients.
+ *
  * @param email - The email to encrypt.
  * @param recipientsPublicKeys - The public keys of all the recipients.
  * @param senderPrivateKey - The private key of the sender.
@@ -64,12 +67,16 @@ export async function encryptEmailHybridForMultipleRecipients(
 
     return encryptedEmails;
   } catch (error) {
-    return Promise.reject(new Error('Could not encrypt email to multiple recipients with hybrid encryption', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(
+      new Error(`Failed to encrypt email to multiple recipients with hybrid encryption: ${errorMessage}`),
+    );
   }
 }
 
 /**
  * Decrypts the email using hybrid encryption.
+ *
  * @param encryptedEmail - The encrypted email.
  * @param senderPublicKeys - The public key of the sender.
  * @param recipientPrivateKeys - The private key of the recipient.
@@ -85,6 +92,7 @@ export async function decryptEmailHybrid(
     const email = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
     return email;
   } catch (error) {
-    return Promise.reject(new Error('Could not decrypt emails with hybrid encryption', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to decrypt emails with hybrid encryption: ${errorMessage}`));
   }
 }

@@ -6,6 +6,7 @@ import { base64ToEncryptedKeystore, encryptedKeystoreToBase64 } from './converte
 
 /**
  * Uploads encrypted keystore to the server
+ *
  * @param encryptedKeystore - The encrypted keystore
  * @param type - The keystore's type
  * @returns Server response
@@ -19,12 +20,14 @@ export async function uploadKeystoreToServer(encryptedKeystore: EncryptedKeystor
     const result = await sendEncryptedKeystoreToServer(ciphertextBase64, url);
     return result;
   } catch (error) {
-    return Promise.reject(new Error('Could not upload keystore to the server', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to upload keystore to the server: ${errorMessage}`));
   }
 }
 
 /**
  * Gets a user's encrypted keystore containing encryption keys from the server
+ *
  * @returns Encrypted keystore containing encryption keys
  */
 export async function getEncryptionKeystoreFromServer(): Promise<EncryptedKeystore> {
@@ -33,6 +36,7 @@ export async function getEncryptionKeystoreFromServer(): Promise<EncryptedKeysto
 
 /**
  * Gets a user's encrypted Identity Keystore from the server
+ *
  * @returns Encrypted Identity Keystore
  */
 export async function getIdentityKeystoreFromServer(): Promise<EncryptedKeystore> {
@@ -41,6 +45,7 @@ export async function getIdentityKeystoreFromServer(): Promise<EncryptedKeystore
 
 /**
  * Gets a user's encrypted Recovery Keystore from the server
+ *
  * @returns Encrypted Recovery Keystore
  */
 export async function getRecoveryKeystoreFromServer(): Promise<EncryptedKeystore> {
@@ -49,6 +54,7 @@ export async function getRecoveryKeystoreFromServer(): Promise<EncryptedKeystore
 
 /**
  * Gets a user's encrypted Index Keystore from the server
+ *
  * @returns Encrypted Index Keytore
  */
 export async function getIndexKeystoreFromServer(): Promise<EncryptedKeystore> {
@@ -57,6 +63,7 @@ export async function getIndexKeystoreFromServer(): Promise<EncryptedKeystore> {
 
 /**
  * Gets a user's encrypted keystore from the server
+ *
  * @param type - The requested keystore's type
  * @returns Encrypted  Keytore
  */
@@ -69,6 +76,7 @@ async function getKeystoreFromServer(type: KeystoreType): Promise<EncryptedKeyst
     const result = base64ToEncryptedKeystore(response);
     return result;
   } catch (error) {
-    return Promise.reject(new Error('Could not get keystore from the server', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to retrieve keystore from the server: ${errorMessage}`));
   }
 }

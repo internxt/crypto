@@ -29,11 +29,11 @@ export async function sendEncryptedKeystoreToServer(encryptedKeystore: string, u
       if (error.response?.status === 403) {
         throw new Error('Forbidden: Insufficient permissions');
       } else {
-        throw new Error('AxiosError: Error sending keystore', error);
+        throw new Error('AxiosError:', error);
       }
     }
-    console.error('Error sending keystore:', error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to send keystore: ${errorMessage}`);
   }
 }
 
@@ -63,10 +63,11 @@ export async function requestEncryptedKeystore(url: string): Promise<string> {
       if (error.response?.status === 404) {
         throw new Error('Keystore not found for the specified user');
       } else {
-        throw new Error('AxiosError: Error retrieving keystore', error);
+        throw new Error('AxiosError:', error);
       }
     }
-    console.error('Error retrieving keystore:', error);
-    throw error;
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to retrive keystore: ${errorMessage}`);
   }
 }

@@ -67,7 +67,7 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(unauthorizedError);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Could not get recipients public keys');
+    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
   });
 
   it('should handle 403 forbidden error', async () => {
@@ -82,7 +82,7 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(forbiddenError);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Could not get recipients public keys');
+    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
   });
 
   it('should handle 404 not found error', async () => {
@@ -97,14 +97,14 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(notFoundError);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Could not get recipients public keys');
+    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
   });
 
   it('should handle network errors', async () => {
     const networkError = new Error('Network Error');
     vi.mocked(axios.get).mockRejectedValueOnce(networkError);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Could not get recipients public keys');
+    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
   });
 
   it('should handle axios errors with an empty response', async () => {
@@ -115,6 +115,6 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(errorWithoutResponce);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Could not get recipients public keys');
+    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
   });
 });

@@ -2,6 +2,7 @@ import { ECC_ALGORITHM, AES_KEY_BIT_LENGTH } from '../utils';
 
 /**
  * Derives secret key from the other user's public key and own private key
+ *
  * @param otherUserPublicKey - The public key of the other user
  * @param ownPrivateKey - The private key
  * @returns The derived secret key bits
@@ -18,6 +19,7 @@ export async function deriveSecretKey(otherUserPublicKey: CryptoKey, ownPrivateK
     );
     return new Uint8Array(result);
   } catch (error) {
-    return Promise.reject(new Error(`Failed to derive elliptic curve secret key: ${error.message}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to derive elliptic curve secret key: ${errorMessage}`));
   }
 }

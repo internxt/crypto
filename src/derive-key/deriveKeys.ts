@@ -4,6 +4,7 @@ import { importSymmetricCryptoKey } from '../symmetric-crypto';
 
 /**
  * Derives a symmetric key from the base key and context string
+ *
  * @param context - The context string.
  * The context string should be hardcoded, globally unique, and application-specific.
  * @param baseKey - The base key (NOT PASSWORD!)
@@ -16,12 +17,14 @@ async function deriveSymmetricKeyFromContext(context: string, baseKey: Uint8Arra
     const result = await blake3(baseKey, AES_KEY_BIT_LENGTH, buffer_context_key);
     return hexToUint8Array(result);
   } catch (error) {
-    return Promise.reject(new Error(`Failed to derive key from base key and context: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to derive key from base key and context: ${errorMessage}`));
   }
 }
 
 /**
  * Derives a symmetric CryptoKey from the base key and context string
+ *
  * @param context - The context string.
  * The context string should be hardcoded, globally unique, and application-specific.
  * @param baseKey - The base key (NOT PASSWORD!)
@@ -40,12 +43,14 @@ export async function deriveSymmetricCryptoKeyFromContext(context: string, baseK
 
     return key;
   } catch (error) {
-    return Promise.reject(new Error('Failed to derive CryptoKey from base key and context', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to derive CryptoKey from base key and context: ${errorMessage}`));
   }
 }
 
 /**
  * Derives a symmetric key from two keys
+ *
  * @param key1 - The 32-bytes key
  * @param key2 - The 32-bytes key
  * @param context - The context string
@@ -64,6 +69,7 @@ export async function deriveSymmetricKeyFromTwoKeys(
     const result = await deriveSymmetricKeyFromContext(context, combined_key);
     return result;
   } catch (error) {
-    return Promise.reject(new Error(`Failed to derive symmetric key from two keys: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to derive symmetric key from two keys: ${errorMessage}`));
   }
 }

@@ -105,9 +105,7 @@ describe('Test keystore send/get functions', () => {
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
       vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-      await expect(sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(
-        /AxiosError: Error sending keystore/,
-      );
+      await expect(sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(/AxiosError/);
     });
   });
 
@@ -202,7 +200,7 @@ describe('Test keystore send/get functions', () => {
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
       vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-      await expect(requestEncryptedKeystore(url)).rejects.toThrow(/AxiosError: Error retrieving keystore/);
+      await expect(requestEncryptedKeystore(url)).rejects.toThrow(/AxiosError/);
     });
   });
 });

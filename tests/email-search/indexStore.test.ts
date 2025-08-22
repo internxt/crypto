@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   desearializeIndices,
-  getCurrentIndex,
+  getCurrentSearchIndex,
   searializeIndices,
   decryptCurrentSearchIndices,
   encryptCurrentSearchIndices,
@@ -65,7 +65,7 @@ const emails: Email[] = [
 
 describe('Test search index functions', () => {
   it('should sucesfully encrypt and decrypt current index', async () => {
-    const indices = getCurrentIndex(emails);
+    const indices = getCurrentSearchIndex(emails);
     const results_before = indices.search('zen art motorcycle');
 
     const message = searializeIndices(indices);
@@ -84,7 +84,7 @@ describe('Test search index functions', () => {
   });
 
   it('should successfully wrap the nonce if repeats exceed the limit', async () => {
-    const indices = getCurrentIndex(emails);
+    const indices = getCurrentSearchIndex(emails);
     const results_before = indices.search('zen art motorcycle');
 
     const message = searializeIndices(indices);

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { desearializeIndices, getCurrentIndex, searializeIndices } from '../../src/email-search/createSearchIndex';
+import {
+  desearializeIndices,
+  getCurrentSearchIndex,
+  searializeIndices,
+} from '../../src/email-search/createSearchIndex';
 import { Email } from '../../src/utils/types';
 import MiniSearch from 'minisearch';
 
@@ -59,7 +63,7 @@ const emails: Email[] = [
 
 describe('Test dummy search functions', () => {
   it('should sucessfully generate search index', async () => {
-    const indices = getCurrentIndex(emails);
+    const indices = getCurrentSearchIndex(emails);
     const results = indices.search('zen art motorcycle');
     const expectedResult = [
       {
@@ -97,7 +101,7 @@ describe('Test dummy search functions', () => {
   });
 
   it('should sucessfully generate search index', async () => {
-    const indices = getCurrentIndex(emails);
+    const indices = getCurrentSearchIndex(emails);
     const results = indices.search('zen art motorcycle');
 
     const uint8 = searializeIndices(indices);

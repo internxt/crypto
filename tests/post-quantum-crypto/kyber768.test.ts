@@ -42,11 +42,11 @@ describe('Test kyber functions', () => {
 
   it('should throw an error if no public key given', () => {
     const publicKey = new Uint8Array();
-    expect(() => encapsulateKyber(publicKey)).toThrowError('Failed to encapsulate: Error: No public key given');
+    expect(() => encapsulateKyber(publicKey)).toThrowError(/Failed to encapsulate/);
   });
 
   it('should throw an error if short public key given', async () => {
     const publicKey = new Uint8Array([1, 2, 3]);
-    expect(() => encapsulateKyber(publicKey)).toThrowError(/Failed to encapsulate: Error: /);
+    expect(() => encapsulateKyber(publicKey)).toThrowError(/Failed to encapsulate/);
   });
 });

@@ -2,6 +2,7 @@ import { CURVE_NAME, ECC_ALGORITHM } from '../utils';
 
 /**
  * Generates elliptic curve key pair
+ *
  * @returns The generated key pair
  */
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
@@ -15,12 +16,14 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
       ['deriveBits'],
     );
   } catch (error) {
-    return Promise.reject(new Error(`Failed to generate elliptic curve key pair: ${error.message}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to generate elliptic curve key pair: ${errorMessage}`));
   }
 }
 
 /**
  * Converts public CryptoKey into Uint8Array using SubjectPublicKeyInfo format (RFC 5280)
+ *
  * @returns The Uint8Array representation of the public key
  */
 export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
@@ -28,7 +31,8 @@ export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
     const result = await window.crypto.subtle.exportKey('spki', key);
     return new Uint8Array(result);
   } catch (error) {
-    return Promise.reject(new Error(`Failed to export public key: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to export public key: ${errorMessage}`));
   }
 }
 
@@ -49,7 +53,8 @@ export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKe
       [],
     );
   } catch (error) {
-    return Promise.reject(new Error(`Failed to import public key: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to import public key: ${errorMessage}`));
   }
 }
 
@@ -62,7 +67,8 @@ export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
     const result = await window.crypto.subtle.exportKey('pkcs8', key);
     return new Uint8Array(result);
   } catch (error) {
-    return Promise.reject(new Error(`Failed to export private key: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to export private key: ${errorMessage}`));
   }
 }
 
@@ -83,6 +89,7 @@ export async function importPrivateKey(pkcs8KeyData: Uint8Array): Promise<Crypto
       ['deriveBits'],
     );
   } catch (error) {
-    return Promise.reject(new Error(`Failed to import private key: ${error}`));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to import private key: ${errorMessage}`));
   }
 }

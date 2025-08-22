@@ -4,6 +4,7 @@ import { PublicKeys, PrivateKeys, User } from '../utils';
 
 /**
  * Generates public and private keys for email service.
+ *
  * @returns The user's private and public keys
  */
 export async function generateEmailKeys(user: User): Promise<{ publicKeys: PublicKeys; privateKeys: PrivateKeys }> {
@@ -24,6 +25,7 @@ export async function generateEmailKeys(user: User): Promise<{ publicKeys: Publi
 
     return { publicKeys, privateKeys };
   } catch (error) {
-    return Promise.reject(new Error('Could not generate keys for email service', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to generate keys for email service: ${errorMessage}`));
   }
 }

@@ -47,9 +47,9 @@ describe('Test keystore create/open functions', async () => {
   it('should throw an error if no base key for keystore creation', async () => {
     vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-    await expect(createIdentityKeystore()).rejects.toThrowError(/Identity keystore creation failed/);
+    await expect(createIdentityKeystore()).rejects.toThrowError(/Failed to create identity keystore/);
     await expect(createEncryptionAndRecoveryKeystores()).rejects.toThrowError(
-      /Encryption and recovery keystores creation failed/,
+      /Failed to create encryption and recovery keystores/,
     );
   });
 
@@ -61,8 +61,8 @@ describe('Test keystore create/open functions', async () => {
 
     vi.spyOn(sessionStorageService, 'get').mockResolvedValueOnce('');
 
-    await expect(openIdentityKeystore(encKeystore)).rejects.toThrowError(/Opening identity keystore failed/);
-    await expect(openEncryptionKeystore(encryptionKeystore)).rejects.toThrowError(/Opening encryption keystore failed/);
-    await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Opening recovery keystore failed/);
+    await expect(openIdentityKeystore(encKeystore)).rejects.toThrowError(/Failed to open identity keystore/);
+    await expect(openEncryptionKeystore(encryptionKeystore)).rejects.toThrowError(/Failed to open encryption keystore/);
+    await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Failed to open recovery keystore/);
   });
 });

@@ -74,7 +74,7 @@ describe('Test keystore send/get service functions', () => {
       vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
       await expect(uploadKeystoreToServer(mockEncryptedKeystore)).rejects.toThrow(
-        /Could not upload keystore to the server/,
+        /Failed to upload keystore to the server/,
       );
     });
   });
@@ -138,7 +138,7 @@ describe('Test keystore send/get service functions', () => {
       vi.mocked(axios.get).mockRejectedValueOnce(networkError);
       vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-      await expect(getIndexKeystoreFromServer()).rejects.toThrow(/Could not get keystore from the server/);
+      await expect(getIndexKeystoreFromServer()).rejects.toThrow(/Failed to retrieve keystore from the server/);
     });
   });
 });

@@ -13,14 +13,19 @@ export async function encryptCurrentSearchIndices(
   aux: string;
   encIndices: SymmetricCiphertext;
 }> {
-  let aux = current_aux;
-  let nonce = repeats;
-  if (repeats >= MAX_INDEX_VALUE) {
-    nonce = 0;
-    aux = INDEX_KEYSTORE_TAG + new Date().toDateString();
+  try {
+    let aux = current_aux;
+    let nonce = repeats;
+    if (repeats >= MAX_INDEX_VALUE) {
+      nonce = 0;
+      aux = INDEX_KEYSTORE_TAG + new Date().toDateString();
+    }
+    const result = await encryptSymmetrically(secretKey, repeats, indices, aux);
+    return { nonce, aux, encIndices: result };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to encrypt search index: ${errorMessage}`);
   }
-  const result = await encryptSymmetrically(secretKey, repeats, indices, aux);
-  return { nonce, aux, encIndices: result };
 }
 
 export async function decryptCurrentSearchIndices(

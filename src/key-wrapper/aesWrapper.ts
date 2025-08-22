@@ -9,7 +9,8 @@ export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
       'unwrapKey',
     ]);
   } catch (error) {
-    throw new Error(`Failed to import wrapping key: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to import wrapping key: ${errorMessage}`);
   }
 }
 export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint8Array): Promise<CryptoKey> {
@@ -20,11 +21,12 @@ export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint
     const key = await getHash(AES_KEY_BIT_LENGTH, [kyberSecret, eccSecret]);
     return await importWrappingKey(key);
   } catch (error) {
-    throw new Error(`Failed to derive wrapping key: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to derive wrapping key: ${errorMessage}`);
   }
 }
 
-export async function unwrapKey(encryptedKey: ArrayBuffer, wrappingKey: CryptoKey): Promise<CryptoKey> {
+export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey): Promise<CryptoKey> {
   try {
     return await window.crypto.subtle.unwrapKey(
       KEY_FORMAT,
@@ -36,7 +38,8 @@ export async function unwrapKey(encryptedKey: ArrayBuffer, wrappingKey: CryptoKe
       ['encrypt', 'decrypt'],
     );
   } catch (error) {
-    throw new Error(`Failed to unwrap key: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to unwrap key: ${errorMessage}`);
   }
 }
 
@@ -45,6 +48,7 @@ export async function wrapKey(encryptionKey: CryptoKey, wrappingKey: CryptoKey):
     const result = await window.crypto.subtle.wrapKey(KEY_FORMAT, encryptionKey, wrappingKey, KEY_WRAPPING_ALGORITHM);
     return new Uint8Array(result);
   } catch (error) {
-    throw new Error(`Failed to wrap key: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to wrap key: ${errorMessage}`);
   }
 }

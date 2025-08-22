@@ -25,7 +25,8 @@ export async function identityKeysToBase64(keys: IdentityKeys): Promise<string> 
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    throw new Error(`Cannot convert identity keys to base64: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert identity keys to base64: ${errorMessage}`);
   }
 }
 
@@ -47,7 +48,8 @@ export async function encryptionKeysToBase64(keys: EncryptionKeys): Promise<stri
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    throw new Error(`Cannot convert identity keys to base64: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert identity keys to base64: ${errorMessage}`);
   }
 }
 
@@ -67,7 +69,8 @@ export function encryptedKeystoreToBase64(keystore: EncryptedKeystore): string {
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    throw new Error(`Cannot convert encrypted keystore to base64: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert encrypted keystore to base64: ${errorMessage}`);
   }
 }
 
@@ -90,7 +93,8 @@ export async function base64ToIdentityKeys(base64: string): Promise<IdentityKeys
     };
     return result;
   } catch (error) {
-    throw new Error(`Cannot convert base64 to idenity key: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed convert base64 to idenity key: ${errorMessage}`);
   }
 }
 
@@ -117,7 +121,8 @@ export async function base64ToEncryptionKeys(base64: string): Promise<Encryption
     };
     return result;
   } catch (error) {
-    throw new Error(`Cannot convert base64 to encryption key: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to encryption key: ${errorMessage}`);
   }
 }
 
@@ -138,6 +143,7 @@ export function base64ToEncryptedKeystore(base64: string): EncryptedKeystore {
     };
     return result;
   } catch (error) {
-    throw new Error(`Cannot convert base64 to encrypted keystore: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to encrypted keystore: ${errorMessage}`);
   }
 }

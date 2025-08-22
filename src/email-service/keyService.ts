@@ -30,11 +30,11 @@ export async function getRecipientsPublicKeysHex(emails: string[]): Promise<Publ
       if (error.response?.status === 404) {
         throw new Error('User is not found');
       } else {
-        throw new Error('AxiosError: Error retrieving public keys', error);
+        throw new Error('AxiosError:', error);
       }
     }
-    console.error('Error retrieving public keys:', error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to retrive public keus: ${errorMessage}`);
   }
 }
 
@@ -48,6 +48,7 @@ export async function getRecipientsPublicKeys(emails: string[]): Promise<PublicK
     }
     return result;
   } catch (error) {
-    return Promise.reject(new Error('Could not get recipients public keys', error));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Promise.reject(new Error(`Failed to get recipients public keys: ${errorMessage}`));
   }
 }
