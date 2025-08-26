@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "outDir": "dist",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -14,7 +17,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "noImplicitAny": false,
     "downlevelIteration": true,
