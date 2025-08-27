@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { getCurrentSearchIndex } from '../../src/email-search';
-import { Email } from '../../src/utils';
+import { Email } from '../../src/types';
+import { usersToRecipients } from '../../src/email-crypto';
 
-const alice = { email: 'alice@email.com', name: 'alice' };
-const bob = { email: 'bob@email.com', name: 'bob' };
-const eve = { email: 'eve@email.com', name: 'eve' };
+const alice = { email: 'alice@email.com', name: 'alice', id: '1' };
+const bob = { email: 'bob@email.com', name: 'bob', id: '2' };
+const eve = { email: 'eve@email.com', name: 'eve', id: '3' };
 const emails: Email[] = [
   {
     id: '1',
@@ -15,7 +16,7 @@ const emails: Email[] = [
     },
     subject: 'Moby Dick',
     sender: alice,
-    recipients: [bob],
+    recipients: usersToRecipients([bob]),
     replyToEmailID: 0,
   },
   {
@@ -27,7 +28,7 @@ const emails: Email[] = [
       labels: ['fiction', 'self-help'],
     },
     sender: bob,
-    recipients: [alice, eve],
+    recipients: usersToRecipients([alice, eve]),
     replyToEmailID: 3,
   },
   {
@@ -39,7 +40,7 @@ const emails: Email[] = [
       labels: ['fiction'],
     },
     sender: eve,
-    recipients: [alice, bob],
+    recipients: usersToRecipients([alice, bob]),
     replyToEmailID: 1,
   },
   {
@@ -50,7 +51,7 @@ const emails: Email[] = [
       date: '2021-01-30T04:15:36.000Z',
       labels: ['non-fiction', 'education'],
     },
-    recipients: [alice, eve],
+    recipients: usersToRecipients([alice, eve]),
     sender: bob,
     replyToEmailID: 5,
   },

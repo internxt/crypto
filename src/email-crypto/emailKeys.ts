@@ -1,6 +1,6 @@
 import { generateEccKeys } from '../asymmetric-crypto';
 import { generateKyberKeys } from '../post-quantum-crypto';
-import { PublicKeys, PrivateKeys, User } from '../utils';
+import { PublicKeys, PrivateKeys, User } from '../types';
 
 /**
  * Generates public and private keys for email service.
@@ -18,7 +18,7 @@ export async function generateEmailKeys(user: User): Promise<{ publicKeys: Publi
     };
 
     const publicKeys: PublicKeys = {
-      user,
+      userID: user.id,
       eccPublicKey: keys.publicKey,
       kyberPublicKey: kyberKeys.publicKey,
     };

@@ -1,4 +1,4 @@
-import { EncryptedKeystore, KeystoreType, SearchIndices, uint8ArrayToBase64 } from '../utils';
+import { EncryptedKeystore, KeystoreType, SearchIndices } from '../types';
 import { INDEX_KEYSTORE_TAG } from '../constants';
 import { encryptKeystoreContent, decryptKeystoreContent, getUserID, getBaseKey, deriveIndexKey } from './core';
 import { base64ToSearchIndices, searchIndicesToBase64 } from './converters';
@@ -15,7 +15,6 @@ export async function encryptCurrentSearchIndices(indices: SearchIndices): Promi
     const userID = getUserID();
     const baseKey = getBaseKey();
 
-    console.log('HOLA: ', userID, uint8ArrayToBase64(baseKey));
     const indexKey = await deriveIndexKey(baseKey);
     const content = searchIndicesToBase64(indices);
     const encKeys = await encryptKeystoreContent(indexKey, content, userID, INDEX_KEYSTORE_TAG);
@@ -51,7 +50,7 @@ export async function decryptCurrentSearchIndices(encryptedKeystore: EncryptedKe
       encryptedKeystore.userID,
       INDEX_KEYSTORE_TAG,
     );
-    const indices: SearchIndices = await base64ToSearchIndices(json);
+    const indices: SearchIndices = base64ToSearchIndices(json);
     return indices;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

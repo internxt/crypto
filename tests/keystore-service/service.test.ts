@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { EncryptedKeystore, KeystoreType } from '../../src/utils';
+import { EncryptedKeystore, KeystoreType } from '../../src/types';
 import { encryptedKeystoreToBase64 } from '../../src/keystore-crypto';
 import {
   uploadKeystoreToServer,

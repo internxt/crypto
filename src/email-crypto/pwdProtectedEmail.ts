@@ -1,4 +1,4 @@
-import { PwdProtectedEmail, Email } from '../utils';
+import { PwdProtectedEmail, Email } from '../types';
 import {
   encryptEmailSymmetrically,
   decryptEmailSymmetrically,

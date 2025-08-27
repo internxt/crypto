@@ -1,5 +1,5 @@
 import { blake3 } from 'hash-wasm';
-import { AES_KEY_BIT_LENGTH, HASH_BIT_LEN } from '../constants';
+import { AES_KEY_BIT_LENGTH } from '../constants';
 import { hexToUint8Array } from '../utils';
 import { importSymmetricCryptoKey } from '../symmetric-crypto';
 
@@ -11,7 +11,10 @@ import { importSymmetricCryptoKey } from '../symmetric-crypto';
  * @param baseKey - The base key (NOT PASSWORD!)
  * @returns The derived secret key
  */
-async function deriveSymmetricKeyFromContext(context: string, baseKey: Uint8Array | string): Promise<Uint8Array> {
+export async function deriveSymmetricKeyFromContext(
+  context: string,
+  baseKey: Uint8Array | string,
+): Promise<Uint8Array> {
   try {
     const context_key = await blake3(context);
     const buffer_context_key = hexToUint8Array(context_key);
@@ -46,31 +49,5 @@ export async function deriveSymmetricCryptoKeyFromContext(context: string, baseK
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return Promise.reject(new Error(`Failed to derive CryptoKey from base key and context: ${errorMessage}`));
-  }
-}
-
-/**
- * Derives a symmetric key from two keys
- *
- * @param key1 - The 32-bytes key
- * @param key2 - The 32-bytes key
- * @param context - The context string
- * @returns The derived secret key
- */
-export async function deriveSymmetricKeyFromTwoKeys(
-  key1: Uint8Array,
-  key2: Uint8Array,
-  context: string,
-): Promise<Uint8Array> {
-  try {
-    if (key2.length != AES_KEY_BIT_LENGTH / 8 || key1.length != AES_KEY_BIT_LENGTH / 8) {
-      throw new Error(`Input key length must be exactly ${AES_KEY_BIT_LENGTH / 8} bytes`);
-    }
-    const combined_key = await blake3(key1, HASH_BIT_LEN, key2);
-    const result = await deriveSymmetricKeyFromContext(context, combined_key);
-    return result;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive symmetric key from two keys: ${errorMessage}`));
   }
 }

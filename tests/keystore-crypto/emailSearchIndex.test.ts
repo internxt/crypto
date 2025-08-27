@@ -3,7 +3,8 @@ import { decryptCurrentSearchIndices, encryptCurrentSearchIndices } from '../../
 import { v4 as uuidv4 } from 'uuid';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
-import { uint8ArrayToBase64, SearchIndices } from '../../src/utils';
+import { uint8ArrayToBase64 } from '../../src/utils';
+import { SearchIndices } from '../../src/types';
 
 describe('Test keystore create/open functions', async () => {
   const mockUserID = uuidv4();

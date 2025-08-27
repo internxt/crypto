@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { desearializeIndices, getMiniSearchIndices, searializeIndices } from '../../src/email-search/core';
-import { Email } from '../../src/utils/types';
+import { Email } from '../../src/types';
 import MiniSearch from 'minisearch';
+import { usersToRecipients } from '../../src/email-crypto';
 
-const alice = { email: 'alice@email.com', name: 'alice' };
-const bob = { email: 'bob@email.com', name: 'bob' };
-const eve = { email: 'eve@email.com', name: 'eve' };
+const alice = { email: 'alice@email.com', name: 'alice', id: '1' };
+const bob = { email: 'bob@email.com', name: 'bob', id: '2' };
+const eve = { email: 'eve@email.com', name: 'eve', id: '3' };
 const emails: Email[] = [
   {
     id: '1',
@@ -16,7 +17,7 @@ const emails: Email[] = [
     },
     subject: 'Moby Dick',
     sender: alice,
-    recipients: [bob],
+    recipients: usersToRecipients([bob]),
     replyToEmailID: 0,
   },
   {
@@ -28,7 +29,7 @@ const emails: Email[] = [
       labels: ['fiction', 'self-help'],
     },
     sender: bob,
-    recipients: [alice, eve],
+    recipients: usersToRecipients([alice, eve]),
     replyToEmailID: 3,
   },
   {
@@ -40,7 +41,7 @@ const emails: Email[] = [
       labels: ['fiction'],
     },
     sender: eve,
-    recipients: [alice, bob],
+    recipients: usersToRecipients([alice, bob]),
     replyToEmailID: 1,
   },
   {
@@ -51,7 +52,7 @@ const emails: Email[] = [
       date: '2021-01-30T04:15:36.000Z',
       labels: ['non-fiction', 'education'],
     },
-    recipients: [alice, eve],
+    recipients: usersToRecipients([alice, eve]),
     sender: bob,
     replyToEmailID: 5,
   },
@@ -73,6 +74,7 @@ describe('Test dummy search functions', () => {
         score: 9.926306505038868,
         sender: {
           email: 'bob@email.com',
+          id: '2',
           name: 'bob',
         },
         terms: ['zen', 'art', 'motorcycle'],
@@ -88,6 +90,7 @@ describe('Test dummy search functions', () => {
         sender: {
           email: 'bob@email.com',
           name: 'bob',
+          id: '2',
         },
         terms: ['zen', 'art'],
       },

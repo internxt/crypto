@@ -1,11 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { HybridEncryptedEmail, Email, EmailBody, User, PwdProtectedEmail } from '../../src/utils';
+import { HybridEncryptedEmail, Email, EmailBody, User, PwdProtectedEmail } from '../../src/types';
 import {
   encryptEmailHybrid,
   encryptEmailHybridForMultipleRecipients,
   createPwdProtectedEmail,
+  generateEmailKeys,
+  usersToRecipients,
 } from '../../src/email-crypto';
-import { generateEmailKeys } from '../../src/email-crypto';
 import {
   sendHybridEmail,
   sendHybridEmailToMultipleRecipients,
@@ -27,9 +28,9 @@ describe('Test sending email functions', async () => {
     vi.clearAllMocks();
   });
 
-  const userAlice: User = { email: 'alice email', name: 'alice' };
-  const userBob: User = { email: 'bob email', name: 'bob' };
-  const userEve: User = { email: 'eve email', name: 'eve' };
+  const userAlice: User = { email: 'alice email', name: 'alice', id: '1' };
+  const userBob: User = { email: 'bob email', name: 'bob', id: '2' };
+  const userEve: User = { email: 'eve email', name: 'eve', id: '3' };
 
   const serviceId = 'test-service-id';
   const templateId = 'test-template-id';
@@ -52,7 +53,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -82,7 +83,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -99,7 +100,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob, userEve],
+      recipients: usersToRecipients([userBob, userEve]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -146,7 +147,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob, userEve],
+      recipients: usersToRecipients([userBob, userEve]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -170,7 +171,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -200,7 +201,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -217,7 +218,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob, userEve],
+      recipients: usersToRecipients([userBob, userEve]),
       id: '1',
       replyToEmailID: 1,
     };
@@ -260,7 +261,7 @@ describe('Test sending email functions', async () => {
       body: emailBody,
       sender: userAlice,
       subject: 'test subject',
-      recipients: [userBob, userEve],
+      recipients: usersToRecipients([userBob, userEve]),
       id: '1',
       replyToEmailID: 1,
     };

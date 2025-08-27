@@ -1,4 +1,21 @@
-import { createBLAKE3 } from 'hash-wasm';
+import { computeHash } from './core';
+import { HASH_BIT_LEN } from '../constants';
+
+/**
+ * Hashes the given array of data
+ *
+ * @param data - The data to hash
+ * @returns The resulting hash hex string
+ */
+export async function hashData(data: string[] | Uint8Array[]): Promise<string> {
+  try {
+    const hasher = await computeHash(HASH_BIT_LEN, data);
+    return hasher.digest();
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to compute hash: ${errorMessage}`);
+  }
+}
 
 /**
  * Hashes the given array of data using blake3 algorithm
@@ -7,18 +24,13 @@ import { createBLAKE3 } from 'hash-wasm';
  * @param data - The data to hash
  * @returns The resulting hash value
  */
-export async function getHash(bits: number, data: string[] | Uint8Array[]) {
+export async function getBitsFromData(bits: number, data: string[] | Uint8Array[]): Promise<Uint8Array> {
   try {
-    const hasher = await createBLAKE3(bits);
-    hasher.init();
-    for (const chunk of data) {
-      hasher.update(chunk);
-    }
-
+    const hasher = await computeHash(bits, data);
     return hasher.digest('binary');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to compute hash: ${errorMessage}`);
+    throw new Error(`Failed to get bits from data: ${errorMessage}`);
   }
 }
 
@@ -29,14 +41,12 @@ export async function getHash(bits: number, data: string[] | Uint8Array[]) {
  * @param value - The string to hash
  * @returns The resulting hash value
  */
-export async function hashString(bits: number, value: string) {
+export async function getBitsFromString(bits: number, value: string): Promise<Uint8Array> {
   try {
-    const hasher = await createBLAKE3(bits);
-    hasher.init();
-    hasher.update(value);
+    const hasher = await computeHash(bits, [value]);
     return hasher.digest('binary');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to hash the given string: ${errorMessage}`);
+    throw new Error(`Failed to get bits from string: ${errorMessage}`);
   }
 }

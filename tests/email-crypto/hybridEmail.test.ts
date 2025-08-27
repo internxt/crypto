@@ -4,11 +4,12 @@ import {
   decryptEmailHybrid,
   encryptEmailHybridForMultipleRecipients,
   generateEmailKeys,
+  usersToRecipients,
 } from '../../src/email-crypto';
 
 import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
-import { EmailBody, PublicKeys, Email, HybridEncryptedEmail, HybridEncKey, PrivateKeys } from '../../src/utils/types';
+import { EmailBody, PublicKeys, Email, HybridEncryptedEmail, HybridEncKey, PrivateKeys } from '../../src/types';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
 describe('Test email crypto functions', async () => {
@@ -21,11 +22,13 @@ describe('Test email crypto functions', async () => {
   const userAlice = {
     email: 'alice email',
     name: 'alice',
+    id: '1',
   };
 
   const userBob = {
     email: 'bob email',
     name: 'bob',
+    id: '2',
   };
 
   const email: Email = {
@@ -33,7 +36,7 @@ describe('Test email crypto functions', async () => {
     subject: 'test subject',
     body: emailBody,
     sender: userAlice,
-    recipients: [userBob],
+    recipients: usersToRecipients([userBob]),
     replyToEmailID: 2,
   };
 
@@ -74,8 +77,8 @@ describe('Test email crypto functions', async () => {
       ciphertext: emailCiphertext,
       subject: 'test subject',
       sender: userAlice,
-      encryptedFor: userBob,
-      recipients: [userBob],
+      encryptedFor: userBob.id,
+      recipients: usersToRecipients([userBob]),
       replyToEmailID: 2,
     };
 
@@ -88,13 +91,14 @@ describe('Test email crypto functions', async () => {
     const userEve = {
       email: 'bob email',
       name: 'bob',
+      id: '3',
     };
 
     const eveKyberKeys = generateKyberKeys();
     const eveKeys = await generateEccKeys();
 
     const evePublicKeys: PublicKeys = {
-      user: userEve,
+      userID: userEve.id,
       eccPublicKey: eveKeys.publicKey,
       kyberPublicKey: eveKyberKeys.publicKey,
     };
@@ -111,15 +115,16 @@ describe('Test email crypto functions', async () => {
 
   it('should throw an error if encryption to multiple recipients fails', async () => {
     const userEve = {
-      email: 'bob email',
-      name: 'bob',
+      email: 'eve email',
+      name: 'eve',
+      id: '3',
     };
 
     const eveKyberKeys = generateKyberKeys();
     const eveKeys = await generateEccKeys();
 
     const bad_evePublicKeys: PublicKeys = {
-      user: userEve,
+      userID: userEve.id,
       eccPublicKey: eveKeys.privateKey,
       kyberPublicKey: eveKyberKeys.publicKey,
     };

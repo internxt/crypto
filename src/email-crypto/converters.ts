@@ -1,15 +1,6 @@
 import { exportPublicKey, importPublicKey } from '../asymmetric-crypto';
-import {
-  uint8ArrayToBase64,
-  base64ToUint8Array,
-  UTF8ToUint8,
-  uint8ToUTF8,
-  EmailBody,
-  PublicKeys,
-  HybridEncKey,
-  PwdProtectedKey,
-  User,
-} from '../utils';
+import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8 } from '../utils';
+import { EmailBody, PublicKeys, HybridEncKey, PwdProtectedKey, User } from '../types';
 
 /**
  * Converts a User type into a base64 string.
@@ -91,7 +82,7 @@ export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
     const eccPublicKey = await importPublicKey(eccPublicKeyBytes);
     const kyberPublicKey = base64ToUint8Array(obj.kyberPublicKey);
     return {
-      user: base64ToUser(obj.user),
+      userID: obj.userID,
       eccPublicKey: eccPublicKey,
       kyberPublicKey: kyberPublicKey,
     };
@@ -111,7 +102,7 @@ export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
   try {
     const eccPublicKeyArray = await exportPublicKey(key.eccPublicKey);
     const json = JSON.stringify({
-      user: userToBase64(key.user),
+      userID: key.userID,
       eccPublicKey: uint8ArrayToBase64(eccPublicKeyArray),
       kyberPublicKey: uint8ArrayToBase64(key.kyberPublicKey),
     });
@@ -197,6 +188,25 @@ export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
       encryptedKey: base64ToUint8Array(obj.encryptedKey),
       salt: base64ToUint8Array(obj.salt),
     };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to password-protected key: ${errorMessage}`);
+  }
+}
+
+/**
+ * Converts a list of users to the recipients map.
+ *
+ * @param users - The list of users.
+ * @returns The resulting Map.
+ */
+export function usersToRecipients(users: User[]): Map<string, User> {
+  try {
+    const map = new Map<string, User>();
+    for (const user of users) {
+      map.set(user.id, user);
+    }
+    return map;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to convert base64 to password-protected key: ${errorMessage}`);

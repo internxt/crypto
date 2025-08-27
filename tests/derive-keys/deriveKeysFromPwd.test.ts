@@ -70,6 +70,11 @@ describe('Test Argon2', () => {
     expect(result).toBe(true);
   });
 
+  it('should throw an error if no password is given', async () => {
+    await expect(getKeyFromPasswordHex('')).rejects.toThrowError(/Failed to derive key from password/);
+    await expect(getKeyFromPassword('')).rejects.toThrowError(/Failed to derive key from password/);
+  });
+
   it('should throw an error if key derivation failed', async () => {
     const test_password = 'text demo';
 

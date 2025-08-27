@@ -1,4 +1,4 @@
-import { Email, SearchIndices } from '../utils';
+import { Email, SearchIndices } from '../types';
 import { searializeIndices, getMiniSearchIndices } from './core';
 
 /**

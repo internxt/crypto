@@ -1,4 +1,5 @@
-import { SymmetricCiphertext, uint8ArrayToBase64, base64ToUint8Array } from '../utils';
+import { uint8ArrayToBase64, base64ToUint8Array } from '../utils';
+import { SymmetricCiphertext } from '../types';
 
 /**
  * Converts encrypted message to base64 string

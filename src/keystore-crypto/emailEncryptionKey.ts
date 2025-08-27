@@ -1,4 +1,5 @@
-import { EncryptionKeys, EncryptedKeystore, KeystoreType, genMnemonic } from '../utils';
+import { EncryptionKeys, EncryptedKeystore, KeystoreType } from '../types';
+import { genMnemonic } from '../utils';
 import { ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG, AES_KEY_BIT_LENGTH } from '../constants';
 import {
   encryptKeystoreContent,
@@ -29,7 +30,7 @@ export function generateRecoveryCodes(): string {
 export async function generateEncryptionKeys(): Promise<EncryptionKeys> {
   try {
     const keyPair = await generateEccKeys();
-    const keyPairKyber = await generateKyberKeys();
+    const keyPairKyber = generateKyberKeys();
     const result: EncryptionKeys = {
       userPrivateKey: keyPair.privateKey,
       userPublicKey: keyPair.publicKey,

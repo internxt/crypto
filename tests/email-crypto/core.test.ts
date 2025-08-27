@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, Email, HybridEncryptedEmail, HybridEncKey } from '../../src/utils/types';
+import { EmailBody, Email, HybridEncryptedEmail, HybridEncKey, User } from '../../src/types';
 import { decryptEmailSymmetrically, encryptEmailSymmetrically, getAux } from '../../src/email-crypto/core';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
+import { usersToRecipients } from '../../src/email-crypto';
 
 describe('Test email crypto functions', () => {
   it('should encrypt and decrypt email', async () => {
@@ -10,14 +11,16 @@ describe('Test email crypto functions', () => {
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
-    const userAlice = {
+    const userAlice: User = {
       email: 'alice email',
       name: 'alice',
+      id: '1',
     };
 
-    const userBob = {
+    const userBob: User = {
       email: 'bob email',
       name: 'bob',
+      id: '2',
     };
 
     const email: Email = {
@@ -25,7 +28,7 @@ describe('Test email crypto functions', () => {
       subject: 'test subject',
       body: emailBody,
       sender: userAlice,
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       replyToEmailID: 2,
     };
     const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);
@@ -33,10 +36,10 @@ describe('Test email crypto functions', () => {
     const encryptedEmail: HybridEncryptedEmail = {
       ciphertext: encEmail,
       sender: userAlice,
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       replyToEmailID: 2,
       subject: 'test subject',
-      encryptedFor: userBob,
+      encryptedFor: userBob.id,
       encryptedKey: encKey,
     };
     const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
@@ -49,14 +52,16 @@ describe('Test email crypto functions', () => {
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
-    const userAlice = {
+    const userAlice: User = {
       email: 'alice email',
       name: 'alice',
+      id: '1',
     };
 
     const userBob = {
       email: 'bob email',
       name: 'bob',
+      id: '2',
     };
 
     const email: Email = {
@@ -64,7 +69,7 @@ describe('Test email crypto functions', () => {
       subject: 'test subject',
       body: emailBody,
       sender: userAlice,
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       replyToEmailID: 2,
     };
     const { encEmail } = await encryptEmailSymmetrically(email);
@@ -72,10 +77,10 @@ describe('Test email crypto functions', () => {
     const encryptedEmail: HybridEncryptedEmail = {
       ciphertext: encEmail,
       sender: userAlice,
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       replyToEmailID: 2,
       subject: 'test subject',
-      encryptedFor: userBob,
+      encryptedFor: userBob.id,
       encryptedKey: encKey,
     };
     const bad_encryptionKey = await genSymmetricCryptoKey();

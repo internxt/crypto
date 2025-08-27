@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { publicKeyToBase64 } from '../../src/email-crypto';
-import { PublicKeys, User } from '../../src/utils';
+import { PublicKeys, User } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto';
 import { getRecipientsPublicKeys } from '../../src/email-service';
@@ -17,12 +17,13 @@ describe('Test key service functions', async () => {
   const alice: User = {
     email: 'alice@email.com',
     name: 'Alice',
+    id: '1',
   };
   const eccKeyPair = await generateEccKeys();
   const kyberKeyPair = generateKyberKeys();
 
   const pk: PublicKeys = {
-    user: alice,
+    userID: alice.id,
     eccPublicKey: eccKeyPair.publicKey,
     kyberPublicKey: kyberKeyPair.publicKey,
   };

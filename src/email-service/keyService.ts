@@ -1,4 +1,4 @@
-import { PublicKeys } from '../utils';
+import { PublicKeys } from '../types';
 import { base64ToPublicKey } from '../email-crypto/converters';
 import { getRecipientsPublicKeysFromServer } from './api-keys';
 

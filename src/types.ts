@@ -20,12 +20,20 @@ export type SearchIndices = {
 export type User = {
   email: string;
   name: string;
+  id: string;
 };
 
 export type PublicKeys = {
-  user: User;
+  userID: string;
   eccPublicKey: CryptoKey;
   kyberPublicKey: Uint8Array;
+};
+
+export type MediaKeys = {
+  olmKey: Uint8Array;
+  pqKey: Uint8Array;
+  index: number;
+  userID: string;
 };
 
 export type PrivateKeys = {
@@ -50,8 +58,8 @@ export type HybridEncryptedEmail = {
   ciphertext: SymmetricCiphertext;
   sender: User;
   subject: string;
-  encryptedFor: User;
-  recipients: User[];
+  encryptedFor: string;
+  recipients: Map<string, User>;
   replyToEmailID?: number;
 };
 
@@ -60,7 +68,7 @@ export type PwdProtectedEmail = {
   ciphertext: SymmetricCiphertext;
   sender: User;
   subject: string;
-  recipients: User[];
+  recipients: Map<string, User>;
   replyToEmailID?: number;
 };
 
@@ -90,6 +98,6 @@ export type Email = {
   body: EmailBody;
   subject: string;
   sender: User;
-  recipients: User[];
+  recipients: Map<string, User>;
   replyToEmailID?: number;
 };

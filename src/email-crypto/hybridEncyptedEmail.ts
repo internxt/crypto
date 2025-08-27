@@ -1,4 +1,4 @@
-import { Email, PublicKeys, PrivateKeys, HybridEncryptedEmail } from '../utils';
+import { Email, PublicKeys, PrivateKeys, HybridEncryptedEmail } from '../types';
 import { encryptEmailSymmetrically, decryptEmailSymmetrically, encryptKeysHybrid, decryptKeysHybrid } from './core';
 
 /**
@@ -19,7 +19,7 @@ export async function encryptEmailHybrid(
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipientPublicKeys, senderPrivateKey);
     const result: HybridEncryptedEmail = {
       recipients: email.recipients,
-      encryptedFor: recipientPublicKeys.user,
+      encryptedFor: recipientPublicKeys.userID,
       sender: email.sender,
       subject: email.subject,
       replyToEmailID: email.replyToEmailID,
@@ -56,7 +56,7 @@ export async function encryptEmailHybridForMultipleRecipients(
       const result: HybridEncryptedEmail = {
         recipients: email.recipients,
         sender: email.sender,
-        encryptedFor: keys.user,
+        encryptedFor: keys.userID,
         subject: email.subject,
         replyToEmailID: email.replyToEmailID,
         ciphertext,

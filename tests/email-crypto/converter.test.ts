@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, PublicKeys, User, HybridEncKey, PwdProtectedKey } from '../../src/utils/types';
+import { EmailBody, PublicKeys, User, HybridEncKey, PwdProtectedKey } from '../../src/types';
 import {
   emailBodyToBinary,
   binaryToEmailBody,
@@ -49,15 +49,17 @@ describe('Test email crypto functions', () => {
     );
   });
 
+  const alice: User = {
+    name: 'Alice',
+    email: 'alice@email.com',
+    id: '1',
+  };
   it('public key converter to base64 and back works', async () => {
     const eccKeyPair = await generateEccKeys();
     const kyberKeyPair = await generateKyberKeys();
-    const alice: User = {
-      name: 'Alice',
-      email: 'alice@email.com',
-    };
+
     const key: PublicKeys = {
-      user: alice,
+      userID: alice.id,
       eccPublicKey: eccKeyPair.publicKey,
       kyberPublicKey: kyberKeyPair.publicKey,
     };
@@ -67,11 +69,6 @@ describe('Test email crypto functions', () => {
   });
 
   it('user converter to base64 and back works', async () => {
-    const alice: User = {
-      name: 'Alice',
-      email: 'alice@email.com',
-    };
-
     const base64 = await userToBase64(alice);
     const result = await base64ToUser(base64);
     expect(result).toEqual(alice);
@@ -80,12 +77,9 @@ describe('Test email crypto functions', () => {
   it('throws error if public key converter to base64 fails', async () => {
     const eccKeyPair = await generateEccKeys();
     const kyberKeyPair = await generateKyberKeys();
-    const alice: User = {
-      name: 'Alice',
-      email: 'alice@email.com',
-    };
+
     const bad_key: PublicKeys = {
-      user: alice,
+      userID: alice.id,
       eccPublicKey: eccKeyPair.privateKey,
       kyberPublicKey: kyberKeyPair.publicKey,
     };

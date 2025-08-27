@@ -8,7 +8,7 @@ import {
   PwdProtectedKey,
   PublicKeys,
   PrivateKeys,
-} from '../utils';
+} from '../types';
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { emailBodyToBinary, binaryToEmailBody } from './converters';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';

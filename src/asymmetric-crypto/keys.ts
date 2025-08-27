@@ -7,7 +7,7 @@ import { CURVE_NAME, ECC_ALGORITHM } from '../constants';
  */
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
   try {
-    return window.crypto.subtle.generateKey(
+    return await window.crypto.subtle.generateKey(
       {
         name: ECC_ALGORITHM,
         namedCurve: CURVE_NAME,

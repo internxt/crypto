@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { deriveSymmetricKeyFromTwoKeys, deriveSymmetricCryptoKeyFromContext } from '../../src/derive-key';
+import {
+  deriveSymmetricKeyFromTwoKeys,
+  deriveSymmetricCryptoKeyFromContext,
+  deriveSymmetricCryptoKeyFromTwoKeys,
+} from '../../src/derive-key';
 import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
@@ -51,6 +55,9 @@ describe('Test derive key', () => {
     const context = 'test context';
     const key = await deriveSymmetricKeyFromTwoKeys(key1, key2, context);
     expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
+
+    const cryptoKey = await deriveSymmetricCryptoKeyFromTwoKeys(key1, key2, context);
+    expect(cryptoKey).instanceOf(CryptoKey);
   });
 
   it('derive symmetric key from two keys should fail for small key', async () => {

@@ -1,4 +1,4 @@
-import { IdentityKeys, EncryptedKeystore, KeystoreType } from '../utils';
+import { IdentityKeys, EncryptedKeystore, KeystoreType } from '../types';
 import { IDENTITY_KEYSTORE_TAG } from '../constants';
 import {
   encryptKeystoreContent,

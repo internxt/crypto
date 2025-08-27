@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
-import { EmailBody, Email } from '../../src/utils';
+import { createPwdProtectedEmail, decryptPwdProtectedEmail, usersToRecipients } from '../../src/email-crypto';
+import { EmailBody, Email, User } from '../../src/types';
 
 describe('Test email crypto functions', () => {
   it('should encrypt and decrypt email sucessfully', async () => {
@@ -11,21 +11,23 @@ describe('Test email crypto functions', () => {
     };
 
     const sharedSecret = 'test shared secret';
-    const userAlice = {
+    const userAlice: User = {
       email: 'alice email',
       name: 'alice',
+      id: '1',
     };
 
-    const userBob = {
+    const userBob: User = {
       email: 'bob email',
       name: 'bob',
+      id: '2',
     };
     const email: Email = {
       id: 'test id',
       body: emailBody,
       subject: 'test subject',
       sender: userAlice,
-      recipients: [userBob],
+      recipients: usersToRecipients([userBob]),
       replyToEmailID: 2,
     };
 

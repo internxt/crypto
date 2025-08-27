@@ -1,4 +1,4 @@
-import { SymmetricCiphertext } from '../utils';
+import { SymmetricCiphertext } from '../types';
 import { createNISTbasedIV, makeAuxFixedLength, encryptMessage, decryptMessage } from './core';
 
 /**
