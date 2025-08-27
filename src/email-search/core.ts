@@ -1,5 +1,5 @@
 import MiniSearch from 'minisearch';
-import { Email } from '../utils';
+import { Email } from '../types';
 
 const options = {
   fields: ['subject', 'sender', 'recipients', 'body'],
