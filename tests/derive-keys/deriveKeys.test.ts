@@ -52,22 +52,20 @@ describe('Test derive key', () => {
   it('should derive symmetric key from two keys', async () => {
     const key1 = genSymmetricKey();
     const key2 = genSymmetricKey();
-    const context = 'test context';
-    const key = await deriveSymmetricKeyFromTwoKeys(key1, key2, context);
+    const key = await deriveSymmetricKeyFromTwoKeys(key1, key2);
     expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
 
-    const cryptoKey = await deriveSymmetricCryptoKeyFromTwoKeys(key1, key2, context);
+    const cryptoKey = await deriveSymmetricCryptoKeyFromTwoKeys(key1, key2);
     expect(cryptoKey).instanceOf(CryptoKey);
   });
 
   it('derive symmetric key from two keys should fail for small key', async () => {
     const short_key = new Uint8Array([1, 2, 3]);
     const key2 = genSymmetricKey();
-    const context = 'test context';
-    await expect(deriveSymmetricKeyFromTwoKeys(short_key, key2, context)).rejects.toThrowError(
+    await expect(deriveSymmetricKeyFromTwoKeys(short_key, key2)).rejects.toThrowError(
       /Failed to derive symmetric key from two keys/,
     );
-    await expect(deriveSymmetricKeyFromTwoKeys(key2, short_key, context)).rejects.toThrowError(
+    await expect(deriveSymmetricKeyFromTwoKeys(key2, short_key)).rejects.toThrowError(
       /Failed to derive symmetric key from two keys/,
     );
   });
