@@ -7,7 +7,7 @@ import {
   getBaseKey,
   deriveIdentityKeystoreKey,
 } from './core';
-import { base64ToIdentityKeys, identityKeysToBase64 } from './converters';
+import { base64ToIdentityKeys, identityKeysToBase64 } from '../utils';
 import { generateEccKeys } from '../asymmetric-crypto';
 
 /**

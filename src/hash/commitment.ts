@@ -1,8 +1,7 @@
 import { MediaKeys } from '../types';
 import { getBitsFromData } from './blake3';
 import { HASH_BIT_LEN, PREFIX_MEDIA_KEY_COMMITMENT } from '../constants';
-import { uint8ArrayToHex } from '../utils';
-import { mediaKeysToBase64 } from '../keystore-crypto';
+import { uint8ArrayToHex, mediaKeysToBase64 } from '../utils';
 
 /**
  * Computes commitment to the media keys
@@ -12,7 +11,7 @@ import { mediaKeysToBase64 } from '../keystore-crypto';
  */
 export async function comitToMediaKey(keys: MediaKeys): Promise<string> {
   try {
-    const keysBase64 = await mediaKeysToBase64(keys);
+    const keysBase64 = mediaKeysToBase64(keys);
     const result = await getBitsFromData(HASH_BIT_LEN, [PREFIX_MEDIA_KEY_COMMITMENT, keysBase64]);
     return uint8ArrayToHex(result);
   } catch (error) {

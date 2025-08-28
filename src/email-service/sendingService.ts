@@ -1,6 +1,6 @@
 import { HybridEncryptedEmail, PwdProtectedEmail, User } from '../types';
 import { encHybridKeyToBase64, pwdProtectedKeyToBase64 } from '../email-crypto/converters';
-import { ciphertextToBase64 } from '../symmetric-crypto';
+import { ciphertextToBase64 } from '../utils';
 import { sendEmail } from './api-send';
 
 /**

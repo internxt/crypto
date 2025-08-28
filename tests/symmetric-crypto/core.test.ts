@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createNISTbasedIV } from '../../src/symmetric-crypto/core';
-import {
-  genSymmetricCryptoKey,
-  encryptSymmetrically,
-  base64ToCiphertext,
-  ciphertextToBase64,
-} from '../../src/symmetric-crypto';
+import { genSymmetricCryptoKey, encryptSymmetrically } from '../../src/symmetric-crypto';
+import { base64ToCiphertext, ciphertextToBase64 } from '../../src/utils';
 import { SymmetricCiphertext } from '../../src/types';
 import { getBitsFromString } from '../../src/hash';
 

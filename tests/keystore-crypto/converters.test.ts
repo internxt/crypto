@@ -10,7 +10,7 @@ import {
   identityKeysToBase64,
   mediaKeysToBase64,
   searchIndicesToBase64,
-} from '../../src/keystore-crypto';
+} from '../../src/utils';
 import {
   EncryptedKeystore,
   EncryptionKeys,
@@ -34,6 +34,17 @@ describe('Test converter functions', () => {
     const deserializedKey = await base64ToIdentityKeys(serializedKey);
 
     expect(deserializedKey).toStrictEqual(key);
+  });
+
+  it('should thow an error if not correct key', async () => {
+    const serializedKey = 'bad key';
+    await expect(base64ToIdentityKeys(serializedKey)).rejects.toThrowError(/Failed convert base64 to idenity key/);
+    await expect(base64ToEncryptionKeys(serializedKey)).rejects.toThrowError(
+      /Failed to convert base64 to encryption key/,
+    );
+    expect(() => base64ToEncryptedKeystore(serializedKey)).toThrowError(
+      /Failed to convert base64 to encrypted keystore/,
+    );
   });
 
   it('should sucessfully serialize and decerialize an encryption key', async () => {
@@ -86,7 +97,7 @@ describe('Test converter functions', () => {
       pqKey: new Uint8Array([42, 13, 250, 4, 0]),
       index: 1,
     };
-    const serializedKey = await mediaKeysToBase64(key);
+    const serializedKey = mediaKeysToBase64(key);
     const deserializedKey = await base64ToMediaKeys(serializedKey);
 
     expect(deserializedKey).toStrictEqual(key);

@@ -1,5 +1,5 @@
 import { EncryptionKeys, EncryptedKeystore, KeystoreType } from '../types';
-import { genMnemonic } from '../utils';
+import { encryptionKeysToBase64, base64ToEncryptionKeys, genMnemonic } from '../utils';
 import { ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG, AES_KEY_BIT_LENGTH } from '../constants';
 import {
   encryptKeystoreContent,
@@ -9,7 +9,6 @@ import {
   deriveEncryptionKeystoreKey,
   deriveRecoveryKey,
 } from './core';
-import { encryptionKeysToBase64, base64ToEncryptionKeys } from './converters';
 import { generateEccKeys } from '../asymmetric-crypto';
 import { generateKyberKeys } from '../post-quantum-crypto';
 

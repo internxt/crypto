@@ -3,7 +3,7 @@ import axios from 'axios';
 import { KeystoreType, EncryptedKeystore } from '../../src/types';
 import { sendEncryptedKeystoreToServer, requestEncryptedKeystore } from '../../src/keystore-service/api';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
-import { encryptedKeystoreToBase64 } from '../../src/keystore-crypto';
+import { encryptedKeystoreToBase64 } from '../../src/utils';
 
 vi.mock('axios');
 

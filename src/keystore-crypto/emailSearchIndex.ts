@@ -1,7 +1,7 @@
 import { EncryptedKeystore, KeystoreType, SearchIndices } from '../types';
 import { INDEX_KEYSTORE_TAG } from '../constants';
 import { encryptKeystoreContent, decryptKeystoreContent, getUserID, getBaseKey, deriveIndexKey } from './core';
-import { base64ToSearchIndices, searchIndicesToBase64 } from './converters';
+import { base64ToSearchIndices, searchIndicesToBase64 } from '../utils';
 
 /**
  * Creates an encrypted keystore for search indices

@@ -1,7 +1,7 @@
-import { uint8ArrayToBase64, base64ToUint8Array } from '../utils';
+import { uint8ArrayToBase64, base64ToUint8Array } from '.';
 import { IdentityKeys, EncryptionKeys, EncryptedKeystore, SearchIndices, MediaKeys } from '../types';
 import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric-crypto';
-import { base64ToCiphertext, ciphertextToBase64 } from '../symmetric-crypto';
+import { base64ToCiphertext, ciphertextToBase64 } from './aesConverters';
 
 /**
  * Converts identity keys to base64
@@ -201,7 +201,7 @@ export function base64ToSearchIndices(base64: string): SearchIndices {
  * @param keys - The media keys
  * @returns The resulting base64 string
  */
-export async function mediaKeysToBase64(keys: MediaKeys): Promise<string> {
+export function mediaKeysToBase64(keys: MediaKeys): string {
   try {
     const json = JSON.stringify({
       olmKey: uint8ArrayToBase64(keys.olmKey),

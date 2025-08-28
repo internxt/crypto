@@ -1,4 +1,4 @@
-import { uint8ArrayToBase64, base64ToUint8Array } from '../utils';
+import { uint8ArrayToBase64, base64ToUint8Array } from './converters';
 import { SymmetricCiphertext } from '../types';
 
 /**

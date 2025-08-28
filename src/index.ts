@@ -12,3 +12,4 @@ export * as storage from './storage-service';
 export * as symmetric from './symmetric-crypto';
 export * as utils from './utils';
 export * from './types';
+export * from './constants';
