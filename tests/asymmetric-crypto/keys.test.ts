@@ -34,10 +34,12 @@ describe('Test ecc functions', () => {
     window.crypto.subtle.generateKey = vi.fn(() => {
       throw new Error('simulated failure');
     });
-
     await expect(generateEccKeys()).rejects.toThrowError(
       'Failed to generate elliptic curve key pair: simulated failure',
     );
+
+    window.crypto.subtle.generateKey = vi.fn().mockRejectedValue('mocked error');
+    await expect(generateEccKeys()).rejects.toThrowError('Failed to generate elliptic curve key pair: mocked error');
 
     window.crypto.subtle.generateKey = originalGenerateKey;
   });
@@ -73,14 +75,43 @@ describe('Test ecc functions', () => {
     expect(resultOriginal).toStrictEqual(result);
   });
 
-  it('should throw an error if given array is not public key', async () => {
-    const badPublicKey = await genSymmetricKey();
-    await expect(importPublicKey(badPublicKey)).rejects.toThrowError(/Failed to import public key/);
+  it('should throw an error if given array is not a key', async () => {
+    const badKey = await genSymmetricKey();
+    await expect(importPublicKey(badKey)).rejects.toThrowError(/Failed to import public key/);
+    await expect(importPrivateKey(badKey)).rejects.toThrowError(/Failed to import private key/);
   });
 
   it('should throw an error if given CryptKey is not exportable', async () => {
     const keyPair = await generateEccKeys();
     const badPublicKey = keyPair.privateKey;
     await expect(exportPublicKey(badPublicKey)).rejects.toThrowError(/Failed to export public key/);
+    const badPrivateKey = keyPair.publicKey;
+    await expect(exportPrivateKey(badPrivateKey)).rejects.toThrowError(/Failed to export private key/);
+  });
+
+  it('should throw an error if key import fails', async () => {
+    const keyPair = await generateEccKeys();
+    const pk = keyPair.publicKey;
+    const sk = keyPair.privateKey;
+    const publicKeyArray = await exportPublicKey(pk);
+    const secretKeyArray = await exportPrivateKey(sk);
+
+    const originalImportKey = window.crypto.subtle.importKey;
+
+    window.crypto.subtle.importKey = vi.fn(() => {
+      throw new Error('simulated failure');
+    });
+    await expect(importPublicKey(publicKeyArray)).rejects.toThrowError(
+      'Failed to import public key: simulated failure',
+    );
+    await expect(importPrivateKey(secretKeyArray)).rejects.toThrowError(
+      'Failed to import private key: simulated failure',
+    );
+
+    window.crypto.subtle.importKey = vi.fn().mockRejectedValue('mocked error');
+    await expect(importPublicKey(publicKeyArray)).rejects.toThrowError('Failed to import public key: mocked error');
+    await expect(importPrivateKey(secretKeyArray)).rejects.toThrowError('Failed to import private key: mocked error');
+
+    window.crypto.subtle.importKey = originalImportKey;
   });
 });

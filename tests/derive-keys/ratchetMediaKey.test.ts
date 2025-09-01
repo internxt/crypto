@@ -16,4 +16,10 @@ describe('Test key ratchet', () => {
     expect(result.olmKey.length).toBe(32);
     expect(result.pqKey.length).toBe(32);
   });
+
+  it('should throw an error if ratchet fails', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const badKey = null as any;
+    await expect(ratchetMediaKey(badKey)).rejects.toThrow(/Failed to ratchet media key/);
+  });
 });

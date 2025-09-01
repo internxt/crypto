@@ -89,4 +89,22 @@ describe('Test Argon2', () => {
 
     window.crypto.getRandomValues = originalGenerateRandomValues;
   });
+
+  it('should throw an error if no salt or password given', async () => {
+    const test_password = 'text demo';
+    const test_salt = sampleSalt();
+    await expect(getKeyFromPasswordAndSalt(test_password, new Uint8Array())).rejects.toThrowError(
+      /Failed to derive key from password and salt/,
+    );
+    await expect(getKeyFromPasswordAndSalt('', test_salt)).rejects.toThrowError(
+      /Failed to derive key from password and salt/,
+    );
+
+    await expect(getKeyFromPasswordAndSaltHex(test_password, '')).rejects.toThrowError(
+      /Failed to derive key from password and salt/,
+    );
+    await expect(getKeyFromPasswordAndSaltHex('', uint8ArrayToHex(test_salt))).rejects.toThrowError(
+      /Failed to derive key from password and salt/,
+    );
+  });
 });
