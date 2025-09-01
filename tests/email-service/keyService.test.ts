@@ -118,4 +118,9 @@ describe('Test key service functions', async () => {
 
     await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
   });
+
+  it('should handle non-Error thrown values', async () => {
+    vi.mocked(axios.get).mockRejectedValueOnce('Something went wrong');
+    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrowError(/Failed to get recipients public keys/);
+  });
 });

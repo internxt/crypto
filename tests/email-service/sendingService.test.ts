@@ -164,6 +164,11 @@ describe('Test sending email functions', async () => {
     await expect(sendHybridEmailToMultipleRecipients(encEmails)).rejects.toThrow(
       /Failed to email to multiple recipients/,
     );
+
+    vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mock error'));
+    await expect(sendHybridEmailToMultipleRecipients(encEmails)).rejects.toThrow(
+      /Failed to email to multiple recipients/,
+    );
   });
 
   it('should sucessfully send password protected email', async () => {
@@ -210,6 +215,9 @@ describe('Test sending email functions', async () => {
 
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 401, text: 'Mock Error' });
 
+    await expect(sendPwdProtectedEmail(encEmail, userBob)).rejects.toThrow(/Failed to email to the recipient/);
+
+    vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mock Error'));
     await expect(sendPwdProtectedEmail(encEmail, userBob)).rejects.toThrow(/Failed to email to the recipient/);
   });
 
@@ -271,6 +279,12 @@ describe('Test sending email functions', async () => {
     vi.spyOn(emailjs, 'send')
       .mockResolvedValueOnce({ status: 200, text: 'OK' })
       .mockRejectedValue({ status: 404, text: 'Mocked Error' });
+
+    await expect(sendPwdProtectedEmailToMultipleRecipients(encEmail)).rejects.toThrow(
+      /Failed to email to multiple recipients/,
+    );
+
+    vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mocked Error'));
 
     await expect(sendPwdProtectedEmailToMultipleRecipients(encEmail)).rejects.toThrow(
       /Failed to email to multiple recipients/,

@@ -33,6 +33,6 @@ export async function getRecipientsPublicKeysFromServer(emails: string[]): Promi
       }
     }
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to retrive public keus: ${errorMessage}`);
+    throw new Error(`Failed to retrieve public keys: ${errorMessage}`);
   }
 }
