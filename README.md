@@ -98,7 +98,7 @@ const result = pq.decapsulateKyber(cipherText, keys.secretKey);
 expect(result).toStrictEqual(sharedSecret);
 
 // Hash
-const result = await hashData(['']);
+const result = await hash.hashData(['']);
 const expectedResult = 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262';
 expect(result).toStrictEqual(expectedResult);
 
@@ -132,8 +132,8 @@ const userBob = {
     name: 'bob',
     id: '2',
 };
-const { privateKeys: alicePrivateKeys, publicKeys: alicePublicKeys } = await generateEmailKeys(userAlice);
-const { privateKeys: bobPrivateKeys, publicKeys: bobPublicKeys } = await generateEmailKeys(userBob);
+const { privateKeys: alicePrivateKeys, publicKeys: alicePublicKeys } = await emailCrypto.generateEmailKeys(userAlice);
+const { privateKeys: bobPrivateKeys, publicKeys: bobPublicKeys } = await emailCrypto.generateEmailKeys(userBob);
 
 const emailRecipients =  emailCrypto.usersToRecipients([userBob]);
 
@@ -161,8 +161,8 @@ expect(decryptedEmail).toStrictEqual(emailBody);
 
 // For this to work, session storage must have UserID and baseKey
 const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores();
-const result_enc = await openEncryptionKeystore(encryptionKeystore);
-const result_rec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore); 
+const result_enc = await keystoreService.openEncryptionKeystore(encryptionKeystore);
+const result_rec = await keystoreService.openRecoveryKeystore(recoveryCodes, recoveryKeystore); 
 expect(result_enc).toStrictEqual(result_rec);
 
 ```
