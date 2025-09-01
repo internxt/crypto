@@ -68,5 +68,12 @@ describe('Test derive key', () => {
     await expect(deriveSymmetricKeyFromTwoKeys(key2, short_key)).rejects.toThrowError(
       /Failed to derive symmetric key from two keys/,
     );
+
+    await expect(deriveSymmetricCryptoKeyFromTwoKeys(short_key, key2)).rejects.toThrowError(
+      /Failed to derive symmetric CryptoKey from two keys/,
+    );
+    await expect(deriveSymmetricCryptoKeyFromTwoKeys(key2, short_key)).rejects.toThrowError(
+      /Failed to derive symmetric CryptoKey from two keys/,
+    );
   });
 });

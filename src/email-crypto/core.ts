@@ -47,7 +47,7 @@ export async function encryptEmailSymmetrically(
     const encryptionKey = await genSymmetricCryptoKey();
     const emailBody = email.body;
     const binaryEmail = emailBodyToBinary(emailBody);
-    const freeField = email.sender.email;
+    const freeField = email.id;
     const { ciphertext, iv } = await encryptSymmetrically(encryptionKey, binaryEmail, aux, freeField);
     const encEmail: SymmetricCiphertext = { ciphertext, iv };
     return { encEmail, encryptionKey };

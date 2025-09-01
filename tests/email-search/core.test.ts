@@ -99,7 +99,7 @@ describe('Test dummy search functions', () => {
     expect(results).toStrictEqual(expectedResult);
   });
 
-  it('should sucessfully generate search index', async () => {
+  it('should sucessfully generate and serialize search index', async () => {
     const indices = getMiniSearchIndices(emails);
     const results = indices.search('zen art motorcycle');
 
@@ -109,5 +109,16 @@ describe('Test dummy search functions', () => {
 
     expect(deserialized_indices).instanceOf(MiniSearch);
     expect(results).toStrictEqual(results_after);
+  });
+
+  it('should throw an error if cannot serialize search index', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const invalidIndices = null as any;
+    expect(() => searializeIndices(invalidIndices)).toThrowError(/Failed to serialize search index/);
+  });
+
+  it('should throw an error if cannot deserialize search index', async () => {
+    const invalidUint8 = new Uint8Array([1, 2, 3, 4, 5, 6, 7]);
+    expect(() => desearializeIndices(invalidUint8)).toThrowError(/Failed to deserialize search index/);
   });
 });

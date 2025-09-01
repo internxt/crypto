@@ -15,4 +15,10 @@ describe('Test getHash with blake3 test vectors', () => {
     const commitment2 = await comitToMediaKey(key);
     expect(commitment1).not.toBe(commitment2);
   });
+
+  it('should throw an error if cannot convert', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const invalidKeys: any = null;
+    await expect(comitToMediaKey(invalidKeys)).rejects.toThrowError(/Failed to compute commitment to media keys/);
+  });
 });

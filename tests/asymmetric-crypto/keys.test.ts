@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { generateEccKeys, importPublicKey, exportPublicKey, deriveSecretKey } from '../../src/asymmetric-crypto';
+import {
+  generateEccKeys,
+  importPublicKey,
+  exportPublicKey,
+  exportPrivateKey,
+  deriveSecretKey,
+  importPrivateKey,
+} from '../../src/asymmetric-crypto';
 import { CURVE_NAME, ECC_ALGORITHM } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
@@ -35,18 +42,33 @@ describe('Test ecc functions', () => {
     window.crypto.subtle.generateKey = originalGenerateKey;
   });
 
-  it('should export and import public key', async () => {
+  it('should export and import public and secret key', async () => {
     const keyPair = await generateEccKeys();
 
-    const originalPublicKey = keyPair.publicKey;
-    const publicKeyArray = await exportPublicKey(originalPublicKey);
+    const pk = keyPair.publicKey;
+    const publicKeyArray = await exportPublicKey(pk);
     const publicKey = await importPublicKey(publicKeyArray);
 
-    await expect(publicKey).toStrictEqual(originalPublicKey);
+    await expect(publicKey).toStrictEqual(pk);
 
+    const sk = keyPair.privateKey;
+    const secretKeyArray = await exportPrivateKey(sk);
+    const secretKey = await importPrivateKey(secretKeyArray);
+
+    await expect(secretKey).toStrictEqual(sk);
+  });
+
+  it('should sucessfully serive secret key', async () => {
+    const keyPair = await generateEccKeys();
     const keyPairSecond = await generateEccKeys();
-    const resultOriginal = await deriveSecretKey(originalPublicKey, keyPairSecond.privateKey);
-    const result = await deriveSecretKey(publicKey, keyPairSecond.privateKey);
+
+    const pk1 = keyPair.publicKey;
+    const pk2 = keyPairSecond.publicKey;
+    const sk1 = keyPair.privateKey;
+    const sk2 = keyPairSecond.privateKey;
+
+    const resultOriginal = await deriveSecretKey(pk1, sk2);
+    const result = await deriveSecretKey(pk2, sk1);
 
     expect(resultOriginal).toStrictEqual(result);
   });
