@@ -44,6 +44,7 @@ describe('Test email crypto functions', () => {
       date: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => emailBodyToBinary(bad_email as any as EmailBody)).toThrowError(
       /Failed to convert EmailBody to Uint8Array/,
     );
@@ -106,6 +107,7 @@ describe('Test email crypto functions', () => {
     const bad_key = {
       salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => pwdProtectedKeyToBase64(bad_key as any)).toThrowError(
       /Failed to convert password-protected key to base64/,
     );
@@ -130,6 +132,7 @@ describe('Test email crypto functions', () => {
     const bad_key = {
       salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => encHybridKeyToBase64(bad_key as any)).toThrowError(/Failed to convert hybrid key to base64/);
   });
 

@@ -91,10 +91,12 @@ describe('Test email crypto functions', () => {
 
   it('should throw an error if cannot create aux', async () => {
     const bad_email = { subject: BigInt(423) };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => getAux(bad_email as any as Email)).toThrowError(/Failed to create aux/);
   });
 
   it('should throw an error if cannot encrypt', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bad_email: any = {};
     bad_email.self = bad_email;
     await expect(encryptEmailSymmetrically(bad_email)).rejects.toThrowError(/Failed to symmetrically encrypt email/);

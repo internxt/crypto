@@ -36,6 +36,7 @@ describe('Test symmetric functions', () => {
   });
 
   it('should throw an error if cannot convert ciphertext to base64', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bad_ciphertext: any = {};
     bad_ciphertext.self = bad_ciphertext;
     expect(() => ciphertextToBase64(bad_ciphertext as SymmetricCiphertext)).toThrowError(

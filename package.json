@@ -20,12 +20,12 @@
     "lint:fix": "yarn run lint:ts --fix"
   },
   "devDependencies": {
-    "@internxt/eslint-config-internxt": "^1.0.3",
+    "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
     "@playwright/test": "^1.54.2",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-istanbul": "^3.2.4",
-    "eslint": "^8.0.0",
+    "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "lint-staged": "^16.1.4",

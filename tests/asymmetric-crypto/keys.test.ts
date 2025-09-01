@@ -26,7 +26,7 @@ describe('Test ecc functions', () => {
 
     window.crypto.subtle.generateKey = vi.fn(() => {
       throw new Error('simulated failure');
-    }) as any;
+    });
 
     await expect(generateEccKeys()).rejects.toThrowError(
       'Failed to generate elliptic curve key pair: simulated failure',

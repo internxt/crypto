@@ -82,7 +82,7 @@ describe('Test Argon2', () => {
 
     window.crypto.getRandomValues = vi.fn(() => {
       throw new Error('simulated failure');
-    }) as any;
+    });
 
     await expect(getKeyFromPassword(test_password)).rejects.toThrowError(/Failed to derive key from password/);
     await expect(getKeyFromPasswordHex(test_password)).rejects.toThrowError(/Failed to derive key from password/);

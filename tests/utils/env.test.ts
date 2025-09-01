@@ -9,6 +9,7 @@ describe('Check that env variables are loaded correctly', () => {
   });
 
   it('should throw error for unknown variable', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => envService.getVariable('unknown' as any)).toThrow();
   });
 });
