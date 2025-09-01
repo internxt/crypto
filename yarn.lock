@@ -385,8 +385,8 @@
 
 "@internxt/eslint-config-internxt@2.0.1":
   version "2.0.1"
-  resolved "https://npm.pkg.github.com/download/@internxt/eslint-config-internxt/2.0.1/da01ca87ded6781de963cda13c292d9f273bd392#da01ca87ded6781de963cda13c292d9f273bd392"
-  integrity sha512-TeRsWhp9UVHMbhsDuz2gXieSva677ugM8NUjeFyskd8AzP/H43FZNzrfhCO4H1uP7SUsh2IjkJN7HDaL/z9jJw==
+  resolved "https://registry.yarnpkg.com/@internxt/eslint-config-internxt/-/eslint-config-internxt-2.0.1.tgz#0d4c4f085245f10937a3b1914ba091811dba9d05"
+  integrity sha512-Ueczo0BAy8T9P8tXztRUoTnY7KU0ISoJ5H4cfqVTiJqkot09uPOaWmLTwI1xTMeKIkBF4h34PzNbGQ32N/nlMw==
   dependencies:
     eslint-config-prettier "^10.1.8"
     typescript-eslint "^8.40.0"
@@ -2454,9 +2454,9 @@ vite-node@3.2.4:
     vite "^5.0.0 || ^6.0.0 || ^7.0.0-0"
 
 "vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.0.6:
-  version "7.1.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-7.1.3.tgz#8d70cb02fd6346b4bf1329a6760800538ef0faea"
-  integrity sha512-OOUi5zjkDxYrKhTV3V7iKsoS37VUM7v40+HuwEmcrsf11Cdx9y3DIr2Px6liIcZFwt3XSRpQvFpL3WVy7ApkGw==
+  version "7.1.4"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-7.1.4.tgz#354944affb55e1aff0157406b74e0d0a3232df9a"
+  integrity sha512-X5QFK4SGynAeeIt+A7ZWnApdUyHYm+pzv/8/A57LqSGcI88U6R6ipOs3uCesdc6yl7nl+zNO0t8LmqAdXcQihw==
   dependencies:
     esbuild "^0.25.0"
     fdir "^6.5.0"
