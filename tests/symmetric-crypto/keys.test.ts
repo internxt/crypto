@@ -25,7 +25,7 @@ describe('Test symmetric key functions', () => {
   });
 
   it('should throw an error if secret key is non exportable', async () => {
-    const non_exportable_key = await window.crypto.subtle.generateKey(
+    const non_exportable_key = await crypto.subtle.generateKey(
       {
         name: AES_ALGORITHM,
         length: AES_KEY_BIT_LENGTH,

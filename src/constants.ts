@@ -1,6 +1,7 @@
 export const AES_ALGORITHM = 'AES-GCM';
 export const AES_KEY_BIT_LENGTH = 256;
 export const AUX_LEN = 128;
+export const IV_LEN_BYTES = 16;
 
 export const KEY_WRAPPING_ALGORITHM = 'AES-KW';
 export const KEY_FORMAT = 'raw';

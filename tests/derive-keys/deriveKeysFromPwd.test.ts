@@ -78,16 +78,16 @@ describe('Test Argon2', () => {
   it('should throw an error if key derivation failed', async () => {
     const test_password = 'text demo';
 
-    const originalGenerateRandomValues = window.crypto.getRandomValues;
+    const originalGenerateRandomValues = crypto.getRandomValues;
 
-    window.crypto.getRandomValues = vi.fn(() => {
+    crypto.getRandomValues = vi.fn(() => {
       throw new Error('simulated failure');
     });
 
     await expect(getKeyFromPassword(test_password)).rejects.toThrowError(/Failed to derive key from password/);
     await expect(getKeyFromPasswordHex(test_password)).rejects.toThrowError(/Failed to derive key from password/);
 
-    window.crypto.getRandomValues = originalGenerateRandomValues;
+    crypto.getRandomValues = originalGenerateRandomValues;
   });
 
   it('should throw an error if no salt or password given', async () => {

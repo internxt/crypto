@@ -1,6 +1,6 @@
 import { randomBytes } from '@noble/post-quantum/utils.js';
 import { getBitsFromString } from '../hash';
-import { AUX_LEN, AES_ALGORITHM } from '../constants';
+import { AUX_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
 
 /**
  * Creates an initialization vector (IV) using RGB-based construction (8.2.2 NIST Special Publication 800-38D)
@@ -13,7 +13,7 @@ import { AUX_LEN, AES_ALGORITHM } from '../constants';
 export async function createNISTbasedIV(freeField?: string): Promise<Uint8Array> {
   try {
     if (!freeField) {
-      return randomBytes(16);
+      return randomBytes(IV_LEN_BYTES);
     }
 
     const iv = new Uint8Array(16);
@@ -57,11 +57,7 @@ export async function encryptMessage(
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
   try {
-    const encrypted = await window.crypto.subtle.encrypt(
-      { name: AES_ALGORITHM, iv, additionalData },
-      encryptionKey,
-      message,
-    );
+    const encrypted = await crypto.subtle.encrypt({ name: AES_ALGORITHM, iv, additionalData }, encryptionKey, message);
     return new Uint8Array(encrypted);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -85,7 +81,7 @@ export async function decryptMessage(
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
   try {
-    const decrypted = await window.crypto.subtle.decrypt(
+    const decrypted = await crypto.subtle.decrypt(
       { name: AES_ALGORITHM, iv, additionalData },
       encryptionKey,
       ciphertext,

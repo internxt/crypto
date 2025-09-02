@@ -29,19 +29,19 @@ describe('Test ecc functions', () => {
   });
 
   it('should throw an error if generateKey fails', async () => {
-    const originalGenerateKey = window.crypto.subtle.generateKey;
+    const originalGenerateKey = crypto.subtle.generateKey;
 
-    window.crypto.subtle.generateKey = vi.fn(() => {
+    crypto.subtle.generateKey = vi.fn(() => {
       throw new Error('simulated failure');
     });
     await expect(generateEccKeys()).rejects.toThrowError(
       'Failed to generate elliptic curve key pair: simulated failure',
     );
 
-    window.crypto.subtle.generateKey = vi.fn().mockRejectedValue('mocked error');
+    crypto.subtle.generateKey = vi.fn().mockRejectedValue('mocked error');
     await expect(generateEccKeys()).rejects.toThrowError('Failed to generate elliptic curve key pair: mocked error');
 
-    window.crypto.subtle.generateKey = originalGenerateKey;
+    crypto.subtle.generateKey = originalGenerateKey;
   });
 
   it('should export and import public and secret key', async () => {
@@ -96,9 +96,9 @@ describe('Test ecc functions', () => {
     const publicKeyArray = await exportPublicKey(pk);
     const secretKeyArray = await exportPrivateKey(sk);
 
-    const originalImportKey = window.crypto.subtle.importKey;
+    const originalImportKey = crypto.subtle.importKey;
 
-    window.crypto.subtle.importKey = vi.fn(() => {
+    crypto.subtle.importKey = vi.fn(() => {
       throw new Error('simulated failure');
     });
     await expect(importPublicKey(publicKeyArray)).rejects.toThrowError(
@@ -108,10 +108,10 @@ describe('Test ecc functions', () => {
       'Failed to import private key: simulated failure',
     );
 
-    window.crypto.subtle.importKey = vi.fn().mockRejectedValue('mocked error');
+    crypto.subtle.importKey = vi.fn().mockRejectedValue('mocked error');
     await expect(importPublicKey(publicKeyArray)).rejects.toThrowError('Failed to import public key: mocked error');
     await expect(importPrivateKey(secretKeyArray)).rejects.toThrowError('Failed to import private key: mocked error');
 
-    window.crypto.subtle.importKey = originalImportKey;
+    crypto.subtle.importKey = originalImportKey;
   });
 });

@@ -14,7 +14,7 @@ describe('Test kyber functions', () => {
 
   it('should generate identical keys for identical seeds', async () => {
     const seed = new Uint8Array(KYBER_SEED_LENGTH);
-    window.crypto.getRandomValues(seed);
+    crypto.getRandomValues(seed);
     const keys1 = generateKyberKeys(seed);
     const keys2 = generateKyberKeys(seed);
 
@@ -22,11 +22,11 @@ describe('Test kyber functions', () => {
   });
   it('should generate different keys for different seeds', async () => {
     const seed1 = new Uint8Array(KYBER_SEED_LENGTH);
-    window.crypto.getRandomValues(seed1);
+    crypto.getRandomValues(seed1);
     const keys1 = generateKyberKeys(seed1);
 
     const seed2 = new Uint8Array(KYBER_SEED_LENGTH);
-    window.crypto.getRandomValues(seed2);
+    crypto.getRandomValues(seed2);
     const keys2 = generateKyberKeys(seed2);
 
     expect(keys1).not.toStrictEqual(keys2);

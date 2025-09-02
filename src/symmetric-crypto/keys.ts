@@ -41,7 +41,7 @@ export async function exportSymmetricCryptoKey(key: CryptoKey): Promise<Uint8Arr
  * @returns The generated CryptoKey.
  */
 export async function genSymmetricCryptoKey(): Promise<CryptoKey> {
-  return window.crypto.subtle.generateKey(
+  return crypto.subtle.generateKey(
     {
       name: AES_ALGORITHM,
       length: AES_KEY_BIT_LENGTH,
@@ -59,7 +59,7 @@ export async function genSymmetricCryptoKey(): Promise<CryptoKey> {
 export function genSymmetricKey(): Uint8Array {
   try {
     const key = new Uint8Array(AES_KEY_BIT_LENGTH / 8);
-    window.crypto.getRandomValues(key);
+    crypto.getRandomValues(key);
     return key;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

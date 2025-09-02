@@ -7,7 +7,7 @@ import { CURVE_NAME, ECC_ALGORITHM } from '../constants';
  */
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
   try {
-    return await window.crypto.subtle.generateKey(
+    return await crypto.subtle.generateKey(
       {
         name: ECC_ALGORITHM,
         namedCurve: CURVE_NAME,
@@ -28,7 +28,7 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
  */
 export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
   try {
-    const result = await window.crypto.subtle.exportKey('spki', key);
+    const result = await crypto.subtle.exportKey('spki', key);
     return new Uint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -43,7 +43,7 @@ export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
  */
 export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKey> {
   try {
-    return await window.crypto.subtle.importKey(
+    return await crypto.subtle.importKey(
       'spki',
       spkiKeyData,
       {
@@ -66,7 +66,7 @@ export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKe
  */
 export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
   try {
-    const result = await window.crypto.subtle.exportKey('pkcs8', key);
+    const result = await crypto.subtle.exportKey('pkcs8', key);
     return new Uint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -81,7 +81,7 @@ export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
  */
 export async function importPrivateKey(pkcs8KeyData: Uint8Array): Promise<CryptoKey> {
   try {
-    return await window.crypto.subtle.importKey(
+    return await crypto.subtle.importKey(
       'pkcs8',
       pkcs8KeyData,
       {

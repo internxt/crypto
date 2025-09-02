@@ -9,10 +9,7 @@ import { deriveKeyFromTwoKeysAndContext } from '../derive-key/core';
  */
 export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
   try {
-    return await window.crypto.subtle.importKey(KEY_FORMAT, key, KEY_WRAPPING_ALGORITHM, false, [
-      'wrapKey',
-      'unwrapKey',
-    ]);
+    return await crypto.subtle.importKey(KEY_FORMAT, key, KEY_WRAPPING_ALGORITHM, false, ['wrapKey', 'unwrapKey']);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to import wrapping key: ${errorMessage}`);
@@ -48,7 +45,7 @@ export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint
  */
 export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey): Promise<CryptoKey> {
   try {
-    return await window.crypto.subtle.unwrapKey(
+    return await crypto.subtle.unwrapKey(
       KEY_FORMAT,
       encryptedKey,
       wrappingKey,
@@ -72,7 +69,7 @@ export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey
  */
 export async function wrapKey(encryptionKey: CryptoKey, wrappingKey: CryptoKey): Promise<Uint8Array> {
   try {
-    const result = await window.crypto.subtle.wrapKey(KEY_FORMAT, encryptionKey, wrappingKey, KEY_WRAPPING_ALGORITHM);
+    const result = await crypto.subtle.wrapKey(KEY_FORMAT, encryptionKey, wrappingKey, KEY_WRAPPING_ALGORITHM);
     return new Uint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

@@ -36,7 +36,7 @@ describe('Test key wrapping functions', () => {
   });
   it('should scuessfully import the key', async () => {
     const key = new Uint8Array(16);
-    window.crypto.getRandomValues(key);
+    crypto.getRandomValues(key);
 
     await expect(importWrappingKey(key)).resolves.toBeInstanceOf(CryptoKey);
   });
@@ -52,7 +52,7 @@ describe('Test key wrapping functions', () => {
     const bad_key = key_pair.privateKey;
 
     const encrypted = new Uint8Array(16);
-    window.crypto.getRandomValues(encrypted);
+    crypto.getRandomValues(encrypted);
 
     await expect(unwrapKey(encrypted, bad_key)).rejects.toThrowError(/Failed to unwrap key:/);
   });

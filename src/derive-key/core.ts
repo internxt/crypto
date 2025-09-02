@@ -48,7 +48,7 @@ export async function argon2(
 export function sampleSalt(): Uint8Array {
   try {
     const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
-    window.crypto.getRandomValues(salt);
+    crypto.getRandomValues(salt);
     return salt;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
