@@ -11,20 +11,17 @@ export type EncryptedKeystore = {
   encryptedKeys: SymmetricCiphertext;
 };
 
-export type SearchIndices = {
-  userID: string;
-  data: Uint8Array;
-  timestamp: Date;
-};
-
 export type User = {
   email: string;
   name: string;
   id: string;
 };
 
+export type UserWithPublicKeys = User & {
+  publicKeys: PublicKeys;
+};
+
 export type PublicKeys = {
-  userID: string;
   eccPublicKey: CryptoKey;
   kyberPublicKey: Uint8Array;
 };
@@ -55,26 +52,23 @@ export type EncryptionKeys = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  ciphertext: SymmetricCiphertext;
-  sender: User;
-  subject: string;
-  encryptedFor: string;
-  recipients: Map<string, User>;
-  replyToEmailID?: number;
+  enc: SymmetricCiphertext;
+  recipientID: string;
 };
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  ciphertext: SymmetricCiphertext;
-  sender: User;
-  subject: string;
-  recipients: Map<string, User>;
-  replyToEmailID?: number;
+  enc: SymmetricCiphertext;
 };
 
 export type SymmetricCiphertext = {
   ciphertext: Uint8Array;
   iv: Uint8Array;
+};
+
+export type StoredEmail = {
+  params: EmailPublicParameters;
+  content: SymmetricCiphertext;
 };
 
 export type HybridEncKey = {
@@ -89,15 +83,21 @@ export type PwdProtectedKey = {
 
 export type EmailBody = {
   text: string;
-  date: string;
-  labels?: string[];
   attachments?: string[];
 };
-export type Email = {
+
+export type EmailPublicParameters = {
   id: string;
-  body: EmailBody;
   subject: string;
+  date: string;
   sender: User;
-  recipients: Map<string, User>;
+  recipient: User;
+  recipients?: User[];
   replyToEmailID?: number;
+  labels?: string[];
+};
+
+export type Email = {
+  body: EmailBody;
+  params: EmailPublicParameters;
 };

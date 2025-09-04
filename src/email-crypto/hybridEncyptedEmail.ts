@@ -1,5 +1,10 @@
-import { Email, PublicKeys, PrivateKeys, HybridEncryptedEmail } from '../types';
-import { encryptEmailSymmetrically, decryptEmailSymmetrically, encryptKeysHybrid, decryptKeysHybrid } from './core';
+import { PublicKeys, PrivateKeys, HybridEncryptedEmail, EmailBody, UserWithPublicKeys } from '../types';
+import {
+  encryptEmailContentSymmetrically,
+  decryptEmailSymmetrically,
+  encryptKeysHybrid,
+  decryptKeysHybrid,
+} from './core';
 
 /**
  * Encrypts the email using hybrid encryption.
@@ -10,24 +15,16 @@ import { encryptEmailSymmetrically, decryptEmailSymmetrically, encryptKeysHybrid
  * @returns The encrypted email
  */
 export async function encryptEmailHybrid(
-  email: Email,
-  recipientPublicKeys: PublicKeys,
+  email: EmailBody,
+  recipient: UserWithPublicKeys,
   senderPrivateKey: PrivateKeys,
+  aux: string,
+  emailID: string,
 ): Promise<HybridEncryptedEmail> {
   try {
-    const { encEmail: ciphertext, encryptionKey } = await encryptEmailSymmetrically(email);
-    const encryptedKey = await encryptKeysHybrid(encryptionKey, recipientPublicKeys, senderPrivateKey);
-    const result: HybridEncryptedEmail = {
-      recipients: email.recipients,
-      encryptedFor: recipientPublicKeys.userID,
-      sender: email.sender,
-      subject: email.subject,
-      replyToEmailID: email.replyToEmailID,
-      ciphertext,
-      encryptedKey,
-    };
-
-    return result;
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email, aux, emailID);
+    const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
+    return { enc, encryptedKey, recipientID: recipient.id };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return Promise.reject(new Error(`Failed to encrypt email with hybrid encryption: ${errorMessage}`));
@@ -37,34 +34,28 @@ export async function encryptEmailHybrid(
 /**
  * Encrypts the email using hybrid encryption for multiple recipients.
  *
- * @param email - The email to encrypt.
- * @param recipientsPublicKeys - The public keys of all the recipients.
+ * @param email - The email body to encrypt.
+ * @param recipients - The recipients with corresponding public keys.
  * @param senderPrivateKey - The private key of the sender.
+ * @param aux - The auxilary string.
+ * @param emailID - The ID of the email.
  * @returns The set of encrypted email
  */
 export async function encryptEmailHybridForMultipleRecipients(
-  email: Email,
-  recipientsPublicKeys: PublicKeys[],
+  email: EmailBody,
+  recipients: UserWithPublicKeys[],
   senderPrivateKey: PrivateKeys,
+  aux: string,
+  emailID: string,
 ): Promise<HybridEncryptedEmail[]> {
   try {
-    const { encEmail: ciphertext, encryptionKey } = await encryptEmailSymmetrically(email);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email, aux, emailID);
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
-    for (const keys of recipientsPublicKeys) {
-      const encryptedKey = await encryptKeysHybrid(encryptionKey, keys, senderPrivateKey);
-      const result: HybridEncryptedEmail = {
-        recipients: email.recipients,
-        sender: email.sender,
-        encryptedFor: keys.userID,
-        subject: email.subject,
-        replyToEmailID: email.replyToEmailID,
-        ciphertext,
-        encryptedKey,
-      };
-      encryptedEmails.push(result);
+    for (const recipient of recipients) {
+      const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
+      encryptedEmails.push({ enc, encryptedKey, recipientID: recipient.id });
     }
-
     return encryptedEmails;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -86,10 +77,11 @@ export async function decryptEmailHybrid(
   encryptedEmail: HybridEncryptedEmail,
   senderPublicKeys: PublicKeys,
   recipientPrivateKeys: PrivateKeys,
+  aux: string,
 ) {
   try {
     const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
-    const email = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
+    const email = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
     return email;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

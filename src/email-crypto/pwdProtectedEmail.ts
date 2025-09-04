@@ -1,6 +1,6 @@
-import { PwdProtectedEmail, Email } from '../types';
+import { PwdProtectedEmail, EmailBody } from '../types';
 import {
-  encryptEmailSymmetrically,
+  encryptEmailContentSymmetrically,
   decryptEmailSymmetrically,
   passwordProtectKey,
   removePasswordProtection,
@@ -13,19 +13,16 @@ import {
  * @param password - The secret password shared among recipients.
  * @returns The password-protected email
  */
-export async function createPwdProtectedEmail(email: Email, password: string): Promise<PwdProtectedEmail> {
+export async function createPwdProtectedEmail(
+  email: EmailBody,
+  password: string,
+  aux: string,
+  emailID: string,
+): Promise<PwdProtectedEmail> {
   try {
-    const { encEmail: ciphertext, encryptionKey } = await encryptEmailSymmetrically(email);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email, aux, emailID);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
-    const result: PwdProtectedEmail = {
-      sender: email.sender,
-      recipients: email.recipients,
-      subject: email.subject,
-      replyToEmailID: email.replyToEmailID,
-      ciphertext,
-      encryptedKey,
-    };
-    return result;
+    return { enc, encryptedKey };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return Promise.reject(new Error(`Failed to password-protect email: ${errorMessage}`));
@@ -39,10 +36,10 @@ export async function createPwdProtectedEmail(email: Email, password: string): P
  * @param password - The secret password shared among recipients.
  * @returns The password-protected email
  */
-export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail, password: string) {
+export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail, password: string, aux: string) {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
+    const result = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

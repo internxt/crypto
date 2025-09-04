@@ -1,6 +1,15 @@
 import { exportPublicKey, importPublicKey } from '../asymmetric-crypto';
-import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8 } from '../utils';
-import { EmailBody, PublicKeys, HybridEncKey, PwdProtectedKey, User } from '../types';
+import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8, ciphertextToBase64 } from '../utils';
+import {
+  EmailBody,
+  PublicKeys,
+  HybridEncKey,
+  PwdProtectedKey,
+  User,
+  EmailPublicParameters,
+  HybridEncryptedEmail,
+  PwdProtectedEmail,
+} from '../types';
 
 /**
  * Converts a User type into a base64 string.
@@ -82,7 +91,6 @@ export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
     const eccPublicKey = await importPublicKey(eccPublicKeyBytes);
     const kyberPublicKey = base64ToUint8Array(obj.kyberPublicKey);
     return {
-      userID: obj.userID,
       eccPublicKey: eccPublicKey,
       kyberPublicKey: kyberPublicKey,
     };
@@ -102,7 +110,6 @@ export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
   try {
     const eccPublicKeyArray = await exportPublicKey(key.eccPublicKey);
     const json = JSON.stringify({
-      userID: key.userID,
       eccPublicKey: uint8ArrayToBase64(eccPublicKeyArray),
       kyberPublicKey: uint8ArrayToBase64(key.kyberPublicKey),
     });
@@ -177,8 +184,8 @@ export function pwdProtectedKeyToBase64(pwdProtectedKey: PwdProtectedKey): strin
 /**
  * Converts a base64 string into a password-protected key of the type PwdProtectedKey.
  *
- * @param pwdProtectedKey - The password-protected key of the type PwdProtectedKey.
- * @returns The resulting HybridEncKey key.
+ * @param base64 - The base64 string.
+ * @returns The resulting PwdProtectedKey key.
  */
 export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
   try {
@@ -195,20 +202,86 @@ export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
 }
 
 /**
- * Converts a list of users to the recipients map.
+ * Converts an email public parameters of type EmailPublicParameters into base64 string.
  *
- * @param users - The list of users.
- * @returns The resulting Map.
+ * @param params - The EmailPublicParameters email paramaters.
+ * @returns The resulting base64 string encoding.
  */
-export function usersToRecipients(users: User[]): Map<string, User> {
+export function paramsToBase64(params: EmailPublicParameters): string {
   try {
-    const map = new Map<string, User>();
-    for (const user of users) {
-      map.set(user.id, user);
-    }
-    return map;
+    const json = JSON.stringify({
+      ...params,
+      sender: userToBase64(params.sender),
+      recipient: userToBase64(params.recipient),
+      recipients: params.recipients?.map(userToBase64),
+    });
+    const base64 = btoa(json);
+    return base64;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to password-protected key: ${errorMessage}`);
+    throw new Error(`Failed to convert email public parameters to base64: ${errorMessage}`);
+  }
+}
+
+/**
+ * Converts a base64 string into an email paramaters of the type EmailPublicParameters.
+ *
+ * @param base64 - The base64 string.
+ * @returns The resulting EmailPublicParameters email parameters.
+ */
+export function base64ToParams(base64: string): EmailPublicParameters {
+  try {
+    const json = atob(base64);
+    const obj = JSON.parse(json);
+    return {
+      ...obj,
+      sender: base64ToUser(obj.sender),
+      recipient: base64ToUser(obj.recipient),
+      recipients: obj.recipients?.map(base64ToUser),
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert base64 to email params: ${errorMessage}`);
+  }
+}
+
+/**
+ * Converts an encrypted via hybrid encryption email into base64 string.
+ *
+ * @param email - The HybridEncryptedEmail encrypted via hybrid encryption email.
+ * @returns The resulting base64 string encoding.
+ */
+export function hybridEncyptedEmailToBase64(email: HybridEncryptedEmail): string {
+  try {
+    const json = JSON.stringify({
+      encryptedKey: encHybridKeyToBase64(email.encryptedKey),
+      enc: ciphertextToBase64(email.enc),
+      recipientID: email.recipientID,
+    });
+    const base64 = btoa(json);
+    return base64;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert hybrid email to base64: ${errorMessage}`);
+  }
+}
+
+/**
+ * Converts a pwd protected email into base64 string.
+ *
+ * @param email - The PwdProtectedEmail pwd protected email.
+ * @returns The resulting base64 string encoding.
+ */
+export function pwdProtectedEmailToBase64(email: PwdProtectedEmail): string {
+  try {
+    const json = JSON.stringify({
+      encryptedKey: pwdProtectedKeyToBase64(email.encryptedKey),
+      enc: ciphertextToBase64(email.enc),
+    });
+    const base64 = btoa(json);
+    return base64;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert pwd protected email to base64: ${errorMessage}`);
   }
 }

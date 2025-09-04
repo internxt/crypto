@@ -1,18 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { HybridEncryptedEmail, Email, EmailBody, User, PwdProtectedEmail } from '../../src/types';
 import {
-  encryptEmailHybrid,
-  encryptEmailHybridForMultipleRecipients,
-  createPwdProtectedEmail,
-  generateEmailKeys,
-  usersToRecipients,
-} from '../../src/email-crypto';
-import {
-  sendHybridEmail,
-  sendHybridEmailToMultipleRecipients,
-  sendPwdProtectedEmail,
-  sendPwdProtectedEmailToMultipleRecipients,
-} from '../../src/email-service/sendingService';
+  HybridEncryptedEmail,
+  Email,
+  EmailBody,
+  User,
+  PwdProtectedEmail,
+  EmailPublicParameters,
+} from '../../src/types';
+import { encryptEmailHybrid, createPwdProtectedEmail, generateEmailKeys, getAux } from '../../src/email-crypto';
+import { sendHybridEmail, sendPwdProtectedEmail } from '../../src/email-service/sendingService';
 import emailjs from '@emailjs/browser';
 
 vi.mock('@emailjs/browser', () => ({
@@ -30,7 +26,6 @@ describe('Test sending email functions', async () => {
 
   const userAlice: User = { email: 'alice email', name: 'alice', id: '1' };
   const userBob: User = { email: 'bob email', name: 'bob', id: '2' };
-  const userEve: User = { email: 'eve email', name: 'eve', id: '3' };
 
   const serviceId = 'test-service-id';
   const templateId = 'test-template-id';
@@ -38,31 +33,43 @@ describe('Test sending email functions', async () => {
 
   const emailBody: EmailBody = {
     text: 'test body',
+  };
+  const emailParams: EmailPublicParameters = {
     date: '2023-06-14T08:11:22.000Z',
     labels: ['test label 1', 'test label2'],
+    sender: userAlice,
+    subject: 'test subject',
+    recipient: userBob,
+    replyToEmailID: 1,
+    id: '1',
   };
 
-  const { privateKeys: alicePrivateKeys } = await generateEmailKeys(userAlice);
-  const { publicKeys: bobPublicKeys } = await generateEmailKeys(userBob);
-  const { publicKeys: evePublicKeys } = await generateEmailKeys(userEve);
+  const email: Email = {
+    body: emailBody,
+    params: emailParams,
+  };
+
+  const { privateKeys: alicePrivateKeys } = await generateEmailKeys();
+  const { publicKeys: bobPublicKeys } = await generateEmailKeys();
 
   const mockPassword = 'mock pwd';
+  const aux = getAux(emailParams);
+
+  const bobWithPublicKeys = {
+    ...userBob,
+    publicKeys: bobPublicKeys,
+  };
 
   it('should sucessfully send hybrid email', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
-
+    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(
+      emailBody,
+      bobWithPublicKeys,
+      alicePrivateKeys,
+      aux,
+      emailParams.id,
+    );
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
-    await sendHybridEmail(encEmail);
-
+    await sendHybridEmail(encEmail, emailParams);
     expect(spy).toHaveBeenCalled();
     expect(spy).toHaveBeenCalledWith(
       serviceId,
@@ -72,119 +79,29 @@ describe('Test sending email functions', async () => {
         from_name: userAlice.name,
         to_email: userBob.email,
         to_name: userBob.name,
-        email_subject: email.subject,
+        email_subject: email.params.subject,
       }),
       emailServicePublicKey,
     );
   });
 
   it('should throw an error if cannot send hybrid email', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
-
+    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(
+      emailBody,
+      bobWithPublicKeys,
+      alicePrivateKeys,
+      aux,
+      emailParams.id,
+    );
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 404, text: 'Mocked Error' });
-
-    await expect(sendHybridEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
-  });
-
-  it('should sucessfully send hybrid email to multiple recipients', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob, userEve]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmails: HybridEncryptedEmail[] = await encryptEmailHybridForMultipleRecipients(
-      email,
-      [bobPublicKeys, evePublicKeys],
-      alicePrivateKeys,
-    );
-
-    const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
-    await sendHybridEmailToMultipleRecipients(encEmails);
-
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(spy).toHaveBeenCalledWith(
-      serviceId,
-      templateId,
-      expect.objectContaining({
-        from_email: userAlice.email,
-        from_name: userAlice.name,
-        to_email: userBob.email,
-        to_name: userBob.name,
-        email_subject: email.subject,
-      }),
-      emailServicePublicKey,
-    );
-
-    expect(spy).toHaveBeenCalledWith(
-      serviceId,
-      templateId,
-      expect.objectContaining({
-        from_email: userAlice.email,
-        from_name: userAlice.name,
-        to_email: userEve.email,
-        to_name: userEve.name,
-        email_subject: email.subject,
-      }),
-      emailServicePublicKey,
-    );
-  });
-
-  it('should sucessfully send hybrid email to multiple recipients', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob, userEve]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmails: HybridEncryptedEmail[] = await encryptEmailHybridForMultipleRecipients(
-      email,
-      [bobPublicKeys, evePublicKeys],
-      alicePrivateKeys,
-    );
-
-    vi.spyOn(emailjs, 'send')
-      .mockResolvedValueOnce({ status: 200, text: 'OK' })
-      .mockRejectedValue({ status: 404, text: 'Mocked Error' });
-    await expect(sendHybridEmailToMultipleRecipients(encEmails)).rejects.toThrow(
-      /Failed to email to multiple recipients/,
-    );
-
-    vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mock error'));
-    await expect(sendHybridEmailToMultipleRecipients(encEmails)).rejects.toThrow(
-      /Failed to email to multiple recipients/,
-    );
+    await expect(sendHybridEmail(encEmail, emailParams)).rejects.toThrow(/Failed to email to the recipient/);
   });
 
   it('should sucessfully send password protected email', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
+    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(emailBody, mockPassword, aux, emailParams.id);
 
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
-    await sendPwdProtectedEmail(encEmail, userBob);
+    await sendPwdProtectedEmail(encEmail, emailParams);
 
     expect(spy).toHaveBeenCalled();
     expect(spy).toHaveBeenCalledWith(
@@ -195,99 +112,20 @@ describe('Test sending email functions', async () => {
         from_name: userAlice.name,
         to_email: userBob.email,
         to_name: userBob.name,
-        email_subject: email.subject,
+        email_subject: email.params.subject,
       }),
       emailServicePublicKey,
     );
   });
 
   it('should throw an error if cannot send password protected email', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
+    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(emailBody, mockPassword, aux, emailParams.id);
 
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 401, text: 'Mock Error' });
 
-    await expect(sendPwdProtectedEmail(encEmail, userBob)).rejects.toThrow(/Failed to email to the recipient/);
+    await expect(sendPwdProtectedEmail(encEmail, emailParams)).rejects.toThrow(/Failed to email to the recipient/);
 
     vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mock Error'));
-    await expect(sendPwdProtectedEmail(encEmail, userBob)).rejects.toThrow(/Failed to email to the recipient/);
-  });
-
-  it('should sucessfully send password protected email to multiple recipients', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob, userEve]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
-
-    const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
-    await sendPwdProtectedEmailToMultipleRecipients(encEmail);
-
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(spy).toHaveBeenCalledWith(
-      serviceId,
-      templateId,
-      expect.objectContaining({
-        from_email: userAlice.email,
-        from_name: userAlice.name,
-        to_email: userBob.email,
-        to_name: userBob.name,
-        email_subject: email.subject,
-      }),
-      emailServicePublicKey,
-    );
-
-    expect(spy).toHaveBeenCalledWith(
-      serviceId,
-      templateId,
-      expect.objectContaining({
-        from_email: userAlice.email,
-        from_name: userAlice.name,
-        to_email: userEve.email,
-        to_name: userEve.name,
-        email_subject: email.subject,
-      }),
-      emailServicePublicKey,
-    );
-  });
-
-  it('should throw error if cannot send password protected email to multiple recipients', async () => {
-    const email: Email = {
-      body: emailBody,
-      sender: userAlice,
-      subject: 'test subject',
-      recipients: usersToRecipients([userBob, userEve]),
-      id: '1',
-      replyToEmailID: 1,
-    };
-
-    const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
-
-    vi.spyOn(emailjs, 'send')
-      .mockResolvedValueOnce({ status: 200, text: 'OK' })
-      .mockRejectedValue({ status: 404, text: 'Mocked Error' });
-
-    await expect(sendPwdProtectedEmailToMultipleRecipients(encEmail)).rejects.toThrow(
-      /Failed to email to multiple recipients/,
-    );
-
-    vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mocked Error'));
-
-    await expect(sendPwdProtectedEmailToMultipleRecipients(encEmail)).rejects.toThrow(
-      /Failed to email to multiple recipients/,
-    );
+    await expect(sendPwdProtectedEmail(encEmail, emailParams)).rejects.toThrow(/Failed to email to the recipient/);
   });
 });

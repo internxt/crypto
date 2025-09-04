@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { createPwdProtectedEmail, decryptPwdProtectedEmail, usersToRecipients } from '../../src/email-crypto';
-import { EmailBody, Email, User } from '../../src/types';
+import { createPwdProtectedEmail, decryptPwdProtectedEmail, getAux } from '../../src/email-crypto';
+import { EmailBody, User, EmailPublicParameters } from '../../src/types';
 
 describe('Test email crypto functions', () => {
   const emailBody: EmailBody = {
     text: 'Hi Bob, This is a test message. -Alice.',
-    date: '2025-03-4T08:11:22.000Z',
-    labels: ['test label 1', 'test label2'],
   };
 
   const sharedSecret = 'test shared secret';
@@ -21,24 +19,27 @@ describe('Test email crypto functions', () => {
     name: 'bob',
     id: '2',
   };
-  const email: Email = {
-    id: 'test id',
-    body: emailBody,
+  const emailParams: EmailPublicParameters = {
+    labels: ['test label 1', 'test label2'],
+    date: '2023-06-14T08:11:22.000Z',
     subject: 'test subject',
     sender: userAlice,
-    recipients: usersToRecipients([userBob]),
+    recipient: userBob,
     replyToEmailID: 2,
+    id: 'test id',
   };
+
+  const aux = getAux(emailParams);
   it('should encrypt and decrypt email sucessfully', async () => {
-    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
-    const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
+    const encryptedEmail = await createPwdProtectedEmail(emailBody, sharedSecret, aux, emailParams.id);
+    const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret, aux);
     expect(decryptedEmail).toStrictEqual(emailBody);
   });
 
   it('should throw an error if a different secret used for decryption', async () => {
-    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
+    const encryptedEmail = await createPwdProtectedEmail(emailBody, sharedSecret, aux, emailParams.id);
     const wrongSecret = 'different secret';
-    await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret)).rejects.toThrowError(
+    await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret, aux)).rejects.toThrowError(
       /Failed to decrypt password-protect email/,
     );
   });

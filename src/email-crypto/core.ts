@@ -1,14 +1,4 @@
-import {
-  EmailBody,
-  Email,
-  SymmetricCiphertext,
-  HybridEncryptedEmail,
-  PwdProtectedEmail,
-  HybridEncKey,
-  PwdProtectedKey,
-  PublicKeys,
-  PrivateKeys,
-} from '../types';
+import { SymmetricCiphertext, HybridEncKey, PwdProtectedKey, PublicKeys, PrivateKeys, EmailBody } from '../types';
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { emailBodyToBinary, binaryToEmailBody } from './converters';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
@@ -17,19 +7,23 @@ import { deriveSecretKey } from '../asymmetric-crypto';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
 
 /**
- * Creates an auxilary string from public fields of the email.
+ * Symmetrically encrypts an email with a randomly sampled key.
  *
- * @param email - The email (can be encrypted or not).
- * @returns The resulting auxilary string
+ * @param email - The email to encrypt.
+ * @returns The resulting ciphertext and the used symmetric key
  */
-export function getAux(email: HybridEncryptedEmail | PwdProtectedEmail | Email): string {
+export async function encryptEmailContentSymmetrically(
+  email: EmailBody,
+  aux: string,
+  emailID: string,
+): Promise<{ enc: SymmetricCiphertext; encryptionKey: CryptoKey }> {
   try {
-    const { subject, replyToEmailID, sender, recipients } = email;
-    const aux = JSON.stringify({ subject, replyToEmailID, sender, recipients });
-    return aux;
+    const encryptionKey = await genSymmetricCryptoKey();
+    const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
+    return { enc, encryptionKey };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to create aux: ${errorMessage}`);
+    return Promise.reject(new Error(`Failed to symmetrically encrypt email: ${errorMessage}`));
   }
 }
 
@@ -39,21 +33,19 @@ export function getAux(email: HybridEncryptedEmail | PwdProtectedEmail | Email):
  * @param email - The email to encrypt.
  * @returns The resulting ciphertext and the used symmetric key
  */
-export async function encryptEmailSymmetrically(
-  email: Email,
-): Promise<{ encEmail: SymmetricCiphertext; encryptionKey: CryptoKey }> {
+export async function encryptEmailContentSymmetricallyWithKey(
+  emailBody: EmailBody,
+  encryptionKey: CryptoKey,
+  aux: string,
+  emailID: string,
+): Promise<SymmetricCiphertext> {
   try {
-    const aux = getAux(email);
-    const encryptionKey = await genSymmetricCryptoKey();
-    const emailBody = email.body;
     const binaryEmail = emailBodyToBinary(emailBody);
-    const freeField = email.id;
-    const { ciphertext, iv } = await encryptSymmetrically(encryptionKey, binaryEmail, aux, freeField);
-    const encEmail: SymmetricCiphertext = { ciphertext, iv };
-    return { encEmail, encryptionKey };
+    const ciphertext = await encryptSymmetrically(encryptionKey, binaryEmail, aux, emailID);
+    return ciphertext;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to symmetrically encrypt email: ${errorMessage}`));
+    return Promise.reject(new Error(`Failed to symmetrically encrypt email with the given key: ${errorMessage}`));
   }
 }
 
@@ -65,15 +57,14 @@ export async function encryptEmailSymmetrically(
  * @returns The decrypted email
  */
 export async function decryptEmailSymmetrically(
-  encryptedEmail: HybridEncryptedEmail | PwdProtectedEmail,
+  emailCiphertext: SymmetricCiphertext,
   encryptionKey: CryptoKey,
+  aux: string,
 ): Promise<EmailBody> {
   try {
-    const aux = getAux(encryptedEmail);
-    const emailCiphertext: SymmetricCiphertext = encryptedEmail.ciphertext;
     const binaryEmail = await decryptSymmetrically(encryptionKey, emailCiphertext, aux);
-    const email = binaryToEmailBody(binaryEmail);
-    return email;
+    const body = binaryToEmailBody(binaryEmail);
+    return body;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return Promise.reject(new Error(`Failed to symmetrically decrypt email: ${errorMessage}`));

@@ -18,8 +18,7 @@ describe('Test email crypto functions', () => {
   it('email converter to binary and back works', async () => {
     const email: EmailBody = {
       text: 'test body',
-      date: '2023-06-14T08:11:22.000Z',
-      labels: ['test label 1', 'test label2'],
+      attachments: ['test attachement 1', 'test attachement 2'],
     };
     const binary = emailBodyToBinary(email);
     const result = binaryToEmailBody(binary);
@@ -60,7 +59,6 @@ describe('Test email crypto functions', () => {
     const kyberKeyPair = await generateKyberKeys();
 
     const key: PublicKeys = {
-      userID: alice.id,
       eccPublicKey: eccKeyPair.publicKey,
       kyberPublicKey: kyberKeyPair.publicKey,
     };
@@ -80,7 +78,6 @@ describe('Test email crypto functions', () => {
     const kyberKeyPair = await generateKyberKeys();
 
     const bad_key: PublicKeys = {
-      userID: alice.id,
       eccPublicKey: eccKeyPair.privateKey,
       kyberPublicKey: kyberKeyPair.publicKey,
     };

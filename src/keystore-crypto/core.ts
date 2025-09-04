@@ -3,7 +3,7 @@ import { base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import { SymmetricCiphertext } from '../types';
 import sessionStorageService from '../storage-service/sessionStorageService';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
-import { CONTEXT_LOGIN, CONTEXT_INDEX, CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
+import { CONTEXT_LOGIN, CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
 import { getBitsFromString } from '../hash';
 
 /**
@@ -102,16 +102,6 @@ export function getBaseKey(): Uint8Array {
  */
 export async function deriveIdentityKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
   return deriveSymmetricCryptoKeyFromContext(CONTEXT_LOGIN, baseKey);
-}
-
-/**
- * Derives a secret key for protecting the keystore for search indices
- *
- * @param baseKey - The base secret key from which a new key secret will be derived
- * @returns The derived secret key for protecting he keystore for search indices
- */
-export async function deriveIndexKey(baseKey: Uint8Array): Promise<CryptoKey> {
-  return deriveSymmetricCryptoKeyFromContext(CONTEXT_INDEX, baseKey);
 }
 
 /**

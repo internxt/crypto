@@ -1,1 +1,1 @@
-export * from './createSearchIndex';
+export * from './searchableDB';

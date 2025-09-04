@@ -1,104 +1,69 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, Email, HybridEncryptedEmail, HybridEncKey, User } from '../../src/types';
-import { decryptEmailSymmetrically, encryptEmailSymmetrically, getAux } from '../../src/email-crypto/core';
+import { EmailBody, User, EmailPublicParameters } from '../../src/types';
+import { decryptEmailSymmetrically, encryptEmailContentSymmetrically } from '../../src/email-crypto/core';
+import { getAux } from '../../src/email-crypto';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
-import { usersToRecipients } from '../../src/email-crypto';
 
 describe('Test email crypto functions', () => {
+  const emailBody: EmailBody = {
+    text: 'test body',
+  };
+
+  const userAlice: User = {
+    email: 'alice email',
+    name: 'alice',
+    id: '1',
+  };
+
+  const userBob = {
+    email: 'bob email',
+    name: 'bob',
+    id: '2',
+  };
+
+  const emailParams: EmailPublicParameters = {
+    id: 'test id',
+    labels: ['test label 1', 'test label2'],
+    date: '2023-06-14T08:11:22.000Z',
+    subject: 'test subject',
+    sender: userAlice,
+    recipient: userBob,
+    replyToEmailID: 2,
+  };
+
+  const aux = getAux(emailParams);
+
   it('should encrypt and decrypt email', async () => {
-    const emailBody: EmailBody = {
-      text: 'test body',
-      date: '2023-06-14T08:11:22.000Z',
-      labels: ['test label 1', 'test label2'],
-    };
-    const userAlice: User = {
-      email: 'alice email',
-      name: 'alice',
-      id: '1',
-    };
-
-    const userBob: User = {
-      email: 'bob email',
-      name: 'bob',
-      id: '2',
-    };
-
-    const email: Email = {
-      id: 'test id',
-      subject: 'test subject',
-      body: emailBody,
-      sender: userAlice,
-      recipients: usersToRecipients([userBob]),
-      replyToEmailID: 2,
-    };
-    const { encEmail, encryptionKey } = await encryptEmailSymmetrically(email);
-    const encKey: HybridEncKey = { kyberCiphertext: new Uint8Array(), encryptedKey: new Uint8Array() };
-    const encryptedEmail: HybridEncryptedEmail = {
-      ciphertext: encEmail,
-      sender: userAlice,
-      recipients: usersToRecipients([userBob]),
-      replyToEmailID: 2,
-      subject: 'test subject',
-      encryptedFor: userBob.id,
-      encryptedKey: encKey,
-    };
-    const result = await decryptEmailSymmetrically(encryptedEmail, encryptionKey);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, emailParams.id);
+    const result = await decryptEmailSymmetrically(enc, encryptionKey, aux);
     expect(result).toEqual(emailBody);
   });
 
   it('should throw an error if decryption fails', async () => {
-    const emailBody: EmailBody = {
-      text: 'test body',
-      date: '2023-06-14T08:11:22.000Z',
-      labels: ['test label 1', 'test label2'],
-    };
-    const userAlice: User = {
-      email: 'alice email',
-      name: 'alice',
-      id: '1',
-    };
-
-    const userBob = {
-      email: 'bob email',
-      name: 'bob',
-      id: '2',
-    };
-
-    const email: Email = {
-      id: 'test id',
-      subject: 'test subject',
-      body: emailBody,
-      sender: userAlice,
-      recipients: usersToRecipients([userBob]),
-      replyToEmailID: 2,
-    };
-    const { encEmail } = await encryptEmailSymmetrically(email);
-    const encKey: HybridEncKey = { kyberCiphertext: new Uint8Array(), encryptedKey: new Uint8Array() };
-    const encryptedEmail: HybridEncryptedEmail = {
-      ciphertext: encEmail,
-      sender: userAlice,
-      recipients: usersToRecipients([userBob]),
-      replyToEmailID: 2,
-      subject: 'test subject',
-      encryptedFor: userBob.id,
-      encryptedKey: encKey,
-    };
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, emailParams.id);
     const bad_encryptionKey = await genSymmetricCryptoKey();
-    await expect(decryptEmailSymmetrically(encryptedEmail, bad_encryptionKey)).rejects.toThrowError(
+    await expect(decryptEmailSymmetrically(enc, bad_encryptionKey, aux)).rejects.toThrowError(
+      /Failed to symmetrically decrypt email/,
+    );
+
+    const bad_aux = 'bad aux string';
+    await expect(decryptEmailSymmetrically(enc, encryptionKey, bad_aux)).rejects.toThrowError(
       /Failed to symmetrically decrypt email/,
     );
   });
 
   it('should throw an error if cannot create aux', async () => {
-    const bad_email = { subject: BigInt(423) };
+    const bad_params = { subject: BigInt(423) };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => getAux(bad_email as any as Email)).toThrowError(/Failed to create aux/);
+    expect(() => getAux(bad_params as any as EmailPublicParameters)).toThrowError(/Failed to create aux/);
   });
 
   it('should throw an error if cannot encrypt', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bad_email: any = {};
     bad_email.self = bad_email;
-    await expect(encryptEmailSymmetrically(bad_email)).rejects.toThrowError(/Failed to symmetrically encrypt email/);
+    await expect(encryptEmailContentSymmetrically(bad_email, aux, emailParams.id)).rejects.toThrowError(
+      /Failed to symmetrically encrypt email/,
+    );
   });
 });

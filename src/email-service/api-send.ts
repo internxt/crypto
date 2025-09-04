@@ -1,25 +1,23 @@
 import emailjs from '@emailjs/browser';
 import envService from '../utils/env';
-import { User } from '../types';
+import { EmailPublicParameters } from '../types';
 
 /**
  * Sends an email to the server
  *
- * @param subject - The email subject
- * @param body - The email body
- * @param sender - The email sender
- * @param recipient - The email recipient
+ * @param content - The email content (encrypted)
+ * @param param - The email public parameters
  * @returns The server response
  */
-export async function sendEmail(subject: string, body: string, sender: User, recipient: User) {
+export async function sendEmail(content: string, param: EmailPublicParameters) {
   try {
     const templateParams = {
-      from_email: sender.email,
-      from_name: sender.name,
-      to_email: recipient.email,
-      to_name: recipient.name,
-      email_subject: subject,
-      email_body: body,
+      from_email: param.sender.email,
+      from_name: param.sender.name,
+      to_email: param.recipient.email,
+      to_name: param.recipient.name,
+      email_subject: param.subject,
+      email_body: content,
       timestamp: new Date().toISOString(),
     };
 
