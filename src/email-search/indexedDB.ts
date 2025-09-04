@@ -2,7 +2,7 @@ import { DBSchema, openDB, deleteDB, IDBPDatabase } from 'idb';
 import { StoredEmail, Email } from '../types';
 import { decryptEmailSymmetrically, encryptEmailContentSymmetricallyWithKey } from '../email-crypto/core';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
-import { CONTEXT_INDEX, MAX_STORED_EMAILS } from '../constants';
+import { CONTEXT_INDEX } from '../constants';
 import { getAux } from '../email-crypto';
 
 const LABEL = 'email';
@@ -47,7 +47,6 @@ export const deriveIndexKey = async (baseKey: Uint8Array): Promise<CryptoKey> =>
 };
 
 export const encryptAndStoreEmail = async (newEmailToStore: Email, indexKey: CryptoKey, esDB: MailDB) => {
-  await enforceMaxSizeForInsert(esDB, 1);
   const aux = getAux(newEmailToStore.params);
   const ciphertext = await encryptEmailContentSymmetricallyWithKey(
     newEmailToStore.body,
@@ -60,7 +59,6 @@ export const encryptAndStoreEmail = async (newEmailToStore: Email, indexKey: Cry
 };
 
 export const encryptAndStoreManyEmail = async (newEmailsToStore: Email[], indexKey: CryptoKey, esDB: MailDB) => {
-  await enforceMaxSizeForInsert(esDB, newEmailsToStore.length);
   const encryptedEmails = await Promise.all(
     newEmailsToStore.map(async (email) => {
       const aux = getAux(email.params);
@@ -123,14 +121,12 @@ export const deleteOldestEmails = async (emailsToDelete: number, esDB: MailDB): 
   await tx.done;
 };
 
-const enforceMaxSizeForInsert = async (esDB: MailDB, itemsToAdd: number): Promise<void> => {
+export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<void> => {
   const currentCount = await getEmailCount(esDB);
-  const futureCount = currentCount + itemsToAdd;
-
-  if (futureCount <= MAX_STORED_EMAILS) {
+  if (currentCount <= max) {
     return;
   }
-  await deleteOldestEmails(futureCount - MAX_STORED_EMAILS, esDB);
+  await deleteOldestEmails(currentCount - max, esDB);
 };
 
 export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
