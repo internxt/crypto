@@ -17,7 +17,7 @@ export function uint8ArrayToHex(array: Uint8Array): string {
  * @returns A Uint8Array created from the UTF-8 string.
  */
 export function UTF8ToUint8(str: string): Uint8Array {
-  return new Uint8Array(Buffer.from(str, 'utf8'));
+  return new TextEncoder().encode(str);
 }
 
 /**
@@ -27,7 +27,7 @@ export function UTF8ToUint8(str: string): Uint8Array {
  * @returns The UTF-8 string representation of the array.
  */
 export function uint8ToUTF8(array: Uint8Array): string {
-  return Buffer.from(array).toString('utf8');
+  return new TextDecoder().decode(array);
 }
 
 /**

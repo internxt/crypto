@@ -41,10 +41,12 @@
     "@scure/bip39": "^1.6.0",
     "axios": "^1.11.0",
     "buffer": "^6.0.3",
+    "encrypted-search": "https://github.com/ProtonMail/encrypted-search.git",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
     "idb": "^8.0.3",
     "minisearch": "^7.1.2",
+    "react": "^19.1.1",
     "uuid": "^11.1.0"
   },
   "lint-staged": {

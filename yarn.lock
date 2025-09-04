@@ -1162,6 +1162,12 @@ emoji-regex@^9.2.2:
   resolved "https://registry.npmjs.org/emoji-regex/-/emoji-regex-9.2.2.tgz"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
 
+"encrypted-search@https://github.com/ProtonMail/encrypted-search.git":
+  version "1.0.0"
+  resolved "https://github.com/ProtonMail/encrypted-search.git#4bd30adf50fef6578ee661737280ead34815139f"
+  dependencies:
+    latenize "^0.2.0"
+
 environment@^1.0.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/environment/-/environment-1.1.0.tgz"
@@ -1766,6 +1772,11 @@ keyv@^4.5.4:
   dependencies:
     json-buffer "3.0.1"
 
+latenize@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/latenize/-/latenize-0.2.0.tgz#81913e97eb8cc6094585da35a4fadde9380fbdde"
+  integrity sha512-cwg/JKpB95VKF33hq2NH6keiiNiUTqOAKbRAA8VBa911vZEoVyK2z9lPybErU5NErZxc5/TPl1kY9NfXxn0a8A==
+
 levn@^0.4.1:
   version "0.4.1"
   resolved "https://registry.npmjs.org/levn/-/levn-0.4.1.tgz"
@@ -2125,6 +2136,11 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react@^19.1.1:
+  version "19.1.1"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.1.1.tgz#06d9149ec5e083a67f9a1e39ce97b06a03b644af"
+  integrity sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==
 
 resolve-from@^4.0.0:
   version "4.0.0"

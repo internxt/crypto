@@ -89,10 +89,10 @@ export type EmailBody = {
 export type EmailPublicParameters = {
   id: string;
   subject: string;
-  date: string;
+  createdAt: string;
   sender: User;
   recipient: User;
-  recipients?: User[];
+  recipients: User[];
   replyToEmailID?: number;
   labels?: string[];
 };

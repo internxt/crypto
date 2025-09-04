@@ -9,6 +9,7 @@ import {
   EmailPublicParameters,
   HybridEncryptedEmail,
   PwdProtectedEmail,
+  Email,
 } from '../types';
 
 /**
@@ -283,5 +284,21 @@ export function pwdProtectedEmailToBase64(email: PwdProtectedEmail): string {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to convert pwd protected email to base64: ${errorMessage}`);
+  }
+}
+
+/**
+ * Converts an Email type into a Uint8Array array.
+ *
+ * @param email - The email.
+ * @returns The Uint8Array array representation of the Email type.
+ */
+export function emailToBinary(email: Email): Uint8Array {
+  try {
+    const json = JSON.stringify(email);
+    return UTF8ToUint8(json);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to convert EmailBody to Uint8Array: ${errorMessage}`);
   }
 }

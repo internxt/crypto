@@ -46,3 +46,7 @@ export const KYBER1024_SECRET_KEY_LENGTH = 3168;
 export const KYBER_SEED_LENGTH = 64;
 
 export const HASH_BIT_LEN = 256;
+
+export const MAX_CACHE_SIZE = 600000000; // 600 MB
+export const MAX_EMAIL_PER_BATCH = 100;
+export const MAX_STORED_EMAILS = 2000;
