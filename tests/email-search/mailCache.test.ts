@@ -4,12 +4,11 @@ import {
   addEmailsToCache,
   getEmailFromCache,
   deleteEmailFromCache,
-  MailCache,
   deleteDatabase,
   openDatabase,
   encryptAndStoreManyEmail,
   closeDatabase,
-  cacheEmailsFromIDB,
+  createCacheFromDB,
   getEmailCount,
 } from '../../src/email-search';
 import { Email } from '../../src/types';
@@ -19,12 +18,6 @@ import { generateTestEmails, generateTestEmail, getAllEmailSize, getEmailSize } 
 describe('Test mail cache functions', () => {
   beforeAll(async () => {
     await deleteDatabase(userID);
-    esCache = {
-      esCache: new Map(),
-      cacheSize: 0,
-      isCacheLimited: false,
-      isCacheReady: true,
-    };
     key = await genSymmetricCryptoKey();
     db = await openDatabase(userID);
     await encryptAndStoreManyEmail(emails, key, db);
@@ -34,7 +27,6 @@ describe('Test mail cache functions', () => {
     closeDatabase(db);
   });
 
-  let esCache: MailCache<Email>;
   const emailNumber = 5;
   const emails: Email[] = generateTestEmails(emailNumber);
   const userID = 'mock ID';
@@ -42,7 +34,7 @@ describe('Test mail cache functions', () => {
   let key;
 
   it('cacheEmailsFromIDB sucessfully reads emails form database', async () => {
-    await cacheEmailsFromIDB(key, esCache, db);
+    const esCache = await createCacheFromDB(key, db);
     const totalSize = getAllEmailSize(emails);
 
     const count = await getEmailCount(db);
@@ -53,8 +45,9 @@ describe('Test mail cache functions', () => {
     expect(esCache.esCache.get(emails[0].params.id)).toEqual(emails[0]);
   });
 
-  it('addEmailToCache adds an email and updates size', () => {
+  it('addEmailToCache adds an email and updates size', async () => {
     const email = generateTestEmail();
+    const esCache = await createCacheFromDB(key, db);
     const sizeBefore = esCache.cacheSize;
     const result = addEmailToCache(email, esCache);
     const diff = esCache.cacheSize - sizeBefore;
@@ -65,23 +58,24 @@ describe('Test mail cache functions', () => {
     expect(esCache.esCache.size).toBe(emailNumber + 1);
   });
 
-  it('addEmailToCache will not add the same email twice', () => {
+  it('addEmailToCache will not add the same email twice', async () => {
     const email = generateTestEmail();
-
+    const esCache = await createCacheFromDB(key, db);
     const result = addEmailToCache(email, esCache);
     expect(result.success).toBe(true);
 
     const sizeBeforeSecondInsert = esCache.esCache.size;
-    expect(sizeBeforeSecondInsert).toBe(emailNumber + 2);
+    expect(sizeBeforeSecondInsert).toBe(emailNumber + 1);
 
     const result_repeated = addEmailToCache(email, esCache);
 
-    expect(result_repeated.success).toBe(true);
+    expect(result_repeated.success).toBe(false);
     expect(esCache.esCache.size).toBe(sizeBeforeSecondInsert);
   });
 
-  it('addEmailsToCache adds multiple emails', () => {
+  it('addEmailsToCache adds multiple emails', async () => {
     const number = 3;
+    const esCache = await createCacheFromDB(key, db);
     const emails = generateTestEmails(number);
     const before = esCache.cacheSize;
     const size_before = esCache.esCache.size;
@@ -98,12 +92,14 @@ describe('Test mail cache functions', () => {
 
   it('getEmailFromCache retrieves an email by id', async () => {
     const email = emails[0];
+    const esCache = await createCacheFromDB(key, db);
     const got = await getEmailFromCache(email.params.id, esCache);
 
     expect(got).toStrictEqual(email);
   });
 
   it('deleteEmailFromCache removes an email and updates size', async () => {
+    const esCache = await createCacheFromDB(key, db);
     const size_before = esCache.esCache.size;
     const cache_before = esCache.cacheSize;
     const email = emails[0];
@@ -111,5 +107,34 @@ describe('Test mail cache functions', () => {
     await deleteEmailFromCache(email.params.id, esCache);
     expect(esCache.esCache.size).toBe(size_before - 1);
     expect(esCache.cacheSize).toBe(cache_before - emailSize);
+  });
+
+  it('cacheEmailsFromIDB should work for an empty database', async () => {
+    const id = 'non-existant-user';
+    const emptyDB = await openDatabase(id);
+    const cache = await createCacheFromDB(key, emptyDB);
+    const count = await getEmailCount(emptyDB);
+
+    expect(count).toBe(0);
+    expect(cache.esCache.size).toBe(0);
+    expect(cache.cacheSize).toBe(0);
+
+    closeDatabase(emptyDB);
+    deleteDatabase(id);
+  });
+
+  it('cacheEmailsFromIDB should work with batches', async () => {
+    const id = 'big-db';
+    const number = 200;
+    const many_emails = generateTestEmails(number);
+    const totalSize = getAllEmailSize(many_emails);
+    const bigDB = await openDatabase(id);
+    await encryptAndStoreManyEmail(many_emails, key, bigDB);
+    const cache = await createCacheFromDB(key, bigDB);
+    const count = await getEmailCount(bigDB);
+
+    expect(count).toBe(number);
+    expect(cache.esCache.size).toBe(number);
+    expect(cache.cacheSize).toBe(totalSize);
   });
 });

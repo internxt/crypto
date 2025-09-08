@@ -1,47 +1,72 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
-  MailCache,
   openDatabase,
-  createSearchIndex,
   searchEmails,
   buildSearchIndexFromCache,
   encryptAndStoreManyEmail,
-  cacheEmailsFromIDB,
+  createCacheFromDB,
   deleteDatabase,
+  closeDatabase,
 } from '../../src/email-search';
 import { Email } from '../../src/types';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
-import { generateTestEmails } from './helper';
+import { generateTestEmails, getSearchTestEmails } from './helper';
 
 describe('Email Search', () => {
   beforeAll(async () => {
     await deleteDatabase(userID);
-    esCache = {
-      esCache: new Map(),
-      cacheSize: 0,
-      isCacheLimited: false,
-      isCacheReady: true,
-    };
-    searchIndex = createSearchIndex();
     key = await genSymmetricCryptoKey();
     db = await openDatabase(userID);
     await encryptAndStoreManyEmail(emails, key, db);
   });
-  let esCache: MailCache<Email>;
+
+  afterAll(async () => {
+    closeDatabase(db);
+  });
+
   const emailNumber = 5;
   const emails: Email[] = generateTestEmails(emailNumber);
   const userID = 'mock ID';
   let db;
   let key;
 
-  let searchIndex = createSearchIndex();
-
   it('should build search index from cache', async () => {
-    await cacheEmailsFromIDB(key, esCache, db);
-    await buildSearchIndexFromCache(esCache, searchIndex);
+    const esCache = await createCacheFromDB(key, db);
+    const searchIndex = await buildSearchIndexFromCache(esCache);
 
     const result = await searchEmails('Test Subject', esCache, searchIndex);
 
     expect(result.length).toBe(emailNumber);
+  });
+
+  it('should search sucessfully', async () => {
+    const id = 'test user id';
+    const indexKey = await genSymmetricCryptoKey();
+    const database = await openDatabase(id);
+    const data = [
+      'cats abcd efgh ijkl mnop qrst uvwx',
+      'cats abcd efgh ijkl mnop qrst ',
+      'cats abcd efgh ijkl mnop cute',
+      'cats abcd efgh ijkl',
+      'cats abcd efgh cute',
+      'cats abcd',
+      'cats cute',
+    ];
+    const testEmails = getSearchTestEmails(data);
+    await encryptAndStoreManyEmail(testEmails, indexKey, database);
+    const cache = await createCacheFromDB(indexKey, database);
+    const search = await buildSearchIndexFromCache(cache);
+
+    const result = await searchEmails('cats cute', cache, search);
+
+    expect(result.length).toBe(3);
+
+    const resultInSubjectsOnly = await searchEmails('cats cute', cache, search, {
+      fields: ['subject'],
+      limit: 5,
+    });
+    expect(resultInSubjectsOnly.length).toBe(0);
+
+    closeDatabase(database);
   });
 });

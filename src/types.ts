@@ -101,3 +101,14 @@ export type Email = {
   body: EmailBody;
   params: EmailPublicParameters;
 };
+
+export interface MailCache<Email> {
+  esCache: Map<string, Email>;
+  cacheSize: number;
+  isCacheLimited: boolean;
+  isCacheReady: boolean;
+}
+export interface EmailSearchResult {
+  email: Email;
+  score?: number;
+}

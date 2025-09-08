@@ -49,3 +49,29 @@ export function getAllEmailSize(emails: Email[]): number {
 export function getEmailSize(email: Email): number {
   return emailToBinary(email).byteLength;
 }
+
+export const generateEmailWithGivenText = (data: string): Email => {
+  const sender = randomUser();
+  const recipient = randomUser();
+
+  return {
+    body: {
+      text: data,
+      ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
+    },
+    params: {
+      id: randomString(10),
+      subject: `Test Subject ${randomString(6)}`,
+      createdAt: randomDate(),
+      sender,
+      recipient,
+      recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
+      replyToEmailID: Math.random() > 0.7 ? Math.floor(Math.random() * 1000) : undefined,
+      labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
+    },
+  };
+};
+
+export const getSearchTestEmails = (content: string[]): Email[] => {
+  return content.map((text) => generateEmailWithGivenText(text));
+};

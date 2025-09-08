@@ -259,19 +259,20 @@ export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<
 };
 
 /**
- * Fetches all emails from the database, decrypts them and sortes the results based on the creation time (newest first)
+ * Fetches all emails from the database, decrypts them and sortes the results in the specified order
  *
  * @param esDB - The database
  * @param indexKey - The symmetric CryptoKey key for protecting database
- * @returns The number of stored emails
+ * @param direction - The order of sorting. If 'next' - oldest first, if 'prev' - newest first
+ * @returns Decryped emails in the specified order
  */
-export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
+const fetchEmails = async (esDB: MailDB, indexKey: CryptoKey, direction: 'next' | 'prev'): Promise<Email[]> => {
   try {
     const tx = esDB.transaction(DB_LABEL, 'readonly');
     const index = tx.store.index('byTime');
 
     const encryptedEmails: StoredEmail[] = [];
-    let cursor = await index.openCursor(null, 'prev');
+    let cursor = await index.openCursor(null, direction);
 
     while (cursor) {
       encryptedEmails.push(cursor.value);
@@ -282,8 +283,19 @@ export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Cryp
 
     return emails;
   } catch (error) {
-    throw new Error('Cannot fetch all emails sorted by newest first from the database', { cause: error });
+    throw new Error('Cannot fetch emails from database', { cause: error });
   }
+};
+
+/**
+ * Fetches all emails from the database, decrypts them and sortes the results based on the creation time (newest first)
+ *
+ * @param esDB - The database
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @returns The number of stored emails
+ */
+export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
+  return fetchEmails(esDB, indexKey, 'prev');
 };
 
 /**
@@ -294,24 +306,7 @@ export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Cryp
  * @returns The number of stored emails
  */
 export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
-  try {
-    const tx = esDB.transaction(DB_LABEL, 'readonly');
-    const index = tx.store.index('byTime');
-
-    const encryptedEmails: StoredEmail[] = [];
-    let cursor = await index.openCursor(null, 'next');
-
-    while (cursor) {
-      encryptedEmails.push(cursor.value);
-      cursor = await cursor.continue();
-    }
-
-    const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
-
-    return emails;
-  } catch (error) {
-    throw new Error('Cannot fetch all emails sorted by oldest first from the database', { cause: error });
-  }
+  return fetchEmails(esDB, indexKey, 'next');
 };
 
 /**
