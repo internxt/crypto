@@ -25,7 +25,7 @@ export async function createPwdProtectedEmail(
     return { enc, encryptedKey };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to password-protect email: ${errorMessage}`));
+    throw new Error(`Failed to password-protect email: ${errorMessage}`);
   }
 }
 
@@ -43,6 +43,6 @@ export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to decrypt password-protect email: ${errorMessage}`));
+    throw new Error(`Failed to decrypt password-protect email: ${errorMessage}`);
   }
 }

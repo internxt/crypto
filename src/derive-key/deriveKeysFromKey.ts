@@ -22,7 +22,7 @@ export async function deriveSymmetricKeyFromContext(
     return hexToUint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive key from base key and context: ${errorMessage}`));
+    throw new Error(`Failed to derive key from base key and context: ${errorMessage}`);
   }
 }
 
@@ -48,6 +48,6 @@ export async function deriveSymmetricCryptoKeyFromContext(context: string, baseK
     return key;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive CryptoKey from base key and context: ${errorMessage}`));
+    throw new Error(`Failed to derive CryptoKey from base key and context: ${errorMessage}`);
   }
 }

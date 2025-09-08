@@ -17,7 +17,7 @@ export async function generateEccKeys(): Promise<CryptoKeyPair> {
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to generate elliptic curve key pair: ${errorMessage}`));
+    throw new Error(`Failed to generate elliptic curve key pair: ${errorMessage}`);
   }
 }
 
@@ -32,7 +32,7 @@ export async function exportPublicKey(key: CryptoKey): Promise<Uint8Array> {
     return new Uint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to export public key: ${errorMessage}`));
+    throw new Error(`Failed to export public key: ${errorMessage}`);
   }
 }
 
@@ -55,7 +55,7 @@ export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKe
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to import public key: ${errorMessage}`));
+    throw new Error(`Failed to import public key: ${errorMessage}`);
   }
 }
 
@@ -70,7 +70,7 @@ export async function exportPrivateKey(key: CryptoKey): Promise<Uint8Array> {
     return new Uint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to export private key: ${errorMessage}`));
+    throw new Error(`Failed to export private key: ${errorMessage}`);
   }
 }
 
@@ -93,6 +93,6 @@ export async function importPrivateKey(pkcs8KeyData: Uint8Array): Promise<Crypto
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to import private key: ${errorMessage}`));
+    throw new Error(`Failed to import private key: ${errorMessage}`);
   }
 }

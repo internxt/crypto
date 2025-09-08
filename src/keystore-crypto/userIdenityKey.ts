@@ -25,7 +25,7 @@ export async function generateIdentityKeys(): Promise<IdentityKeys> {
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to generate idenity keys: ${errorMessage}`));
+    throw new Error(`Failed to generate idenity keys: ${errorMessage}`);
   }
 }
 
@@ -52,7 +52,7 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to create identity keystore: ${errorMessage}`));
+    throw new Error(`Failed to create identity keystore: ${errorMessage}`);
   }
 }
 
@@ -80,6 +80,6 @@ export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore)
     return keys;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to open identity keystore: ${errorMessage}`));
+    throw new Error(`Failed to open identity keystore: ${errorMessage}`);
   }
 }

@@ -28,6 +28,6 @@ export async function deriveSymmetricCryptoKeyFromTwoKeys(key1: Uint8Array, key2
     return key;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive symmetric CryptoKey from two keys: ${errorMessage}`));
+    throw new Error(`Failed to derive symmetric CryptoKey from two keys: ${errorMessage}`);
   }
 }

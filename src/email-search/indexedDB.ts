@@ -15,10 +15,22 @@ export interface EncryptedSearchDB extends DBSchema {
   };
 }
 
+/**
+ * Returns IndexedDB database name for the given user
+ *
+ * @param userID - The user ID
+ * @returns The database name
+ */
 const getDatabaseName = (userID: string): string => {
   return `ES:${userID}:DB`;
 };
 
+/**
+ * Opens IndexedDB database for the given user
+ *
+ * @param userID - The user ID
+ * @returns The database
+ */
 export const openDatabase = async (userID: string): Promise<MailDB> => {
   const dbName = getDatabaseName(userID);
   return openDB<EncryptedSearchDB>(dbName, DB_VERSION, {
@@ -31,25 +43,48 @@ export const openDatabase = async (userID: string): Promise<MailDB> => {
   });
 };
 
-export const closeDatabase = (esDB: MailDB) => {
+/**
+ * Closes the IndexedDB database
+ *
+ * @param esDB - The database
+ */
+export const closeDatabase = (esDB: MailDB): void => {
   return esDB.close();
 };
 
-export const deleteDatabase = async (userID: string) => {
+/**
+ * Deletes IndexedDB database for the given user
+ *
+ * @param userID - The user ID
+ * @returns The database
+ */
+export const deleteDatabase = async (userID: string): Promise<void> => {
   const dbName = getDatabaseName(userID);
-  return deleteDB(dbName, {
-    blocked() {
-      // eslint-disable-next-line no-console
-      console.warn(`Waiting for all connections to close for ${dbName}`);
-    },
-  });
+  return deleteDB(dbName);
 };
 
+/**
+ * Derives database encryption key for the given user
+ *
+ * @param userID - The user ID
+ * @returns The symmetric CryptoKey for protecting database
+ */
 export const deriveIndexKey = async (baseKey: Uint8Array): Promise<CryptoKey> => {
   return deriveSymmetricCryptoKeyFromContext(CONTEXT_INDEX, baseKey);
 };
 
-export const encryptAndStoreEmail = async (newEmailToStore: Email, indexKey: CryptoKey, esDB: MailDB) => {
+/**
+ * Encrypts the given email and stores it in the IndexedDB database
+ *
+ * @param newEmailToStore - The email for storing
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param esDB - The database
+ */
+export const encryptAndStoreEmail = async (
+  newEmailToStore: Email,
+  indexKey: CryptoKey,
+  esDB: MailDB,
+): Promise<void> => {
   const aux = getAux(newEmailToStore.params);
   const ciphertext = await encryptEmailContentSymmetricallyWithKey(
     newEmailToStore.body,
@@ -61,7 +96,18 @@ export const encryptAndStoreEmail = async (newEmailToStore: Email, indexKey: Cry
   await esDB.put(DB_LABEL, encryptedEmail);
 };
 
-export const encryptAndStoreManyEmail = async (newEmailsToStore: Email[], indexKey: CryptoKey, esDB: MailDB) => {
+/**
+ * Encrypts the given set of emails and stores it in the IndexedDB database
+ *
+ * @param newEmailsToStore - The set of emails for storing
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param esDB - The database
+ */
+export const encryptAndStoreManyEmail = async (
+  newEmailsToStore: Email[],
+  indexKey: CryptoKey,
+  esDB: MailDB,
+): Promise<void> => {
   const encryptedEmails = await Promise.all(
     newEmailsToStore.map(async (email) => {
       const aux = getAux(email.params);
@@ -74,20 +120,42 @@ export const encryptAndStoreManyEmail = async (newEmailsToStore: Email[], indexK
   await Promise.all([...encryptedEmails.map((encEmail) => tr.store.put(encEmail)), tr.done]);
 };
 
-const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail) => {
+/**
+ * Decrypts the given email
+ *
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param encryptedEmail - The encrypted email
+ * @returns The decrypted email
+ */
+const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): Promise<Email> => {
   const aux = getAux(encryptedEmail.params);
   const email = await decryptEmailSymmetrically(encryptedEmail.content, indexKey, aux);
   return { body: email, params: encryptedEmail.params };
 };
 
-export const getAndDecryptEmail = async (ID: string, indexKey: CryptoKey, esDB: MailDB): Promise<Email> => {
-  const encryptedEmail = await esDB.get(DB_LABEL, ID);
+/**
+ * Fetches the email from the database and decrypts it
+ *
+ * @param emailID - The email identifier
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param encryptedEmail - The encrypted email
+ * @returns The decrypted email
+ */
+export const getAndDecryptEmail = async (emailID: string, indexKey: CryptoKey, esDB: MailDB): Promise<Email> => {
+  const encryptedEmail = await esDB.get(DB_LABEL, emailID);
   if (!encryptedEmail) {
-    throw new Error(`DB cannot find email with id ${ID}`);
+    throw new Error(`DB cannot find email with id ${emailID}`);
   }
   return decryptEmail(indexKey, encryptedEmail);
 };
 
+/**
+ * Fetches all email from the database and decrypts them
+ *
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param esDB - The database
+ * @returns The decrypted emails
+ */
 export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB): Promise<Email[]> => {
   const encryptedEmails = await esDB.getAll(DB_LABEL);
 
@@ -106,14 +174,32 @@ export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB):
   return decryptedEmails.filter((email): email is Email => email !== null);
 };
 
+/**
+ * Deletes the email from the database
+ *
+ * @param emailID - The email identifier
+ * @param esDB - The database
+ */
 export const deleteEmail = async (emailID: string, esDB: MailDB): Promise<void> => {
   await esDB.delete(DB_LABEL, emailID);
 };
 
+/**
+ * Returns the number of stored email
+ *
+ * @param esDB - The database
+ * @returns The number of stored emails
+ */
 export const getEmailCount = async (esDB: MailDB): Promise<number> => {
   return await esDB.count(DB_LABEL);
 };
 
+/**
+ * Removes the given number of oldests emails from the database
+ *
+ * @param emailsToDelete - The number of emails to delete
+ * @param esDB - The database
+ */
 export const deleteOldestEmails = async (emailsToDelete: number, esDB: MailDB): Promise<void> => {
   const tx = esDB.transaction(DB_LABEL, 'readwrite');
   const index = tx.store.index('byTime');
@@ -130,6 +216,12 @@ export const deleteOldestEmails = async (emailsToDelete: number, esDB: MailDB): 
   await tx.done;
 };
 
+/**
+ * Enforces the maximum email number in the database
+ *
+ * @param esDB - The database
+ * @param max - The maximum allowed number of emails
+ */
 export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<void> => {
   const currentCount = await getEmailCount(esDB);
   if (currentCount <= max) {
@@ -138,6 +230,13 @@ export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<
   await deleteOldestEmails(currentCount - max, esDB);
 };
 
+/**
+ * Fetches all emails from the database, decrypts them and sortes the results based on the creation time (newest first)
+ *
+ * @param esDB - The database
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @returns The number of stored emails
+ */
 export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
   const tx = esDB.transaction(DB_LABEL, 'readonly');
   const index = tx.store.index('byTime');
@@ -155,6 +254,13 @@ export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Cryp
   return emails;
 };
 
+/**
+ * Fetches all emails from the database, decrypts them and sortes the results based on the creation time (oldest first)
+ *
+ * @param esDB - The database
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @returns The number of stored emails
+ */
 export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
   const tx = esDB.transaction(DB_LABEL, 'readonly');
   const index = tx.store.index('byTime');
@@ -172,6 +278,15 @@ export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: Cryp
   return emails;
 };
 
+/**
+ * Fetches a batch of emails from the database, decrypts them and sortes the results based on the creation time (newest first)
+ *
+ * @param esDB - The database
+ * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param batchSize - The size of the batch
+ * @param startCursor - The starting point (optional). If not given, starts from the beginning
+ * @returns The number of stored emails
+ */
 export const getEmailBatch = async (
   esDB: MailDB,
   indexKey: CryptoKey,

@@ -23,7 +23,7 @@ export async function encryptEmailContentSymmetrically(
     return { enc, encryptionKey };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to symmetrically encrypt email: ${errorMessage}`));
+    throw new Error(`Failed to symmetrically encrypt email: ${errorMessage}`);
   }
 }
 
@@ -45,7 +45,7 @@ export async function encryptEmailContentSymmetricallyWithKey(
     return ciphertext;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to symmetrically encrypt email with the given key: ${errorMessage}`));
+    throw new Error(`Failed to symmetrically encrypt email with the given key: ${errorMessage}`);
   }
 }
 
@@ -67,7 +67,7 @@ export async function decryptEmailSymmetrically(
     return body;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to symmetrically decrypt email: ${errorMessage}`));
+    throw new Error(`Failed to symmetrically decrypt email: ${errorMessage}`);
   }
 }
 
@@ -94,7 +94,7 @@ export async function encryptKeysHybrid(
     return { encryptedKey, kyberCiphertext };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to encrypt email key using hybrid encryption: ${errorMessage}`));
+    throw new Error(`Failed to encrypt email key using hybrid encryption: ${errorMessage}`);
   }
 }
 
@@ -119,7 +119,7 @@ export async function decryptKeysHybrid(
     return encryptionKey;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to decrypt email key encrypted via hybrid encryption: ${errorMessage}`));
+    throw new Error(`Failed to decrypt email key encrypted via hybrid encryption: ${errorMessage}`);
   }
 }
 
@@ -138,7 +138,7 @@ export async function passwordProtectKey(emailEncryptionKey: CryptoKey, password
     return { encryptedKey, salt };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to password-protect email key: ${errorMessage}`));
+    throw new Error(`Failed to password-protect email key: ${errorMessage}`);
   }
 }
 
@@ -160,6 +160,6 @@ export async function removePasswordProtection(
     return encryptionKey;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to remove password-protection from email key: ${errorMessage}`));
+    throw new Error(`Failed to remove password-protection from email key: ${errorMessage}`);
   }
 }

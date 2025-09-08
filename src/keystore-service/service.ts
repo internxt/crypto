@@ -21,7 +21,7 @@ export async function uploadKeystoreToServer(encryptedKeystore: EncryptedKeystor
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to upload keystore to the server: ${errorMessage}`));
+    throw new Error(`Failed to upload keystore to the server: ${errorMessage}`);
   }
 }
 
@@ -77,6 +77,6 @@ async function getKeystoreFromServer(type: KeystoreType): Promise<EncryptedKeyst
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to retrieve keystore from the server: ${errorMessage}`));
+    throw new Error(`Failed to retrieve keystore from the server: ${errorMessage}`);
   }
 }

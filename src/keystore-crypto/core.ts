@@ -28,7 +28,7 @@ export async function encryptKeystoreContent(
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to encrypt keystore content: ${errorMessage}`));
+    throw new Error(`Failed to encrypt keystore content: ${errorMessage}`);
   }
 }
 
@@ -54,7 +54,7 @@ export async function decryptKeystoreContent(
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to decrypt keystore content: ${errorMessage}`));
+    throw new Error(`Failed to decrypt keystore content: ${errorMessage}`);
   }
 }
 

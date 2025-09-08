@@ -77,6 +77,6 @@ export async function deriveKeyFromTwoKeysAndContext(
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive symmetric key from two keys: ${errorMessage}`));
+    throw new Error(`Failed to derive symmetric key from two keys: ${errorMessage}`);
   }
 }

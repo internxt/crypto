@@ -31,7 +31,7 @@ export async function exportSymmetricCryptoKey(key: CryptoKey): Promise<Uint8Arr
     return new Uint8Array(rawKey);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to export symmetric CryptoKey: ${errorMessage}`));
+    throw new Error(`Failed to export symmetric CryptoKey: ${errorMessage}`);
   }
 }
 

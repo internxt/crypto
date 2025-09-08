@@ -17,7 +17,7 @@ export async function getKeyFromPassword(password: string): Promise<{ key: Uint8
     return { key, salt };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive key from password: ${errorMessage}`));
+    throw new Error(`Failed to derive key from password: ${errorMessage}`);
   }
 }
 
@@ -39,7 +39,7 @@ export async function getKeyFromPasswordAndSalt(password: string, salt: Uint8Arr
     return await argon2(password, salt);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive key from password and salt: ${errorMessage}`));
+    throw new Error(`Failed to derive key from password and salt: ${errorMessage}`);
   }
 }
 
@@ -55,7 +55,7 @@ export async function getKeyFromPasswordHex(password: string): Promise<{ keyHex:
     return { keyHex: uint8ArrayToHex(key), saltHex: uint8ArrayToHex(salt) };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive key from password: ${errorMessage}`));
+    throw new Error(`Failed to derive key from password: ${errorMessage}`);
   }
 }
 
@@ -73,7 +73,7 @@ export async function getKeyFromPasswordAndSaltHex(password: string, saltHex: st
     return uint8ArrayToHex(key);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive key from password and salt: ${errorMessage}`));
+    throw new Error(`Failed to derive key from password and salt: ${errorMessage}`);
   }
 }
 

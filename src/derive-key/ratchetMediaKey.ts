@@ -18,6 +18,6 @@ export async function ratchetMediaKey(key: MediaKeys): Promise<MediaKeys> {
     return { olmKey, pqKey, index, userID };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to ratchet media key: ${errorMessage}`));
+    throw new Error(`Failed to ratchet media key: ${errorMessage}`);
   }
 }

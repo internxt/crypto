@@ -61,7 +61,7 @@ export async function encryptMessage(
     return new Uint8Array(encrypted);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to encrypt symmetrically: ${errorMessage}`));
+    throw new Error(`Failed to encrypt symmetrically: ${errorMessage}`);
   }
 }
 
@@ -89,6 +89,6 @@ export async function decryptMessage(
     return new Uint8Array(decrypted);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to decrypt symmetrically: ${errorMessage}`));
+    throw new Error(`Failed to decrypt symmetrically: ${errorMessage}`);
   }
 }

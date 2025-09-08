@@ -97,7 +97,7 @@ export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to convert base64 to PublicKeys: ${errorMessage}`));
+    throw new Error(`Failed to convert base64 to PublicKeys: ${errorMessage}`);
   }
 }
 
@@ -118,7 +118,7 @@ export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
     return base64;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to convert key of the type PublicKeys to base64: ${errorMessage}`));
+    throw new Error(`Failed to convert key of the type PublicKeys to base64: ${errorMessage}`);
   }
 }
 

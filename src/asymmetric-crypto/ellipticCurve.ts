@@ -20,6 +20,6 @@ export async function deriveSecretKey(otherUserPublicKey: CryptoKey, ownPrivateK
     return new Uint8Array(result);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return Promise.reject(new Error(`Failed to derive elliptic curve secret key: ${errorMessage}`));
+    throw new Error(`Failed to derive elliptic curve secret key: ${errorMessage}`);
   }
 }
