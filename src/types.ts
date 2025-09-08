@@ -92,7 +92,7 @@ export type EmailPublicParameters = {
   createdAt: string;
   sender: User;
   recipient: User;
-  recipients: User[];
+  recipients?: User[];
   replyToEmailID?: number;
   labels?: string[];
 };

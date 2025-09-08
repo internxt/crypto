@@ -23,6 +23,7 @@
     "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
     "@playwright/test": "^1.54.2",
+    "@types/flexsearch": "^0.7.42",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-istanbul": "^3.2.4",
     "eslint": "^9.34.0",
@@ -41,12 +42,10 @@
     "@scure/bip39": "^1.6.0",
     "axios": "^1.11.0",
     "buffer": "^6.0.3",
-    "encrypted-search": "https://github.com/ProtonMail/encrypted-search.git",
+    "flexsearch": "^0.8.205",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
     "idb": "^8.0.3",
-    "minisearch": "^7.1.2",
-    "react": "^19.1.1",
     "uuid": "^11.1.0"
   },
   "lint-staged": {

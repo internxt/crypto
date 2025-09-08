@@ -49,3 +49,5 @@ export const HASH_BIT_LEN = 256;
 
 export const MAX_CACHE_SIZE = 600000000; // 600 MB
 export const MAX_EMAIL_PER_BATCH = 100;
+export const DB_LABEL = 'email';
+export const DB_VERSION = 1;

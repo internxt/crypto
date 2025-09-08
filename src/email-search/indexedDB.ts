@@ -2,11 +2,9 @@ import { DBSchema, openDB, deleteDB, IDBPDatabase } from 'idb';
 import { StoredEmail, Email } from '../types';
 import { decryptEmailSymmetrically, encryptEmailContentSymmetricallyWithKey } from '../email-crypto/core';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
-import { CONTEXT_INDEX } from '../constants';
+import { CONTEXT_INDEX, DB_LABEL, DB_VERSION } from '../constants';
 import { getAux } from '../email-crypto';
 
-const LABEL = 'email';
-const DB_VERSION = 1;
 export type MailDB = IDBPDatabase<EncryptedSearchDB>;
 
 export interface EncryptedSearchDB extends DBSchema {
@@ -25,9 +23,9 @@ export const openDatabase = async (userID: string): Promise<MailDB> => {
   const dbName = getDatabaseName(userID);
   return openDB<EncryptedSearchDB>(dbName, DB_VERSION, {
     upgrade(db) {
-      if (!db.objectStoreNames.contains(LABEL)) {
-        const store = db.createObjectStore(LABEL, { keyPath: 'params.id' });
-        store.createIndex('byTime', 'params.date');
+      if (!db.objectStoreNames.contains(DB_LABEL)) {
+        const store = db.createObjectStore(DB_LABEL, { keyPath: 'params.id' });
+        store.createIndex('byTime', 'params.createdAt');
       }
     },
   });
@@ -39,7 +37,12 @@ export const closeDatabase = (esDB: MailDB) => {
 
 export const deleteDatabase = async (userID: string) => {
   const dbName = getDatabaseName(userID);
-  return deleteDB(dbName);
+  return deleteDB(dbName, {
+    blocked() {
+      // eslint-disable-next-line no-console
+      console.warn(`Waiting for all connections to close for ${dbName}`);
+    },
+  });
 };
 
 export const deriveIndexKey = async (baseKey: Uint8Array): Promise<CryptoKey> => {
@@ -55,7 +58,7 @@ export const encryptAndStoreEmail = async (newEmailToStore: Email, indexKey: Cry
     newEmailToStore.params.id,
   );
   const encryptedEmail = { content: ciphertext, params: newEmailToStore.params };
-  await esDB.put(LABEL, encryptedEmail);
+  await esDB.put(DB_LABEL, encryptedEmail);
 };
 
 export const encryptAndStoreManyEmail = async (newEmailsToStore: Email[], indexKey: CryptoKey, esDB: MailDB) => {
@@ -67,7 +70,7 @@ export const encryptAndStoreManyEmail = async (newEmailsToStore: Email[], indexK
     }),
   );
 
-  const tr = esDB.transaction(LABEL, 'readwrite');
+  const tr = esDB.transaction(DB_LABEL, 'readwrite');
   await Promise.all([...encryptedEmails.map((encEmail) => tr.store.put(encEmail)), tr.done]);
 };
 
@@ -77,36 +80,42 @@ const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail) =>
   return { body: email, params: encryptedEmail.params };
 };
 
-export const getAndDecryptEmail = async (ID: string, indexKey: CryptoKey, esDB: MailDB) => {
-  const encryptedEmail = await esDB.get(LABEL, ID);
+export const getAndDecryptEmail = async (ID: string, indexKey: CryptoKey, esDB: MailDB): Promise<Email> => {
+  const encryptedEmail = await esDB.get(DB_LABEL, ID);
   if (!encryptedEmail) {
-    return;
+    throw new Error(`DB cannot find email with id ${ID}`);
   }
   return decryptEmail(indexKey, encryptedEmail);
 };
 
-export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB) => {
-  const encryptedEmails = await esDB.getAll(LABEL);
+export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB): Promise<Email[]> => {
+  const encryptedEmails = await esDB.getAll(DB_LABEL);
+
   const decryptedEmails = await Promise.all(
     encryptedEmails.map(async (encEmail) => {
-      const aux = getAux(encEmail.params);
-      return await decryptEmailSymmetrically(encEmail.content, indexKey, aux);
+      try {
+        const aux = getAux(encEmail.params);
+        const body = await decryptEmailSymmetrically(encEmail.content, indexKey, aux);
+        return { body, params: encEmail.params };
+      } catch (error) {
+        throw new Error('Failed to decrypt email', { cause: error });
+      }
     }),
   );
 
-  return decryptedEmails;
+  return decryptedEmails.filter((email): email is Email => email !== null);
 };
 
 export const deleteEmail = async (emailID: string, esDB: MailDB): Promise<void> => {
-  await esDB.delete(LABEL, emailID);
+  await esDB.delete(DB_LABEL, emailID);
 };
 
 export const getEmailCount = async (esDB: MailDB): Promise<number> => {
-  return await esDB.count(LABEL);
+  return await esDB.count(DB_LABEL);
 };
 
 export const deleteOldestEmails = async (emailsToDelete: number, esDB: MailDB): Promise<void> => {
-  const tx = esDB.transaction(LABEL, 'readwrite');
+  const tx = esDB.transaction(DB_LABEL, 'readwrite');
   const index = tx.store.index('byTime');
 
   let cursor = await index.openCursor();
@@ -130,7 +139,7 @@ export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<
 };
 
 export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
-  const tx = esDB.transaction(LABEL, 'readonly');
+  const tx = esDB.transaction(DB_LABEL, 'readonly');
   const index = tx.store.index('byTime');
 
   const encryptedEmails: StoredEmail[] = [];
@@ -147,7 +156,7 @@ export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Cryp
 };
 
 export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
-  const tx = esDB.transaction(LABEL, 'readonly');
+  const tx = esDB.transaction(DB_LABEL, 'readonly');
   const index = tx.store.index('byTime');
 
   const encryptedEmails: StoredEmail[] = [];
@@ -169,7 +178,7 @@ export const getEmailBatch = async (
   batchSize: number,
   startCursor?: IDBValidKey,
 ): Promise<{ emails: Email[]; nextCursor?: IDBValidKey }> => {
-  const tx = esDB.transaction(LABEL, 'readonly');
+  const tx = esDB.transaction(DB_LABEL, 'readonly');
   const index = tx.store.index('byTime');
 
   const encryptedEmails: StoredEmail[] = [];

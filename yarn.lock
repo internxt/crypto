@@ -652,6 +652,13 @@
   resolved "https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz"
   integrity sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==
 
+"@types/flexsearch@^0.7.42":
+  version "0.7.42"
+  resolved "https://registry.yarnpkg.com/@types/flexsearch/-/flexsearch-0.7.42.tgz#4c3a551f4c78db330a9a1d9e419eb8f100f80bbb"
+  integrity sha512-FdKaw3dPgcCvqU9w8SGgqx8PrxFF2EKySRhEj1nc45HNe/2cBLff3pF52C67hzeUbNhq49t7XRIIibBd41vcIg==
+  dependencies:
+    flexsearch "*"
+
 "@types/json-schema@^7.0.15":
   version "7.0.15"
   resolved "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz"
@@ -1162,12 +1169,6 @@ emoji-regex@^9.2.2:
   resolved "https://registry.npmjs.org/emoji-regex/-/emoji-regex-9.2.2.tgz"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
 
-"encrypted-search@https://github.com/ProtonMail/encrypted-search.git":
-  version "1.0.0"
-  resolved "https://github.com/ProtonMail/encrypted-search.git#4bd30adf50fef6578ee661737280ead34815139f"
-  dependencies:
-    latenize "^0.2.0"
-
 environment@^1.0.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/environment/-/environment-1.1.0.tgz"
@@ -1446,6 +1447,11 @@ flatted@^3.2.9:
   version "3.3.3"
   resolved "https://registry.npmjs.org/flatted/-/flatted-3.3.3.tgz"
   integrity sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==
+
+flexsearch@*, flexsearch@^0.8.205:
+  version "0.8.205"
+  resolved "https://registry.yarnpkg.com/flexsearch/-/flexsearch-0.8.205.tgz#abbe4166ecc830e2456a94b21731ceab59c5ddbb"
+  integrity sha512-REFjMqy86DKkCTJ4gIE42c9MVm9t1vUWfEub/8taixYuhvyu4jd4XmFALk5VuKW4GH4VLav8A4BJboTsslHF1w==
 
 follow-redirects@^1.15.6:
   version "1.15.11"
@@ -1772,11 +1778,6 @@ keyv@^4.5.4:
   dependencies:
     json-buffer "3.0.1"
 
-latenize@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/latenize/-/latenize-0.2.0.tgz#81913e97eb8cc6094585da35a4fadde9380fbdde"
-  integrity sha512-cwg/JKpB95VKF33hq2NH6keiiNiUTqOAKbRAA8VBa911vZEoVyK2z9lPybErU5NErZxc5/TPl1kY9NfXxn0a8A==
-
 levn@^0.4.1:
   version "0.4.1"
   resolved "https://registry.npmjs.org/levn/-/levn-0.4.1.tgz"
@@ -1939,11 +1940,6 @@ minimatch@^9.0.4:
   version "7.1.2"
   resolved "https://registry.npmjs.org/minipass/-/minipass-7.1.2.tgz"
   integrity sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==
-
-minisearch@^7.1.2:
-  version "7.1.2"
-  resolved "https://registry.npmjs.org/minisearch/-/minisearch-7.1.2.tgz"
-  integrity sha512-R1Pd9eF+MD5JYDDSPAp/q1ougKglm14uEkPMvQ/05RGmx6G9wvmLTrTI/Q5iPNJLYqNdsDQ7qTGIcNWR+FrHmA==
 
 mrmime@^2.0.0:
   version "2.0.1"
@@ -2136,11 +2132,6 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
-
-react@^19.1.1:
-  version "19.1.1"
-  resolved "https://registry.yarnpkg.com/react/-/react-19.1.1.tgz#06d9149ec5e083a67f9a1e39ce97b06a03b644af"
-  integrity sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==
 
 resolve-from@^4.0.0:
   version "4.0.0"
