@@ -26,8 +26,7 @@ export async function createNISTbasedIV(freeField?: string): Promise<Uint8Array>
 
     return iv;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to create IV: ${errorMessage}`);
+    throw new Error('Failed to create IV', { cause: error });
   }
 }
 
@@ -60,8 +59,7 @@ export async function encryptMessage(
     const encrypted = await crypto.subtle.encrypt({ name: AES_ALGORITHM, iv, additionalData }, encryptionKey, message);
     return new Uint8Array(encrypted);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to encrypt symmetrically: ${errorMessage}`);
+    throw new Error('Failed to encrypt symmetrically', { cause: error });
   }
 }
 
@@ -88,7 +86,6 @@ export async function decryptMessage(
     );
     return new Uint8Array(decrypted);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to decrypt symmetrically: ${errorMessage}`);
+    throw new Error('Failed to decrypt symmetrically', { cause: error });
   }
 }

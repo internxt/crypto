@@ -16,7 +16,6 @@ export async function computeHash(bits: number, data: string[] | Uint8Array[]): 
     }
     return hasher;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to compute hash: ${errorMessage}`);
+    throw new Error('Failed to compute hash', { cause: error });
   }
 }

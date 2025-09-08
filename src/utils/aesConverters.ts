@@ -15,8 +15,7 @@ export function ciphertextToBase64(encryptedMessage: SymmetricCiphertext): strin
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert ciphertext to base64: ${errorMessage}`);
+    throw new Error('Failed to convert ciphertext to base64', { cause: error });
   }
 }
 
@@ -38,7 +37,6 @@ export function base64ToCiphertext(base64: string): SymmetricCiphertext {
     };
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to ciphertext: ${errorMessage}`);
+    throw new Error('Failed to convert base64 to ciphertext', { cause: error });
   }
 }

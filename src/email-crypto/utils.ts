@@ -13,8 +13,7 @@ export function getAux(params: EmailPublicParameters): string {
     const aux = JSON.stringify({ subject, replyToEmailID, sender, recipients });
     return aux;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to create aux: ${errorMessage}`);
+    throw new Error('Failed to create aux', { cause: error });
   }
 }
 

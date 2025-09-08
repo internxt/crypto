@@ -44,7 +44,7 @@ describe('Test key wrapping functions', () => {
   it('should throw error if cannot import wrapping key', async () => {
     const bad_key = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-    await expect(importWrappingKey(bad_key)).rejects.toThrowError(/Failed to import wrapping key:/);
+    await expect(importWrappingKey(bad_key)).rejects.toThrowError(/Failed to import wrapping key/);
   });
 
   it('should throw error if cannot unwrapKey key', async () => {
@@ -54,19 +54,19 @@ describe('Test key wrapping functions', () => {
     const encrypted = new Uint8Array(16);
     crypto.getRandomValues(encrypted);
 
-    await expect(unwrapKey(encrypted, bad_key)).rejects.toThrowError(/Failed to unwrap key:/);
+    await expect(unwrapKey(encrypted, bad_key)).rejects.toThrowError(/Failed to unwrap key/);
   });
 
   it('should throw error if cannot wrap key', async () => {
     const key_pair = await generateEccKeys();
     const bad_key = key_pair.privateKey;
 
-    await expect(wrapKey(bad_key, bad_key)).rejects.toThrowError(/Failed to wrap key:/);
+    await expect(wrapKey(bad_key, bad_key)).rejects.toThrowError(/Failed to wrap key/);
   });
 
   it('should throw error if secrets are of different length', async () => {
     const ecc = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     const kyber = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    await expect(deriveWrappingKey(ecc, kyber)).rejects.toThrowError(/Failed to derive wrapping key:/);
+    await expect(deriveWrappingKey(ecc, kyber)).rejects.toThrowError(/Failed to derive wrapping key/);
   });
 });

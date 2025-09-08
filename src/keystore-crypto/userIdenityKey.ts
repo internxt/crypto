@@ -24,8 +24,7 @@ export async function generateIdentityKeys(): Promise<IdentityKeys> {
     };
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to generate idenity keys: ${errorMessage}`);
+    throw new Error('Failed to generate idenity keys', { cause: error });
   }
 }
 
@@ -51,8 +50,7 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
     };
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to create identity keystore: ${errorMessage}`);
+    throw new Error('Failed to create identity keystore', { cause: error });
   }
 }
 
@@ -79,7 +77,6 @@ export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore)
     const keys: IdentityKeys = await base64ToIdentityKeys(json);
     return keys;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to open identity keystore: ${errorMessage}`);
+    throw new Error('Failed to open identity keystore', { cause: error });
   }
 }

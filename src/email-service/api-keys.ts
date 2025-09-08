@@ -32,7 +32,6 @@ export async function getRecipientsPublicKeysFromServer(emails: string[]): Promi
         throw new Error('AxiosError:', error);
       }
     }
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to retrieve public keys: ${errorMessage}`);
+    throw new Error('Failed to retrieve public keys', { cause: error });
   }
 }

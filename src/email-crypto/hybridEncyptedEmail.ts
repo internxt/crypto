@@ -26,8 +26,7 @@ export async function encryptEmailHybrid(
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
     return { enc, encryptedKey, recipientID: recipient.id };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to encrypt email with hybrid encryption: ${errorMessage}`);
+    throw new Error('Failed to encrypt email with hybrid encryption', { cause: error });
   }
 }
 
@@ -58,8 +57,7 @@ export async function encryptEmailHybridForMultipleRecipients(
     }
     return encryptedEmails;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to encrypt email to multiple recipients with hybrid encryption: ${errorMessage}`);
+    throw new Error('Failed to encrypt email to multiple recipients with hybrid encryption', { cause: error });
   }
 }
 
@@ -82,7 +80,6 @@ export async function decryptEmailHybrid(
     const email = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
     return email;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to decrypt emails with hybrid encryption: ${errorMessage}`);
+    throw new Error('Failed to decrypt emails with hybrid encryption', { cause: error });
   }
 }

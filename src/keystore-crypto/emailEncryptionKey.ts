@@ -38,8 +38,7 @@ export async function generateEncryptionKeys(): Promise<EncryptionKeys> {
     };
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to generate encryption keys: ${errorMessage}`);
+    throw new Error('Failed to generate encryption keys', { cause: error });
   }
 }
 
@@ -77,8 +76,7 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
     };
     return { encryptionKeystore, recoveryKeystore, recoveryCodes };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to create encryption and recovery keystores: ${errorMessage}`);
+    throw new Error('Failed to create encryption and recovery keystores', { cause: error });
   }
 }
 
@@ -105,8 +103,7 @@ export async function openEncryptionKeystore(encryptedKeystore: EncryptedKeystor
     const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
     return keys;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to open encryption keystore: ${errorMessage}`);
+    throw new Error('Failed to open encryption keystore', { cause: error });
   }
 }
 
@@ -136,7 +133,6 @@ export async function openRecoveryKeystore(
     const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
     return keys;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to open recovery keystore: ${errorMessage}`);
+    throw new Error('Failed to open recovery keystore', { cause: error });
   }
 }

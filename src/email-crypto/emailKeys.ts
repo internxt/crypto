@@ -24,7 +24,6 @@ export async function generateEmailKeys(): Promise<{ publicKeys: PublicKeys; pri
 
     return { publicKeys, privateKeys };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to generate keys for email service: ${errorMessage}`);
+    throw new Error('Failed to generate keys for email service', { cause: error });
   }
 }

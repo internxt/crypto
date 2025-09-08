@@ -30,8 +30,7 @@ export async function exportSymmetricCryptoKey(key: CryptoKey): Promise<Uint8Arr
     const rawKey = await crypto.subtle.exportKey(KEY_FORMAT, key);
     return new Uint8Array(rawKey);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to export symmetric CryptoKey: ${errorMessage}`);
+    throw new Error('Failed to export symmetric CryptoKey', { cause: error });
   }
 }
 
@@ -62,7 +61,6 @@ export function genSymmetricKey(): Uint8Array {
     crypto.getRandomValues(key);
     return key;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to generate symmetric key: ${errorMessage}`);
+    throw new Error('Failed to generate symmetric key', { cause: error });
   }
 }

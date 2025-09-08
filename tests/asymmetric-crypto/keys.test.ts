@@ -34,12 +34,10 @@ describe('Test ecc functions', () => {
     crypto.subtle.generateKey = vi.fn(() => {
       throw new Error('simulated failure');
     });
-    await expect(generateEccKeys()).rejects.toThrowError(
-      'Failed to generate elliptic curve key pair: simulated failure',
-    );
-
-    crypto.subtle.generateKey = vi.fn().mockRejectedValue('mocked error');
-    await expect(generateEccKeys()).rejects.toThrowError('Failed to generate elliptic curve key pair: mocked error');
+    await expect(generateEccKeys()).rejects.rejects.toMatchObject({
+      message: 'Failed to generate elliptic curve key pair',
+      cause: expect.any(Error),
+    });
 
     crypto.subtle.generateKey = originalGenerateKey;
   });
@@ -99,18 +97,11 @@ describe('Test ecc functions', () => {
     const originalImportKey = crypto.subtle.importKey;
 
     crypto.subtle.importKey = vi.fn(() => {
-      throw new Error('simulated failure');
+      throw new Error('error', { cause: 'simulated failure' });
     });
-    await expect(importPublicKey(publicKeyArray)).rejects.toThrowError(
-      'Failed to import public key: simulated failure',
-    );
-    await expect(importPrivateKey(secretKeyArray)).rejects.toThrowError(
-      'Failed to import private key: simulated failure',
-    );
+    await expect(importPublicKey(publicKeyArray)).rejects.toThrowError(/Failed to import public key/);
 
-    crypto.subtle.importKey = vi.fn().mockRejectedValue('mocked error');
-    await expect(importPublicKey(publicKeyArray)).rejects.toThrowError('Failed to import public key: mocked error');
-    await expect(importPrivateKey(secretKeyArray)).rejects.toThrowError('Failed to import private key: mocked error');
+    await expect(importPrivateKey(secretKeyArray)).rejects.toThrowError(/Failed to import private key/);
 
     crypto.subtle.importKey = originalImportKey;
   });

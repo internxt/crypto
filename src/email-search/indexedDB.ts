@@ -32,15 +32,19 @@ const getDatabaseName = (userID: string): string => {
  * @returns The database
  */
 export const openDatabase = async (userID: string): Promise<MailDB> => {
-  const dbName = getDatabaseName(userID);
-  return openDB<EncryptedSearchDB>(dbName, DB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(DB_LABEL)) {
-        const store = db.createObjectStore(DB_LABEL, { keyPath: 'params.id' });
-        store.createIndex('byTime', 'params.createdAt');
-      }
-    },
-  });
+  try {
+    const dbName = getDatabaseName(userID);
+    return openDB<EncryptedSearchDB>(dbName, DB_VERSION, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(DB_LABEL)) {
+          const store = db.createObjectStore(DB_LABEL, { keyPath: 'params.id' });
+          store.createIndex('byTime', 'params.createdAt');
+        }
+      },
+    });
+  } catch (error) {
+    throw new Error(`Cannot open a database for the user ${userID}`, { cause: error });
+  }
 };
 
 /**
@@ -85,15 +89,19 @@ export const encryptAndStoreEmail = async (
   indexKey: CryptoKey,
   esDB: MailDB,
 ): Promise<void> => {
-  const aux = getAux(newEmailToStore.params);
-  const ciphertext = await encryptEmailContentSymmetricallyWithKey(
-    newEmailToStore.body,
-    indexKey,
-    aux,
-    newEmailToStore.params.id,
-  );
-  const encryptedEmail = { content: ciphertext, params: newEmailToStore.params };
-  await esDB.put(DB_LABEL, encryptedEmail);
+  try {
+    const aux = getAux(newEmailToStore.params);
+    const ciphertext = await encryptEmailContentSymmetricallyWithKey(
+      newEmailToStore.body,
+      indexKey,
+      aux,
+      newEmailToStore.params.id,
+    );
+    const encryptedEmail = { content: ciphertext, params: newEmailToStore.params };
+    await esDB.put(DB_LABEL, encryptedEmail);
+  } catch (error) {
+    throw new Error('Cannot encrypt and add the given email to the database', { cause: error });
+  }
 };
 
 /**
@@ -108,16 +116,20 @@ export const encryptAndStoreManyEmail = async (
   indexKey: CryptoKey,
   esDB: MailDB,
 ): Promise<void> => {
-  const encryptedEmails = await Promise.all(
-    newEmailsToStore.map(async (email) => {
-      const aux = getAux(email.params);
-      const ciphertext = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.params.id);
-      return { content: ciphertext, params: email.params };
-    }),
-  );
+  try {
+    const encryptedEmails = await Promise.all(
+      newEmailsToStore.map(async (email) => {
+        const aux = getAux(email.params);
+        const ciphertext = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.params.id);
+        return { content: ciphertext, params: email.params };
+      }),
+    );
 
-  const tr = esDB.transaction(DB_LABEL, 'readwrite');
-  await Promise.all([...encryptedEmails.map((encEmail) => tr.store.put(encEmail)), tr.done]);
+    const tr = esDB.transaction(DB_LABEL, 'readwrite');
+    await Promise.all([...encryptedEmails.map((encEmail) => tr.store.put(encEmail)), tr.done]);
+  } catch (error) {
+    throw new Error('Cannot encrypt and add emails to the database', { cause: error });
+  }
 };
 
 /**
@@ -128,9 +140,13 @@ export const encryptAndStoreManyEmail = async (
  * @returns The decrypted email
  */
 const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): Promise<Email> => {
-  const aux = getAux(encryptedEmail.params);
-  const email = await decryptEmailSymmetrically(encryptedEmail.content, indexKey, aux);
-  return { body: email, params: encryptedEmail.params };
+  try {
+    const aux = getAux(encryptedEmail.params);
+    const email = await decryptEmailSymmetrically(encryptedEmail.content, indexKey, aux);
+    return { body: email, params: encryptedEmail.params };
+  } catch (error) {
+    throw new Error('Cannot decrypt the given email', { cause: error });
+  }
 };
 
 /**
@@ -142,11 +158,15 @@ const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): P
  * @returns The decrypted email
  */
 export const getAndDecryptEmail = async (emailID: string, indexKey: CryptoKey, esDB: MailDB): Promise<Email> => {
-  const encryptedEmail = await esDB.get(DB_LABEL, emailID);
-  if (!encryptedEmail) {
-    throw new Error(`DB cannot find email with id ${emailID}`);
+  try {
+    const encryptedEmail = await esDB.get(DB_LABEL, emailID);
+    if (!encryptedEmail) {
+      throw new Error(`DB cannot find email with id ${emailID}`);
+    }
+    return decryptEmail(indexKey, encryptedEmail);
+  } catch (error) {
+    throw new Error(`Cannot fetch the email ${emailID} from the database`, { cause: error });
   }
-  return decryptEmail(indexKey, encryptedEmail);
 };
 
 /**
@@ -157,21 +177,21 @@ export const getAndDecryptEmail = async (emailID: string, indexKey: CryptoKey, e
  * @returns The decrypted emails
  */
 export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB): Promise<Email[]> => {
-  const encryptedEmails = await esDB.getAll(DB_LABEL);
+  try {
+    const encryptedEmails = await esDB.getAll(DB_LABEL);
 
-  const decryptedEmails = await Promise.all(
-    encryptedEmails.map(async (encEmail) => {
-      try {
+    const decryptedEmails = await Promise.all(
+      encryptedEmails.map(async (encEmail) => {
         const aux = getAux(encEmail.params);
         const body = await decryptEmailSymmetrically(encEmail.content, indexKey, aux);
         return { body, params: encEmail.params };
-      } catch (error) {
-        throw new Error('Failed to decrypt email', { cause: error });
-      }
-    }),
-  );
+      }),
+    );
 
-  return decryptedEmails.filter((email): email is Email => email !== null);
+    return decryptedEmails.filter((email): email is Email => email !== null);
+  } catch (error) {
+    throw new Error('Cannot fetch and decrypt all emails from the database', { cause: error });
+  }
 };
 
 /**
@@ -201,19 +221,23 @@ export const getEmailCount = async (esDB: MailDB): Promise<number> => {
  * @param esDB - The database
  */
 export const deleteOldestEmails = async (emailsToDelete: number, esDB: MailDB): Promise<void> => {
-  const tx = esDB.transaction(DB_LABEL, 'readwrite');
-  const index = tx.store.index('byTime');
+  try {
+    const tx = esDB.transaction(DB_LABEL, 'readwrite');
+    const index = tx.store.index('byTime');
 
-  let cursor = await index.openCursor();
-  let deletedCount = 0;
+    let cursor = await index.openCursor();
+    let deletedCount = 0;
 
-  while (cursor && deletedCount < emailsToDelete) {
-    await cursor.delete();
-    deletedCount++;
-    cursor = await cursor.continue();
+    while (cursor && deletedCount < emailsToDelete) {
+      await cursor.delete();
+      deletedCount++;
+      cursor = await cursor.continue();
+    }
+
+    await tx.done;
+  } catch (error) {
+    throw new Error(`Cannot delete ${emailsToDelete} oldests emails from the database`, { cause: error });
   }
-
-  await tx.done;
 };
 
 /**
@@ -223,11 +247,15 @@ export const deleteOldestEmails = async (emailsToDelete: number, esDB: MailDB): 
  * @param max - The maximum allowed number of emails
  */
 export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<void> => {
-  const currentCount = await getEmailCount(esDB);
-  if (currentCount <= max) {
-    return;
+  try {
+    const currentCount = await getEmailCount(esDB);
+    if (currentCount <= max) {
+      return;
+    }
+    await deleteOldestEmails(currentCount - max, esDB);
+  } catch (error) {
+    throw new Error(`Cannot enforce the maximum of ${max} emails on the database`, { cause: error });
   }
-  await deleteOldestEmails(currentCount - max, esDB);
 };
 
 /**
@@ -238,20 +266,24 @@ export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<
  * @returns The number of stored emails
  */
 export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
-  const tx = esDB.transaction(DB_LABEL, 'readonly');
-  const index = tx.store.index('byTime');
+  try {
+    const tx = esDB.transaction(DB_LABEL, 'readonly');
+    const index = tx.store.index('byTime');
 
-  const encryptedEmails: StoredEmail[] = [];
-  let cursor = await index.openCursor(null, 'prev');
+    const encryptedEmails: StoredEmail[] = [];
+    let cursor = await index.openCursor(null, 'prev');
 
-  while (cursor) {
-    encryptedEmails.push(cursor.value);
-    cursor = await cursor.continue();
+    while (cursor) {
+      encryptedEmails.push(cursor.value);
+      cursor = await cursor.continue();
+    }
+
+    const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
+
+    return emails;
+  } catch (error) {
+    throw new Error('Cannot fetch all emails sorted by newest first from the database', { cause: error });
   }
-
-  const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
-
-  return emails;
 };
 
 /**
@@ -262,20 +294,24 @@ export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Cryp
  * @returns The number of stored emails
  */
 export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
-  const tx = esDB.transaction(DB_LABEL, 'readonly');
-  const index = tx.store.index('byTime');
+  try {
+    const tx = esDB.transaction(DB_LABEL, 'readonly');
+    const index = tx.store.index('byTime');
 
-  const encryptedEmails: StoredEmail[] = [];
-  let cursor = await index.openCursor(null, 'next');
+    const encryptedEmails: StoredEmail[] = [];
+    let cursor = await index.openCursor(null, 'next');
 
-  while (cursor) {
-    encryptedEmails.push(cursor.value);
-    cursor = await cursor.continue();
+    while (cursor) {
+      encryptedEmails.push(cursor.value);
+      cursor = await cursor.continue();
+    }
+
+    const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
+
+    return emails;
+  } catch (error) {
+    throw new Error('Cannot fetch all emails sorted by oldest first from the database', { cause: error });
   }
-
-  const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
-
-  return emails;
 };
 
 /**
@@ -293,33 +329,37 @@ export const getEmailBatch = async (
   batchSize: number,
   startCursor?: IDBValidKey,
 ): Promise<{ emails: Email[]; nextCursor?: IDBValidKey }> => {
-  const tx = esDB.transaction(DB_LABEL, 'readonly');
-  const index = tx.store.index('byTime');
+  try {
+    const tx = esDB.transaction(DB_LABEL, 'readonly');
+    const index = tx.store.index('byTime');
 
-  const encryptedEmails: StoredEmail[] = [];
-  let cursor;
+    const encryptedEmails: StoredEmail[] = [];
+    let cursor;
 
-  if (startCursor) {
-    const range = IDBKeyRange.upperBound(startCursor, true);
-    cursor = await index.openCursor(range, 'prev');
-  } else {
-    cursor = await index.openCursor(null, 'prev');
+    if (startCursor) {
+      const range = IDBKeyRange.upperBound(startCursor, true);
+      cursor = await index.openCursor(range, 'prev');
+    } else {
+      cursor = await index.openCursor(null, 'prev');
+    }
+
+    let count = 0;
+    let nextCursor: IDBValidKey | undefined;
+
+    while (cursor && count < batchSize) {
+      encryptedEmails.push(cursor.value);
+      nextCursor = cursor.key;
+      count++;
+      cursor = await cursor.continue();
+    }
+
+    const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
+
+    return {
+      emails,
+      nextCursor: count === batchSize ? nextCursor : undefined,
+    };
+  } catch (error) {
+    throw new Error(`Cannot fetch email batch of ${batchSize} from the database`, { cause: error });
   }
-
-  let count = 0;
-  let nextCursor: IDBValidKey | undefined;
-
-  while (cursor && count < batchSize) {
-    encryptedEmails.push(cursor.value);
-    nextCursor = cursor.key;
-    count++;
-    cursor = await cursor.continue();
-  }
-
-  const emails = await Promise.all(encryptedEmails.map((encryptedEmail) => decryptEmail(indexKey, encryptedEmail)));
-
-  return {
-    emails,
-    nextCursor: count === batchSize ? nextCursor : undefined,
-  };
 };

@@ -13,8 +13,7 @@ export function generateKyberKeys(seed?: Uint8Array): {
   try {
     return ml_kem768.keygen(seed);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to generate Kyber keys: ${errorMessage}`);
+    throw new Error('Failed to generate Kyber keys', { cause: error });
   }
 }
 
@@ -31,8 +30,7 @@ export function encapsulateKyber(publicKey: Uint8Array): {
   try {
     return ml_kem768.encapsulate(publicKey);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to encapsulate: ${errorMessage}`);
+    throw new Error('Failed to encapsulate', { cause: error });
   }
 }
 
@@ -47,7 +45,6 @@ export function decapsulateKyber(cipherText: Uint8Array, secretKey: Uint8Array):
   try {
     return ml_kem768.decapsulate(cipherText, secretKey);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to decapsulate: ${errorMessage}`);
+    throw new Error('Failed to decapsulate', { cause: error });
   }
 }

@@ -27,8 +27,7 @@ export async function encryptKeystoreContent(
     const result = await encryptSymmetrically(secretKey, message, aux);
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to encrypt keystore content: ${errorMessage}`);
+    throw new Error('Failed to encrypt keystore content', { cause: error });
   }
 }
 
@@ -53,8 +52,7 @@ export async function decryptKeystoreContent(
     const result = uint8ArrayToBase64(content);
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to decrypt keystore content: ${errorMessage}`);
+    throw new Error('Failed to decrypt keystore content', { cause: error });
   }
 }
 
@@ -71,8 +69,7 @@ export function getUserID(): string {
     }
     return userID;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to get UserID from session storage: ${errorMessage}`);
+    throw new Error('Failed to get UserID from session storage', { cause: error });
   }
 }
 
@@ -89,8 +86,7 @@ export function getBaseKey(): Uint8Array {
     }
     return base64ToUint8Array(baseKeyBase64);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to get base key from session storage: ${errorMessage}`);
+    throw new Error('Failed to get base key from session storage', { cause: error });
   }
 }
 

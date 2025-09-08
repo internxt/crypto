@@ -4,21 +4,12 @@ import {
   base64ToEncryptionKeys,
   base64ToIdentityKeys,
   base64ToMediaKeys,
-  base64ToSearchIndices,
   encryptedKeystoreToBase64,
   encryptionKeysToBase64,
   identityKeysToBase64,
   mediaKeysToBase64,
-  searchIndicesToBase64,
 } from '../../src/utils';
-import {
-  EncryptedKeystore,
-  EncryptionKeys,
-  IdentityKeys,
-  KeystoreType,
-  SearchIndices,
-  MediaKeys,
-} from '../../src/types';
+import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KeystoreType, MediaKeys } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
@@ -76,18 +67,6 @@ describe('Test converter functions', () => {
     const deserializedKeystore = await base64ToEncryptedKeystore(serializedKeystore);
 
     expect(deserializedKeystore).toStrictEqual(keystore);
-  });
-
-  it('should sucessfully serialize and decerialize search indices', async () => {
-    const indices: SearchIndices = {
-      userID: 'mock user ID',
-      timestamp: new Date(),
-      data: new Uint8Array([42, 13, 250, 4, 0]),
-    };
-    const serializedIndices = await searchIndicesToBase64(indices);
-    const deserializedIndices = await base64ToSearchIndices(serializedIndices);
-
-    expect(deserializedIndices).toStrictEqual(indices);
   });
 
   it('should sucessfully serialize and decerialize media keys', async () => {

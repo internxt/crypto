@@ -22,8 +22,7 @@ export async function encryptEmailContentSymmetrically(
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     return { enc, encryptionKey };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to symmetrically encrypt email: ${errorMessage}`);
+    throw new Error('Failed to symmetrically encrypt email', { cause: error });
   }
 }
 
@@ -44,8 +43,7 @@ export async function encryptEmailContentSymmetricallyWithKey(
     const ciphertext = await encryptSymmetrically(encryptionKey, binaryEmail, aux, emailID);
     return ciphertext;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to symmetrically encrypt email with the given key: ${errorMessage}`);
+    throw new Error('Failed to symmetrically encrypt email with the given key', { cause: error });
   }
 }
 
@@ -66,8 +64,7 @@ export async function decryptEmailSymmetrically(
     const body = binaryToEmailBody(binaryEmail);
     return body;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to symmetrically decrypt email: ${errorMessage}`);
+    throw new Error('Failed to symmetrically decrypt email', { cause: error });
   }
 }
 
@@ -93,8 +90,7 @@ export async function encryptKeysHybrid(
     const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
     return { encryptedKey, kyberCiphertext };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to encrypt email key using hybrid encryption: ${errorMessage}`);
+    throw new Error('Failed to encrypt email key using hybrid encryption', { cause: error });
   }
 }
 
@@ -118,8 +114,7 @@ export async function decryptKeysHybrid(
     const encryptionKey = await unwrapKey(encryptedKey.encryptedKey, wrappingKey);
     return encryptionKey;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to decrypt email key encrypted via hybrid encryption: ${errorMessage}`);
+    throw new Error('Failed to decrypt email key encrypted via hybrid encryption', { cause: error });
   }
 }
 
@@ -137,8 +132,7 @@ export async function passwordProtectKey(emailEncryptionKey: CryptoKey, password
     const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
     return { encryptedKey, salt };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to password-protect email key: ${errorMessage}`);
+    throw new Error('Failed to password-protect email key', { cause: error });
   }
 }
 
@@ -159,7 +153,6 @@ export async function removePasswordProtection(
     const encryptionKey = await unwrapKey(emailEncryptionKey.encryptedKey, wrappingKey);
     return encryptionKey;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to remove password-protection from email key: ${errorMessage}`);
+    throw new Error('Failed to remove password-protection from email key', { cause: error });
   }
 }

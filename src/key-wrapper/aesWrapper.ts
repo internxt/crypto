@@ -11,8 +11,7 @@ export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
   try {
     return await crypto.subtle.importKey(KEY_FORMAT, key, KEY_WRAPPING_ALGORITHM, false, ['wrapKey', 'unwrapKey']);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to import wrapping key: ${errorMessage}`);
+    throw new Error('Failed to import wrapping key', { cause: error });
   }
 }
 
@@ -31,8 +30,7 @@ export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint
     const key = await deriveKeyFromTwoKeysAndContext(eccSecret, kyberSecret, CONTEXT_WRAPPING);
     return await importWrappingKey(key);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to derive wrapping key: ${errorMessage}`);
+    throw new Error('Failed to derive wrapping key', { cause: error });
   }
 }
 
@@ -55,8 +53,7 @@ export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey
       ['encrypt', 'decrypt'],
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to unwrap key: ${errorMessage}`);
+    throw new Error('Failed to unwrap key', { cause: error });
   }
 }
 
@@ -72,7 +69,6 @@ export async function wrapKey(encryptionKey: CryptoKey, wrappingKey: CryptoKey):
     const result = await crypto.subtle.wrapKey(KEY_FORMAT, encryptionKey, wrappingKey, KEY_WRAPPING_ALGORITHM);
     return new Uint8Array(result);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to wrap key: ${errorMessage}`);
+    throw new Error('Failed to wrap key', { cause: error });
   }
 }

@@ -32,8 +32,7 @@ export async function sendEncryptedKeystoreToServer(encryptedKeystore: string, u
         throw new Error('AxiosError:', error);
       }
     }
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to send keystore: ${errorMessage}`);
+    throw new Error('Failed to send keystore', { cause: error });
   }
 }
 
@@ -67,7 +66,6 @@ export async function requestEncryptedKeystore(url: string): Promise<string> {
       }
     }
 
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to retrive keystore: ${errorMessage}`);
+    throw new Error('Failed to retrive keystore', { cause: error });
   }
 }

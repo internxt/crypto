@@ -21,8 +21,7 @@ export async function deriveSymmetricKeyFromContext(
     const result = await blake3(baseKey, AES_KEY_BIT_LENGTH, buffer_context_key);
     return hexToUint8Array(result);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to derive key from base key and context: ${errorMessage}`);
+    throw new Error('Failed to derive key from base key and context', { cause: error });
   }
 }
 
@@ -47,7 +46,6 @@ export async function deriveSymmetricCryptoKeyFromContext(context: string, baseK
 
     return key;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to derive CryptoKey from base key and context: ${errorMessage}`);
+    throw new Error('Failed to derive CryptoKey from base key and context', { cause: error });
   }
 }

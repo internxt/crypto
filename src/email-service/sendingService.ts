@@ -16,8 +16,7 @@ export async function sendHybridEmail(encryptedEmail: HybridEncryptedEmail, para
     const body = hybridEncyptedEmailToBase64(encryptedEmail);
     await sendEmail(body, params);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to email to the recipient: ${errorMessage}`);
+    throw new Error('Failed to email to the recipient', { cause: error });
   }
 }
 
@@ -33,7 +32,6 @@ export async function sendPwdProtectedEmail(protectedEmail: PwdProtectedEmail, p
     const body = pwdProtectedEmailToBase64(protectedEmail);
     await sendEmail(body, params);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to email to the recipient: ${errorMessage}`);
+    throw new Error('Failed to email to the recipient', { cause: error });
   }
 }

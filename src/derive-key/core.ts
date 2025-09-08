@@ -51,8 +51,7 @@ export function sampleSalt(): Uint8Array {
     crypto.getRandomValues(salt);
     return salt;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to sample salt: ${errorMessage}`);
+    throw new Error('Failed to sample salt', { cause: error });
   }
 }
 
@@ -76,7 +75,6 @@ export async function deriveKeyFromTwoKeysAndContext(
     const result = await deriveSymmetricKeyFromContext(context, combined_key);
     return result;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to derive symmetric key from two keys: ${errorMessage}`);
+    throw new Error('Failed to derive symmetric key from two keys', { cause: error });
   }
 }

@@ -34,7 +34,6 @@ export async function sendEmail(content: string, param: EmailPublicParameters) {
       },
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to send an email: ${errorMessage}`);
+    throw new Error('Failed to send an email', { cause: error });
   }
 }

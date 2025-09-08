@@ -12,8 +12,7 @@ export async function hashData(data: string[] | Uint8Array[]): Promise<string> {
     const hasher = await computeHash(HASH_BIT_LEN, data);
     return hasher.digest();
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to compute hash: ${errorMessage}`);
+    throw new Error('Failed to compute hash', { cause: error });
   }
 }
 
@@ -29,8 +28,7 @@ export async function getBitsFromData(bits: number, data: string[] | Uint8Array[
     const hasher = await computeHash(bits, data);
     return hasher.digest('binary');
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to get bits from data: ${errorMessage}`);
+    throw new Error('Failed to get bits from data', { cause: error });
   }
 }
 
@@ -46,7 +44,6 @@ export async function getBitsFromString(bits: number, value: string): Promise<Ui
     const hasher = await computeHash(bits, [value]);
     return hasher.digest('binary');
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to get bits from string: ${errorMessage}`);
+    throw new Error('Failed to get bits from string', { cause: error });
   }
 }

@@ -23,8 +23,7 @@ export function userToBase64(user: User): string {
     const json = JSON.stringify(user);
     return btoa(json);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert User to base64: ${errorMessage}`);
+    throw new Error('Failed to convert User to base64', { cause: error });
   }
 }
 
@@ -40,8 +39,7 @@ export function base64ToUser(base64: string): User {
     const user: User = JSON.parse(json);
     return user;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to User: ${errorMessage}`);
+    throw new Error('Failed to convert base64 to User', { cause: error });
   }
 }
 
@@ -56,8 +54,7 @@ export function emailBodyToBinary(body: EmailBody): Uint8Array {
     const json = JSON.stringify(body);
     return UTF8ToUint8(json);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert EmailBody to Uint8Array: ${errorMessage}`);
+    throw new Error('Failed to convert EmailBody to Uint8Array', { cause: error });
   }
 }
 
@@ -73,8 +70,7 @@ export function binaryToEmailBody(array: Uint8Array): EmailBody {
     const email: EmailBody = JSON.parse(json);
     return email;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert Uint8Array to EmailBody: ${errorMessage}`);
+    throw new Error('Failed to convert Uint8Array to EmailBody', { cause: error });
   }
 }
 
@@ -96,8 +92,7 @@ export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
       kyberPublicKey: kyberPublicKey,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to PublicKeys: ${errorMessage}`);
+    throw new Error('Failed to convert base64 to PublicKeys', { cause: error });
   }
 }
 
@@ -117,8 +112,7 @@ export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert key of the type PublicKeys to base64: ${errorMessage}`);
+    throw new Error('Failed to convert key of the type PublicKeys to base64', { cause: error });
   }
 }
 
@@ -137,8 +131,7 @@ export function encHybridKeyToBase64(encHybridKey: HybridEncKey): string {
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert hybrid key to base64: ${errorMessage}`);
+    throw new Error('Failed to convert hybrid key to base64', { cause: error });
   }
 }
 
@@ -157,8 +150,7 @@ export function base64ToEncHybridKey(base64: string): HybridEncKey {
       kyberCiphertext: base64ToUint8Array(obj.kyberCiphertext),
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to hybrid key: ${errorMessage}`);
+    throw new Error('Failed to convert base64 to hybrid key', { cause: error });
   }
 }
 
@@ -177,8 +169,7 @@ export function pwdProtectedKeyToBase64(pwdProtectedKey: PwdProtectedKey): strin
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert password-protected key to base64: ${errorMessage}`);
+    throw new Error('Failed to convert password-protected key to base64', { cause: error });
   }
 }
 
@@ -197,8 +188,7 @@ export function base64ToPwdProtectedKey(base64: string): PwdProtectedKey {
       salt: base64ToUint8Array(obj.salt),
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to password-protected key: ${errorMessage}`);
+    throw new Error('Failed to convert base64 to password-protected key', { cause: error });
   }
 }
 
@@ -219,8 +209,7 @@ export function paramsToBase64(params: EmailPublicParameters): string {
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert email public parameters to base64: ${errorMessage}`);
+    throw new Error('Failed to convert email public parameters to base64', { cause: error });
   }
 }
 
@@ -241,8 +230,7 @@ export function base64ToParams(base64: string): EmailPublicParameters {
       recipients: obj.recipients?.map(base64ToUser),
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert base64 to email params: ${errorMessage}`);
+    throw new Error('Failed to convert base64 to email params', { cause: error });
   }
 }
 
@@ -262,8 +250,7 @@ export function hybridEncyptedEmailToBase64(email: HybridEncryptedEmail): string
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert hybrid email to base64: ${errorMessage}`);
+    throw new Error('Failed to convert hybrid email to base64', { cause: error });
   }
 }
 
@@ -282,8 +269,7 @@ export function pwdProtectedEmailToBase64(email: PwdProtectedEmail): string {
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert pwd protected email to base64: ${errorMessage}`);
+    throw new Error('Failed to convert pwd protected email to base64', { cause: error });
   }
 }
 
@@ -298,7 +284,6 @@ export function emailToBinary(email: Email): Uint8Array {
     const json = JSON.stringify(email);
     return UTF8ToUint8(json);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to convert EmailBody to Uint8Array: ${errorMessage}`);
+    throw new Error('Failed to convert EmailBody to Uint8Array', { cause: error });
   }
 }

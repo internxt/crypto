@@ -94,7 +94,9 @@ describe('Test keystore send/get functions', () => {
       vi.mocked(axios.post).mockRejectedValueOnce(networkError);
       vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-      await expect(sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow('Network Error');
+      await expect(sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(
+        /Failed to send keystore/,
+      );
     });
     it('should handle axios errors with an empty response', async () => {
       const errorWithNoResponse = {
@@ -188,7 +190,7 @@ describe('Test keystore send/get functions', () => {
       vi.mocked(axios.get).mockRejectedValueOnce(networkError);
       vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
 
-      await expect(requestEncryptedKeystore(url)).rejects.toThrow('Network Error');
+      await expect(requestEncryptedKeystore(url)).rejects.toThrow(/Failed to retrive keystore/);
     });
 
     it('should handle axios errors with an empty response', async () => {

@@ -15,7 +15,6 @@ export async function comitToMediaKey(keys: MediaKeys): Promise<string> {
     const result = await getBitsFromData(HASH_BIT_LEN, [PREFIX_MEDIA_KEY_COMMITMENT, keysBase64]);
     return uint8ArrayToHex(result);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to compute commitment to media keys: ${errorMessage}`);
+    throw new Error('Failed to compute commitment to media keys', { cause: error });
   }
 }
