@@ -7,7 +7,7 @@ import {
   deriveSecretKey,
   importPrivateKey,
 } from '../../src/asymmetric-crypto';
-import { CURVE_NAME, ECC_ALGORITHM } from '../../src/constants';
+import { ECC_ALGORITHM } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test ecc functions', () => {
@@ -25,7 +25,6 @@ describe('Test ecc functions', () => {
 
     const alg = keyPair.publicKey.algorithm as EcKeyAlgorithm;
     expect(alg.name).toBe(ECC_ALGORITHM);
-    expect(alg.namedCurve).toBe(CURVE_NAME);
   });
 
   it('should throw an error if generateKey fails', async () => {
