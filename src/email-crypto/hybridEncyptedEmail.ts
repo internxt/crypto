@@ -77,6 +77,6 @@ export async function decryptEmailHybrid(
     const body = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
     return { body, params: encryptedEmail.params };
   } catch (error) {
-    throw new Error('Failed to decrypt emails with hybrid encryption', { cause: error });
+    throw new Error('Failed to decrypt email with hybrid encryption', { cause: error });
   }
 }

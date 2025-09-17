@@ -18,6 +18,22 @@ export function getAux(params: EmailPublicParameters): string {
 }
 
 /**
+ * Creates an auxilary string from public fields of the email (except for subject field).
+ *
+ * @param params - The email public parameters.
+ * @returns The resulting auxilary string
+ */
+export function getAuxWithoutSubject(params: EmailPublicParameters): string {
+  try {
+    const { replyToEmailID, sender, recipients } = params;
+    const aux = JSON.stringify({ replyToEmailID, sender, recipients });
+    return aux;
+  } catch (error) {
+    throw new Error('Failed to create aux without subject', { cause: error });
+  }
+}
+
+/**
  * Creates a random email ID.
  *
  * @returns The resulting auxilary string

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
-import { EmailBody, User, EmailPublicParameters, Email } from '../../src/types';
+import { createPwdProtectedEmailAndSubject, decryptPwdProtectedEmailAndSubject } from '../../src/email-crypto';
+import { EmailBody, Email, User, EmailPublicParameters } from '../../src/types';
 
 describe('Test email crypto functions', () => {
   const emailBody: EmailBody = {
@@ -35,24 +35,25 @@ describe('Test email crypto functions', () => {
   };
 
   it('should encrypt and decrypt email sucessfully', async () => {
-    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
-    const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
+    const encryptedEmail = await createPwdProtectedEmailAndSubject(email, sharedSecret);
+    const decryptedEmail = await decryptPwdProtectedEmailAndSubject(encryptedEmail, sharedSecret);
     expect(decryptedEmail).toStrictEqual(email);
+    expect(encryptedEmail.params.subject).not.toBe(email.params.subject);
   });
 
   it('should throw an error if encryption fails', async () => {
     const bad_email = {
       params: emailParams,
     } as unknown as Email;
-    await expect(createPwdProtectedEmail(bad_email, sharedSecret)).rejects.toThrowError(
+    await expect(createPwdProtectedEmailAndSubject(bad_email, sharedSecret)).rejects.toThrowError(
       /Failed to password-protect email/,
     );
   });
 
   it('should throw an error if a different secret used for decryption', async () => {
-    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
+    const encryptedEmail = await createPwdProtectedEmailAndSubject(email, sharedSecret);
     const wrongSecret = 'different secret';
-    await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret)).rejects.toThrowError(
+    await expect(decryptPwdProtectedEmailAndSubject(encryptedEmail, wrongSecret)).rejects.toThrowError(
       /Failed to decrypt password-protect email/,
     );
   });
