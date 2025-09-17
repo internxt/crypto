@@ -92,5 +92,9 @@ describe('Test email crypto functions', () => {
     await expect(encryptEmailContentSymmetrically(bad_email, aux, emailParams.id)).rejects.toThrowError(
       /Failed to symmetrically encrypt email/,
     );
+
+    await expect(
+      encryptEmailContentAndSubjectSymmetrically(bad_email, emailParams.subject, aux, emailParams.id),
+    ).rejects.toThrowError(/Failed to symmetrically encrypt email and subject/);
   });
 });
