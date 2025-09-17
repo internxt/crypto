@@ -1,4 +1,4 @@
-import { CURVE_NAME, ECC_ALGORITHM } from '../constants';
+import { ECC_ALGORITHM } from '../constants';
 
 /**
  * Generates elliptic curve key pair
@@ -7,14 +7,13 @@ import { CURVE_NAME, ECC_ALGORITHM } from '../constants';
  */
 export async function generateEccKeys(): Promise<CryptoKeyPair> {
   try {
-    return await crypto.subtle.generateKey(
+    return (await crypto.subtle.generateKey(
       {
         name: ECC_ALGORITHM,
-        namedCurve: CURVE_NAME,
       },
       true,
       ['deriveBits'],
-    );
+    )) as CryptoKeyPair;
   } catch (error) {
     throw new Error('Failed to generate elliptic curve key pair', { cause: error });
   }
@@ -43,10 +42,9 @@ export async function importPublicKey(spkiKeyData: Uint8Array): Promise<CryptoKe
   try {
     return await crypto.subtle.importKey(
       'spki',
-      spkiKeyData,
+      spkiKeyData as BufferSource,
       {
         name: ECC_ALGORITHM,
-        namedCurve: CURVE_NAME,
       },
       true,
       [],
@@ -79,10 +77,9 @@ export async function importPrivateKey(pkcs8KeyData: Uint8Array): Promise<Crypto
   try {
     return await crypto.subtle.importKey(
       'pkcs8',
-      pkcs8KeyData,
+      pkcs8KeyData as BufferSource,
       {
         name: ECC_ALGORITHM,
-        namedCurve: CURVE_NAME,
       },
       true,
       ['deriveBits'],
