@@ -24,7 +24,7 @@ describe('Test email crypto functions', () => {
   const emailParams: EmailPublicParameters = {
     id: 'test id',
     labels: ['test label 1', 'test label2'],
-    date: '2023-06-14T08:11:22.000Z',
+    createdAt: '2023-06-14T08:11:22.000Z',
     subject: 'test subject',
     sender: userAlice,
     recipient: userBob,

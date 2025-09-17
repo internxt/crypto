@@ -54,11 +54,13 @@ export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
   enc: SymmetricCiphertext;
   recipientID: string;
+  params: EmailPublicParameters;
 };
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
   enc: SymmetricCiphertext;
+  params: EmailPublicParameters;
 };
 
 export type SymmetricCiphertext = {
