@@ -5,11 +5,14 @@ import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
 import { deriveWrappingKey, wrapKey, unwrapKey, importWrappingKey } from '../key-wrapper';
 import { deriveSecretKey } from '../asymmetric-crypto';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
+import { UTF8ToUint8, uint8ToUTF8 } from '../utils';
 
 /**
  * Symmetrically encrypts an email with a randomly sampled key.
  *
  * @param email - The email to encrypt.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param emailID - The unique identifier of the email.
  * @returns The resulting ciphertext and the used symmetric key
  */
 export async function encryptEmailContentSymmetrically(
@@ -23,6 +26,55 @@ export async function encryptEmailContentSymmetrically(
     return { enc, encryptionKey };
   } catch (error) {
     throw new Error('Failed to symmetrically encrypt email', { cause: error });
+  }
+}
+
+/**
+ * Symmetrically encrypts an email with a randomly sampled key.
+ *
+ * @param email - The email to encrypt.
+ * @param subject - The email subject to encrypt.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param emailID - The unique identifier of the email.
+ * @returns The resulting ciphertext and the used symmetric key
+ */
+export async function encryptEmailContentAndSubjectSymmetrically(
+  email: EmailBody,
+  subject: string,
+  aux: string,
+  emailID: string,
+): Promise<{ enc: SymmetricCiphertext; subjectEnc: SymmetricCiphertext; encryptionKey: CryptoKey }> {
+  try {
+    const encryptionKey = await genSymmetricCryptoKey();
+    const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
+    const subjectBuff = UTF8ToUint8(subject);
+    const subjectEnc = await encryptSymmetrically(encryptionKey, subjectBuff, aux);
+    return { enc, encryptionKey, subjectEnc };
+  } catch (error) {
+    throw new Error('Failed to symmetrically encrypt email and subject', { cause: error });
+  }
+}
+
+/**
+ * Decrypts symmetrically encrypted email.
+ *
+ * @param encryptedEmail - The email to decrypt.
+ * @param encryptionKey - The symmetric CryptoKey.
+ * @returns The decrypted email
+ */
+export async function decryptEmailAndSubjectSymmetrically(
+  emailCiphertext: SymmetricCiphertext,
+  encSubject: SymmetricCiphertext,
+  encryptionKey: CryptoKey,
+  aux: string,
+): Promise<{ body: EmailBody; subject: string }> {
+  try {
+    const binaryEmail = await decryptSymmetrically(encryptionKey, emailCiphertext, aux);
+    const subject = await decryptSymmetrically(encryptionKey, encSubject, aux);
+    const body = binaryToEmailBody(binaryEmail);
+    return { body, subject: uint8ToUTF8(subject) };
+  } catch (error) {
+    throw new Error('Failed to symmetrically decrypt email and subject', { cause: error });
   }
 }
 
