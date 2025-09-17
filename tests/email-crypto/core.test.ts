@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EmailBody, User, EmailPublicParameters } from '../../src/types';
 import { decryptEmailSymmetrically, encryptEmailContentSymmetrically } from '../../src/email-crypto/core';
-import { getAux } from '../../src/email-crypto';
+import { generateEmailID, getAux, getAuxWithoutSubject } from '../../src/email-crypto';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
 describe('Test email crypto functions', () => {
@@ -33,6 +33,13 @@ describe('Test email crypto functions', () => {
 
   const aux = getAux(emailParams);
 
+  it('should generate email id', async () => {
+    const result1 = await generateEmailID();
+    const result2 = await generateEmailID();
+    expect(result1).not.toEqual(result2);
+    expect(result1).toHaveLength(36);
+  });
+
   it('should encrypt and decrypt email', async () => {
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, emailParams.id);
     const result = await decryptEmailSymmetrically(enc, encryptionKey, aux);
@@ -53,9 +60,11 @@ describe('Test email crypto functions', () => {
   });
 
   it('should throw an error if cannot create aux', async () => {
-    const bad_params = { subject: BigInt(423) };
+    const bad_params = { replyToEmailID: BigInt(423) };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => getAux(bad_params as any as EmailPublicParameters)).toThrowError(/Failed to create aux/);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(() => getAuxWithoutSubject(bad_params as any as EmailPublicParameters)).toThrowError(/Failed to create aux/);
   });
 
   it('should throw an error if cannot encrypt', async () => {

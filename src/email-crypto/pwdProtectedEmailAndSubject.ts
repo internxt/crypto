@@ -17,6 +17,9 @@ import { getAuxWithoutSubject } from './utils';
  */
 export async function createPwdProtectedEmailAndSubject(email: Email, password: string): Promise<PwdProtectedEmail> {
   try {
+    if (!email?.body || !email.params) {
+      throw new Error('Failed to password-protect email and subject: Invalid email structure');
+    }
     const aux = getAuxWithoutSubject(email.params);
     const { enc, encryptionKey, subjectEnc } = await encryptEmailContentAndSubjectSymmetrically(
       email.body,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
-import { EmailBody, User, EmailPublicParameters } from '../../src/types';
+import { EmailBody, User, EmailPublicParameters, Email } from '../../src/types';
 
 describe('Test email crypto functions', () => {
   const emailBody: EmailBody = {
@@ -38,6 +38,15 @@ describe('Test email crypto functions', () => {
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
     const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
     expect(decryptedEmail).toStrictEqual(email);
+  });
+
+  it('should throw an error if encryption fails', async () => {
+    const bad_email = {
+      params: emailParams,
+    } as unknown as Email;
+    await expect(createPwdProtectedEmail(bad_email, sharedSecret)).rejects.toThrowError(
+      /Failed to password-protect email/,
+    );
   });
 
   it('should throw an error if a different secret used for decryption', async () => {
