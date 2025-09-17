@@ -16,7 +16,7 @@ export async function sendHybridEmail(encryptedEmail: HybridEncryptedEmail) {
     const body = hybridEncyptedEmailToBase64(encryptedEmail);
     await sendEmail(body, encryptedEmail.params);
   } catch (error) {
-    throw new Error('Failed to email to the recipient', { cause: error });
+    throw new Error(`Failed to email to the recipient: ${(error as Error).message}`, { cause: error });
   }
 }
 

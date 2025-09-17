@@ -78,6 +78,14 @@ describe('Test sending email functions', async () => {
     );
   });
 
+  it('should throw an error if recipient does not match expected one', async () => {
+    const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys, alicePrivateKeys);
+    const wrongEmail = { ...encEmail, recipientID: 'wrong id' };
+    await expect(sendHybridEmail(wrongEmail)).rejects.toThrow(
+      /Failed to email to the recipient: Email is encrypted for another recipient/,
+    );
+  });
+
   it('should throw an error if cannot send hybrid email', async () => {
     const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys, alicePrivateKeys);
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 404, text: 'Mocked Error' });
