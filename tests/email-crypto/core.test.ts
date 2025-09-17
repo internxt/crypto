@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { EmailBody, User, EmailPublicParameters } from '../../src/types';
-import { decryptEmailSymmetrically, encryptEmailContentSymmetrically } from '../../src/email-crypto/core';
+import {
+  decryptEmailAndSubjectSymmetrically,
+  decryptEmailSymmetrically,
+  encryptEmailContentAndSubjectSymmetrically,
+  encryptEmailContentSymmetrically,
+} from '../../src/email-crypto/core';
 import { generateEmailID, getAux, getAuxWithoutSubject } from '../../src/email-crypto';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
@@ -53,9 +58,22 @@ describe('Test email crypto functions', () => {
       /Failed to symmetrically decrypt email/,
     );
 
+    const {
+      enc: encBody,
+      encryptionKey: key,
+      subjectEnc,
+    } = await encryptEmailContentAndSubjectSymmetrically(emailBody, emailParams.subject, aux, emailParams.id);
+    await expect(decryptEmailAndSubjectSymmetrically(encBody, subjectEnc, bad_encryptionKey, aux)).rejects.toThrowError(
+      /Failed to symmetrically decrypt email and subject/,
+    );
+
     const bad_aux = 'bad aux string';
     await expect(decryptEmailSymmetrically(enc, encryptionKey, bad_aux)).rejects.toThrowError(
       /Failed to symmetrically decrypt email/,
+    );
+
+    await expect(decryptEmailAndSubjectSymmetrically(encBody, subjectEnc, key, bad_aux)).rejects.toThrowError(
+      /Failed to symmetrically decrypt email and subject/,
     );
   });
 
