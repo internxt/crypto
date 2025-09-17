@@ -40,7 +40,7 @@ describe('Test email crypto functions', () => {
       body: 'test body',
       sender: 'test sender',
       recipient: ['test recipient 1', 'test recipient 2', 'test recipient 3'],
-      date: '2023-06-14T08:11:22.000Z',
+      createdAt: '2023-06-14T08:11:22.000Z',
       labels: ['test label 1', 'test label2'],
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

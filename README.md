@@ -117,7 +117,7 @@ expect(result).toBe(true);
 
 const emailBody: EmailBody = {
     text: 'email text',
-    date: '2025-06-14T08:11:22.000Z',
+    createdAt: '2025-06-14T08:11:22.000Z',
     labels: ['label 1', 'label2'],
 };
 
@@ -141,7 +141,7 @@ const emailBody: EmailBody = {
 
 const emailParams: EmailPublicParameters = {
   labels: ['label 1', 'label2'],
-  date: '2025-06-14T08:11:22.000Z',
+  createdAt: '2025-06-14T08:11:22.000Z',
   subject: 'email subject',
   sender: userAlice,
   recipient: userBob,
@@ -155,14 +155,14 @@ const email: Email = {
 };
 const encryptedEmail = await emailCrypto.encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
 const decryptedEmail = await emailCrypto.decryptEmailHybrid(encryptedEmail, alicePublicKeys, bobPrivateKeys);
-expect(decryptedEmail).toStrictEqual(emailBody);
+expect(decryptedEmail).toStrictEqual(email);
 
 
 // password-protected email
 const sharedSecret = 'secret shared between Alice and Bob';
 const encryptedEmail = await emailCrypto.createPwdProtectedEmail(email, sharedSecret);
 const decryptedEmail = await emailCrypto.decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
-expect(decryptedEmail).toStrictEqual(emailBody);
+expect(decryptedEmail).toStrictEqual(email);
 
 // keystore
 

@@ -1,4 +1,4 @@
-import { EmailPublicParameters, HybridEncryptedEmail, PwdProtectedEmail } from '../types';
+import { HybridEncryptedEmail, PwdProtectedEmail } from '../types';
 import { hybridEncyptedEmailToBase64, pwdProtectedEmailToBase64 } from '../email-crypto/converters';
 import { sendEmail } from './api-send';
 
@@ -8,15 +8,15 @@ import { sendEmail } from './api-send';
  * @param encryptedEmail - The hybridly encrypted email
  * @returns The server reply
  */
-export async function sendHybridEmail(encryptedEmail: HybridEncryptedEmail, params: EmailPublicParameters) {
+export async function sendHybridEmail(encryptedEmail: HybridEncryptedEmail) {
   try {
-    if (encryptedEmail.recipientID !== params.recipient.id) {
+    if (encryptedEmail.recipientID !== encryptedEmail.params.recipient.id) {
       throw new Error('Email is encrypted for another recipient');
     }
     const body = hybridEncyptedEmailToBase64(encryptedEmail);
-    await sendEmail(body, params);
+    await sendEmail(body, encryptedEmail.params);
   } catch (error) {
-    throw new Error('Failed to email to the recipient', { cause: error });
+    throw new Error(`Failed to email to the recipient: ${(error as Error).message}`, { cause: error });
   }
 }
 
@@ -27,10 +27,10 @@ export async function sendHybridEmail(encryptedEmail: HybridEncryptedEmail, para
  * @param recipient - The email recipient
  * @returns The server reply
  */
-export async function sendPwdProtectedEmail(protectedEmail: PwdProtectedEmail, params: EmailPublicParameters) {
+export async function sendPwdProtectedEmail(protectedEmail: PwdProtectedEmail) {
   try {
     const body = pwdProtectedEmailToBase64(protectedEmail);
-    await sendEmail(body, params);
+    await sendEmail(body, protectedEmail.params);
   } catch (error) {
     throw new Error('Failed to email to the recipient', { cause: error });
   }
