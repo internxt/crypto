@@ -16,6 +16,9 @@ import { getAux } from './utils';
  */
 export async function createPwdProtectedEmail(email: Email, password: string): Promise<PwdProtectedEmail> {
   try {
+    if (!email?.body || !email.params) {
+      throw new Error('Failed to password-protect email: Invalid email structure');
+    }
     const aux = getAux(email.params);
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.params.id);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
