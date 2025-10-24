@@ -1,4 +1,5 @@
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../constants';
+import { getBitsFromString } from '../hash';
 
 /**
  * Converts Uint8Array into CryptoKey
@@ -6,10 +7,10 @@ import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../constants';
  * @param keyData - The Uint8Array representation of the symmetric key
  * @returns The resulting symmetric CryptoKey.
  */
-export async function importSymmetricCryptoKey(keyData: Uint8Array): Promise<CryptoKey> {
+export async function importSymmetricCryptoKey(keyData: Uint8Array | ArrayBuffer): Promise<CryptoKey> {
   return crypto.subtle.importKey(
     KEY_FORMAT,
-    keyData,
+    new Uint8Array(keyData),
     {
       name: AES_ALGORITHM,
       length: AES_KEY_BIT_LENGTH,
@@ -62,5 +63,19 @@ export function genSymmetricKey(): Uint8Array {
     return key;
   } catch (error) {
     throw new Error('Failed to generate symmetric key', { cause: error });
+  }
+}
+
+/**
+ * Derives CryptoKey from the given key material
+ *
+ * @returns The derived CryptoKey.
+ */
+export async function deriveSymmetricCryptoKey(keyMaterial: string): Promise<CryptoKey> {
+  try {
+    const hashBuffer = await getBitsFromString(AES_KEY_BIT_LENGTH, keyMaterial);
+    return importSymmetricCryptoKey(hashBuffer);
+  } catch (error) {
+    throw new Error('Failed to derive CryptoKey from the given key material', { cause: error });
   }
 }
