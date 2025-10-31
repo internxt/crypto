@@ -1,6 +1,5 @@
 import emailjs from '@emailjs/browser';
-import { EmailPublicParameters } from '../types';
-import { HybridEncryptedEmail, PwdProtectedEmail } from '../types';
+import { EmailPublicParameters, HybridEncryptedEmail, PwdProtectedEmail } from '../types';
 import { hybridEncyptedEmailToBase64, pwdProtectedEmailToBase64 } from '../email-crypto/converters';
 
 /**
