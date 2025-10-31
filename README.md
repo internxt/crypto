@@ -124,13 +124,11 @@ const emailBody: EmailBody = {
 const userAlice = {
     email: 'alice email',
     name: 'alice',
-    id: '1',
 };
 
 const userBob = {
     email: 'bob email',
     name: 'bob',
-    id: '2',
 };
 const { privateKeys: alicePrivateKeys, publicKeys: alicePublicKeys } = await emailCrypto.generateEmailKeys();
 const { privateKeys: bobPrivateKeys, publicKeys: bobPublicKeys } = await emailCrypto.generateEmailKeys();

@@ -14,6 +14,7 @@ import {
 import { Email } from '../../src/types';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 import { generateTestEmails, generateTestEmail, getAllEmailSize, getEmailSize } from './helper';
+import { MailDB } from '../../src/email-search';
 
 describe('Test mail cache functions', () => {
   beforeAll(async () => {
@@ -30,8 +31,8 @@ describe('Test mail cache functions', () => {
   const emailNumber = 5;
   const emails: Email[] = generateTestEmails(emailNumber);
   const userID = 'mock ID';
-  let db;
-  let key;
+  let db: MailDB;
+  let key: CryptoKey;
 
   it('cacheEmailsFromIDB sucessfully reads emails form database', async () => {
     const esCache = await createCacheFromDB(key, db);
@@ -42,7 +43,7 @@ describe('Test mail cache functions', () => {
 
     expect(esCache.esCache.size).toBe(emailNumber);
     expect(esCache.cacheSize).toBe(totalSize);
-    expect(esCache.esCache.get(emails[0].params.id)).toEqual(emails[0]);
+    expect(esCache.esCache.get(emails[0].id)).toEqual(emails[0]);
   });
 
   it('addEmailToCache adds an email and updates size', async () => {
@@ -93,7 +94,7 @@ describe('Test mail cache functions', () => {
   it('getEmailFromCache retrieves an email by id', async () => {
     const email = emails[0];
     const esCache = await createCacheFromDB(key, db);
-    const got = await getEmailFromCache(email.params.id, esCache);
+    const got = await getEmailFromCache(email.id, esCache);
 
     expect(got).toStrictEqual(email);
   });
@@ -104,7 +105,7 @@ describe('Test mail cache functions', () => {
     const cache_before = esCache.cacheSize;
     const email = emails[0];
     const emailSize = getEmailSize(email);
-    await deleteEmailFromCache(email.params.id, esCache);
+    await deleteEmailFromCache(email.id, esCache);
     expect(esCache.esCache.size).toBe(size_before - 1);
     expect(esCache.cacheSize).toBe(cache_before - emailSize);
   });

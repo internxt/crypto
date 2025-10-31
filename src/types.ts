@@ -14,7 +14,6 @@ export type EncryptedKeystore = {
 export type User = {
   email: string;
   name: string;
-  id: string;
 };
 
 export type UserWithPublicKeys = User & {
@@ -53,14 +52,16 @@ export type EncryptionKeys = {
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
   enc: SymmetricCiphertext;
-  recipientID: string;
+  recipientEmail: string;
   params: EmailPublicParameters;
+  id: string;
 };
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
   enc: SymmetricCiphertext;
   params: EmailPublicParameters;
+  id: string;
 };
 
 export type SymmetricCiphertext = {
@@ -71,6 +72,7 @@ export type SymmetricCiphertext = {
 export type StoredEmail = {
   params: EmailPublicParameters;
   content: SymmetricCiphertext;
+  id: string;
 };
 
 export type HybridEncKey = {
@@ -89,7 +91,6 @@ export type EmailBody = {
 };
 
 export type EmailPublicParameters = {
-  id: string;
   subject: string;
   createdAt: string;
   sender: User;
@@ -100,6 +101,7 @@ export type EmailPublicParameters = {
 };
 
 export type Email = {
+  id: string;
   body: EmailBody;
   params: EmailPublicParameters;
 };

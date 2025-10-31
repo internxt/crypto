@@ -1,5 +1,5 @@
 import { uint8ArrayToBase64, base64ToUint8Array } from '.';
-import { IdentityKeys, EncryptionKeys, EncryptedKeystore, MediaKeys } from '../types';
+import { IdentityKeys, EncryptionKeys, EncryptedKeystore, MediaKeys, PublicKeys } from '../types';
 import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric-crypto';
 import { base64ToCiphertext, ciphertextToBase64 } from './aesConverters';
 
@@ -183,5 +183,47 @@ export async function base64ToMediaKeys(base64: string): Promise<MediaKeys> {
     return result;
   } catch (error) {
     throw new Error('Failed convert base64 to media keys', { cause: error });
+  }
+}
+
+/**
+ * Converts a base64 string into PublicKeys type.
+ *
+ * @param base64 - The base64 representation of the public key.
+ * @returns The resulting PublicKeys.
+ */
+export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
+  try {
+    const json = atob(base64);
+    const obj = JSON.parse(json);
+    const eccPublicKeyBytes = base64ToUint8Array(obj.eccPublicKey);
+    const eccPublicKey = await importPublicKey(eccPublicKeyBytes);
+    const kyberPublicKey = base64ToUint8Array(obj.kyberPublicKey);
+    return {
+      eccPublicKey: eccPublicKey,
+      kyberPublicKey: kyberPublicKey,
+    };
+  } catch (error) {
+    throw new Error('Failed to convert base64 to PublicKeys', { cause: error });
+  }
+}
+
+/**
+ * Converts a PublicKeys type into base64 string.
+ *
+ * @param key - The PublicKeys key.
+ * @returns The resulting base64 string.
+ */
+export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
+  try {
+    const eccPublicKeyArray = await exportPublicKey(key.eccPublicKey);
+    const json = JSON.stringify({
+      eccPublicKey: uint8ArrayToBase64(eccPublicKeyArray),
+      kyberPublicKey: uint8ArrayToBase64(key.kyberPublicKey),
+    });
+    const base64 = btoa(json);
+    return base64;
+  } catch (error) {
+    throw new Error('Failed to convert key of the type PublicKeys to base64', { cause: error });
   }
 }

@@ -7,6 +7,7 @@ import {
   createCacheFromDB,
   deleteDatabase,
   closeDatabase,
+  MailDB,
 } from '../../src/email-search';
 import { Email } from '../../src/types';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
@@ -27,8 +28,8 @@ describe('Email Search', () => {
   const emailNumber = 5;
   const emails: Email[] = generateTestEmails(emailNumber);
   const userID = 'mock ID';
-  let db;
-  let key;
+  let db: MailDB;
+  let key: CryptoKey;
 
   it('should build search index from cache', async () => {
     const esCache = await createCacheFromDB(key, db);

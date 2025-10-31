@@ -9,7 +9,6 @@ const randomString = (length: number = 8): string =>
 const randomDate = (): string => new Date(Date.now() - Math.floor(Math.random() * 1e10)).toISOString();
 
 const randomUser = (): User => ({
-  id: randomString(6),
   name: `User_${randomString(4)}`,
   email: `${randomString(6)}@example.com`,
 });
@@ -19,12 +18,12 @@ export const generateTestEmail = (): Email => {
   const recipient = randomUser();
 
   return {
+    id: randomString(10),
     body: {
       text: `This is a test email body: ${randomString(20)}`,
       ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
     },
     params: {
-      id: randomString(10),
       subject: `Test Subject ${randomString(6)}`,
       createdAt: randomDate(),
       sender,
@@ -55,12 +54,12 @@ export const generateEmailWithGivenText = (data: string): Email => {
   const recipient = randomUser();
 
   return {
+    id: randomString(10),
     body: {
       text: data,
       ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
     },
     params: {
-      id: randomString(10),
       subject: `Test Subject ${randomString(6)}`,
       createdAt: randomDate(),
       sender,
