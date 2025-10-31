@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { publicKeyToBase64 } from '../../src/email-crypto';
+import { publicKeyToBase64 } from '../../src/utils';
 import { PublicKeys } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto';
-import { getRecipientsPublicKeys } from '../../src/email-service';
+import { getKeyServiceAPI } from '../../src/keystore-service';
 
 vi.mock('axios');
 
@@ -16,6 +16,7 @@ describe('Test key service functions', async () => {
   const mockEmail = 'user-email';
   const eccKeyPair = await generateEccKeys();
   const kyberKeyPair = generateKyberKeys();
+  const keyService = getKeyServiceAPI('/api');
 
   const pk: PublicKeys = {
     eccPublicKey: eccKeyPair.publicKey,
@@ -35,7 +36,7 @@ describe('Test key service functions', async () => {
 
     vi.mocked(axios.get).mockResolvedValue(mockResponse);
 
-    const result = await getRecipientsPublicKeys([mockEmail]);
+    const result = await keyService.getRecipientsPublicKeys([mockEmail]);
 
     expect(axios.get).toHaveBeenCalledWith('/api/getPublicKeys', {
       params: {
@@ -62,7 +63,9 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(unauthorizedError);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
+    await expect(keyService.getRecipientsPublicKeys([mockEmail])).rejects.toThrow(
+      'Failed to get recipients public keys',
+    );
   });
 
   it('should handle 403 forbidden error', async () => {
@@ -77,7 +80,9 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(forbiddenError);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
+    await expect(keyService.getRecipientsPublicKeys([mockEmail])).rejects.toThrow(
+      'Failed to get recipients public keys',
+    );
   });
 
   it('should handle 404 not found error', async () => {
@@ -92,14 +97,18 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(notFoundError);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
+    await expect(keyService.getRecipientsPublicKeys([mockEmail])).rejects.toThrow(
+      'Failed to get recipients public keys',
+    );
   });
 
   it('should handle network errors', async () => {
     const networkError = new Error('Network Error');
     vi.mocked(axios.get).mockRejectedValueOnce(networkError);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
+    await expect(keyService.getRecipientsPublicKeys([mockEmail])).rejects.toThrow(
+      'Failed to get recipients public keys',
+    );
   });
 
   it('should handle axios errors with an empty response', async () => {
@@ -110,11 +119,15 @@ describe('Test key service functions', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce(errorWithoutResponce);
     vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
 
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrow('Failed to get recipients public keys');
+    await expect(keyService.getRecipientsPublicKeys([mockEmail])).rejects.toThrow(
+      'Failed to get recipients public keys',
+    );
   });
 
   it('should handle non-Error thrown values', async () => {
     vi.mocked(axios.get).mockRejectedValueOnce('Something went wrong');
-    await expect(getRecipientsPublicKeys([mockEmail])).rejects.toThrowError(/Failed to get recipients public keys/);
+    await expect(keyService.getRecipientsPublicKeys([mockEmail])).rejects.toThrowError(
+      /Failed to get recipients public keys/,
+    );
   });
 });

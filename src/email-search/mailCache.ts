@@ -126,7 +126,7 @@ export function addEmailsToCache(emails: Email[], esCache: MailCache<Email>): { 
  */
 export const addEmailToCache = (email: Email, esCache: MailCache<Email>): { success: boolean; reason?: string } => {
   try {
-    if (esCache.esCache.has(email.params.id)) {
+    if (esCache.esCache.has(email.id)) {
       return { success: false, reason: 'email already exists in cache' };
     }
 
@@ -137,7 +137,7 @@ export const addEmailToCache = (email: Email, esCache: MailCache<Email>): { succ
       return { success: false, reason: 'hit cache limit' };
     }
 
-    esCache.esCache.set(email.params.id, email);
+    esCache.esCache.set(email.id, email);
     esCache.cacheSize += emailSize;
 
     return { success: true };

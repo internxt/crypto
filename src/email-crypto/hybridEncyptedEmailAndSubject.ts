@@ -27,12 +27,12 @@ export async function encryptEmailAndSubjectHybrid(
       email.body,
       email.params.subject,
       aux,
-      email.params.id,
+      email.id,
     );
     const encSubjectStr = ciphertextToBase64(subjectEnc);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
     const params = { ...email.params, subject: encSubjectStr };
-    return { enc, encryptedKey, recipientID: recipient.id, params };
+    return { enc, encryptedKey, recipientEmail: recipient.email, params, id: email.id };
   } catch (error) {
     throw new Error('Failed to encrypt the email and its subject with hybrid encryption', { cause: error });
   }
@@ -57,7 +57,7 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
       email.body,
       email.params.subject,
       aux,
-      email.params.id,
+      email.id,
     );
     const encSubjectStr = ciphertextToBase64(subjectEnc);
 
@@ -65,7 +65,7 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
     for (const recipient of recipients) {
       const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
       const params = { ...email.params, subject: encSubjectStr };
-      encryptedEmails.push({ enc, encryptedKey, recipientID: recipient.id, params });
+      encryptedEmails.push({ enc, encryptedKey, recipientEmail: recipient.email, params, id: email.id });
     }
     return encryptedEmails;
   } catch (error) {
@@ -99,7 +99,7 @@ export async function decryptEmailAndSubjectHybrid(
       aux,
     );
     const params = { ...encryptedEmail.params, subject };
-    return { body, params };
+    return { body, params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Failed to decrypt the email and its subject with hybrid encryption', { cause: error });
   }

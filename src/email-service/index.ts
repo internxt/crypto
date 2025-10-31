@@ -1,2 +1,1 @@
-export * from './keyService';
-export * from './sendingService';
+export * from './api-send';

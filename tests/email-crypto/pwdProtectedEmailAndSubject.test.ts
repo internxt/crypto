@@ -11,13 +11,11 @@ describe('Test email crypto functions', () => {
   const userAlice: User = {
     email: 'alice email',
     name: 'alice',
-    id: '1',
   };
 
   const userBob: User = {
     email: 'bob email',
     name: 'bob',
-    id: '2',
   };
   const emailParams: EmailPublicParameters = {
     labels: ['test label 1', 'test label2'],
@@ -26,12 +24,12 @@ describe('Test email crypto functions', () => {
     sender: userAlice,
     recipient: userBob,
     replyToEmailID: 2,
-    id: 'test id',
   };
 
   const email = {
     body: emailBody,
     params: emailParams,
+    id: 'test id',
   };
 
   it('should encrypt and decrypt email sucessfully', async () => {

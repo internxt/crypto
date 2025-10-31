@@ -22,9 +22,9 @@ export async function encryptEmailHybrid(
 ): Promise<HybridEncryptedEmail> {
   try {
     const aux = getAux(email.params);
-    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.params.id);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.id);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
-    return { enc, encryptedKey, recipientID: recipient.id, params: email.params };
+    return { enc, encryptedKey, recipientEmail: recipient.email, params: email.params, id: email.id };
   } catch (error) {
     throw new Error('Failed to encrypt email with hybrid encryption', { cause: error });
   }
@@ -45,12 +45,12 @@ export async function encryptEmailHybridForMultipleRecipients(
 ): Promise<HybridEncryptedEmail[]> {
   try {
     const aux = getAux(email.params);
-    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.params.id);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.id);
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
     for (const recipient of recipients) {
       const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
-      encryptedEmails.push({ enc, encryptedKey, recipientID: recipient.id, params: email.params });
+      encryptedEmails.push({ enc, encryptedKey, recipientEmail: recipient.email, params: email.params, id: email.id });
     }
     return encryptedEmails;
   } catch (error) {
@@ -75,7 +75,7 @@ export async function decryptEmailHybrid(
     const aux = getAux(encryptedEmail.params);
     const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
     const body = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
-    return { body, params: encryptedEmail.params };
+    return { body, params: encryptedEmail.params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Failed to decrypt email with hybrid encryption', { cause: error });
   }

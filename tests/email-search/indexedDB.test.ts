@@ -52,7 +52,7 @@ describe('Test searchable database functions', async () => {
 
   it('should sucessfully get specific email', async () => {
     const db = await openDatabase(userID);
-    const id = emails[0].params.id;
+    const id = emails[0].id;
     const email = await getAndDecryptEmail(id, key, db);
     expect(email).toStrictEqual(emails[0]);
     closeDatabase(db);
@@ -67,12 +67,12 @@ describe('Test searchable database functions', async () => {
 
   it('should sucessfully delete specific email', async () => {
     const db = await openDatabase(userID);
-    const id = emails[0].params.id;
+    const id = emails[0].id;
     await deleteEmail(id, db);
     const count = await getEmailCount(db);
     expect(count).toBe(emailNumber - 1);
     const gotEmails = await getAndDecryptAllEmails(key, db);
-    expect(gotEmails.some((email) => email.params.id === id)).toBe(false);
+    expect(gotEmails.some((email) => email.id === id)).toBe(false);
     closeDatabase(db);
   });
 

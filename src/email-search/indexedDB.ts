@@ -37,7 +37,7 @@ export const openDatabase = async (userID: string): Promise<MailDB> => {
     return openDB<EncryptedSearchDB>(dbName, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(DB_LABEL)) {
-          const store = db.createObjectStore(DB_LABEL, { keyPath: 'params.id' });
+          const store = db.createObjectStore(DB_LABEL, { keyPath: 'id' });
           store.createIndex('byTime', 'params.createdAt');
         }
       },
@@ -95,9 +95,9 @@ export const encryptAndStoreEmail = async (
       newEmailToStore.body,
       indexKey,
       aux,
-      newEmailToStore.params.id,
+      newEmailToStore.id,
     );
-    const encryptedEmail = { content: ciphertext, params: newEmailToStore.params };
+    const encryptedEmail = { content: ciphertext, params: newEmailToStore.params, id: newEmailToStore.id };
     await esDB.put(DB_LABEL, encryptedEmail);
   } catch (error) {
     throw new Error('Cannot encrypt and add the given email to the database', { cause: error });
@@ -118,10 +118,11 @@ export const encryptAndStoreManyEmail = async (
 ): Promise<void> => {
   try {
     const encryptedEmails = await Promise.all(
-      newEmailsToStore.map(async (email) => {
+      newEmailsToStore.map(async (email: Email) => {
         const aux = getAux(email.params);
-        const ciphertext = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.params.id);
-        return { content: ciphertext, params: email.params };
+        const ciphertext = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.id);
+
+        return { content: ciphertext, params: email.params, id: email.id };
       }),
     );
 
@@ -143,7 +144,7 @@ const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): P
   try {
     const aux = getAux(encryptedEmail.params);
     const email = await decryptEmailSymmetrically(encryptedEmail.content, indexKey, aux);
-    return { body: email, params: encryptedEmail.params };
+    return { body: email, params: encryptedEmail.params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Cannot decrypt the given email', { cause: error });
   }
@@ -184,7 +185,7 @@ export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB):
       encryptedEmails.map(async (encEmail) => {
         const aux = getAux(encEmail.params);
         const body = await decryptEmailSymmetrically(encEmail.content, indexKey, aux);
-        return { body, params: encEmail.params };
+        return { body, params: encEmail.params, id: encEmail.id };
       }),
     );
 

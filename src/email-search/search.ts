@@ -66,7 +66,7 @@ const createSearchIndex = (): EmailSearchIndex => ({
  */
 export const addEmailToSearchIndex = (email: Email, searchIndex: EmailSearchIndex): void => {
   try {
-    const emailId = email.params.id;
+    const emailId = email.id;
 
     if (email.params.subject) {
       searchIndex.subjectIndex.add(emailId, email.params.subject);

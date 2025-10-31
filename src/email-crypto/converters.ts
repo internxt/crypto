@@ -1,8 +1,6 @@
-import { exportPublicKey, importPublicKey } from '../asymmetric-crypto';
 import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8, ciphertextToBase64 } from '../utils';
 import {
   EmailBody,
-  PublicKeys,
   HybridEncKey,
   PwdProtectedKey,
   User,
@@ -71,48 +69,6 @@ export function binaryToEmailBody(array: Uint8Array): EmailBody {
     return email;
   } catch (error) {
     throw new Error('Failed to convert Uint8Array to EmailBody', { cause: error });
-  }
-}
-
-/**
- * Converts a base64 string into PublicKeys type.
- *
- * @param base64 - The base64 representation of the public key.
- * @returns The resulting PublicKeys.
- */
-export async function base64ToPublicKey(base64: string): Promise<PublicKeys> {
-  try {
-    const json = atob(base64);
-    const obj = JSON.parse(json);
-    const eccPublicKeyBytes = base64ToUint8Array(obj.eccPublicKey);
-    const eccPublicKey = await importPublicKey(eccPublicKeyBytes);
-    const kyberPublicKey = base64ToUint8Array(obj.kyberPublicKey);
-    return {
-      eccPublicKey: eccPublicKey,
-      kyberPublicKey: kyberPublicKey,
-    };
-  } catch (error) {
-    throw new Error('Failed to convert base64 to PublicKeys', { cause: error });
-  }
-}
-
-/**
- * Converts a PublicKeys type into base64 string.
- *
- * @param key - The PublicKeys key.
- * @returns The resulting base64 string.
- */
-export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
-  try {
-    const eccPublicKeyArray = await exportPublicKey(key.eccPublicKey);
-    const json = JSON.stringify({
-      eccPublicKey: uint8ArrayToBase64(eccPublicKeyArray),
-      kyberPublicKey: uint8ArrayToBase64(key.kyberPublicKey),
-    });
-    const base64 = btoa(json);
-    return base64;
-  } catch (error) {
-    throw new Error('Failed to convert key of the type PublicKeys to base64', { cause: error });
   }
 }
 
@@ -245,7 +201,7 @@ export function hybridEncyptedEmailToBase64(email: HybridEncryptedEmail): string
     const json = JSON.stringify({
       encryptedKey: encHybridKeyToBase64(email.encryptedKey),
       enc: ciphertextToBase64(email.enc),
-      recipientID: email.recipientID,
+      recipientEmail: email.recipientEmail,
     });
     const base64 = btoa(json);
     return base64;
