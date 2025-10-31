@@ -7,8 +7,9 @@ import {
   PwdProtectedEmail,
   EmailPublicParameters,
 } from '../../src/types';
+
 import { encryptEmailHybrid, createPwdProtectedEmail, generateEmailKeys } from '../../src/email-crypto';
-import { sendHybridEmail, sendPwdProtectedEmail } from '../../src/email-service/sendingService';
+import { EmailServiceAPI } from '../../src/email-service';
 import emailjs from '@emailjs/browser';
 
 vi.mock('@emailjs/browser', () => ({
@@ -24,8 +25,9 @@ describe('Test sending email functions', async () => {
     vi.clearAllMocks();
   });
 
-  const userAlice: User = { email: 'alice email', name: 'alice', id: '1' };
-  const userBob: User = { email: 'bob email', name: 'bob', id: '2' };
+  const userAlice: User = { email: 'alice email', name: 'alice' };
+  const userBob: User = { email: 'bob email', name: 'bob' };
+  const service = new EmailServiceAPI('test-service-id', 'test-template-id', 'test-public-key');
 
   const serviceId = 'test-service-id';
   const templateId = 'test-template-id';
@@ -41,12 +43,12 @@ describe('Test sending email functions', async () => {
     subject: 'test subject',
     recipient: userBob,
     replyToEmailID: 1,
-    id: '1',
   };
 
   const email: Email = {
     body: emailBody,
     params: emailParams,
+    id: 'test id',
   };
 
   const { privateKeys: alicePrivateKeys } = await generateEmailKeys();
@@ -62,7 +64,7 @@ describe('Test sending email functions', async () => {
   it('should sucessfully send hybrid email', async () => {
     const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys, alicePrivateKeys);
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
-    await sendHybridEmail(encEmail);
+    await service.sendHybridEmail(encEmail);
     expect(spy).toHaveBeenCalled();
     expect(spy).toHaveBeenCalledWith(
       serviceId,
@@ -80,8 +82,8 @@ describe('Test sending email functions', async () => {
 
   it('should throw an error if recipient does not match expected one', async () => {
     const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys, alicePrivateKeys);
-    const wrongEmail = { ...encEmail, recipientID: 'wrong id' };
-    await expect(sendHybridEmail(wrongEmail)).rejects.toThrow(
+    const wrongEmail = { ...encEmail, recipientEmail: 'another email' };
+    await expect(service.sendHybridEmail(wrongEmail)).rejects.toThrow(
       /Failed to email to the recipient: Email is encrypted for another recipient/,
     );
   });
@@ -89,14 +91,14 @@ describe('Test sending email functions', async () => {
   it('should throw an error if cannot send hybrid email', async () => {
     const encEmail: HybridEncryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys, alicePrivateKeys);
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 404, text: 'Mocked Error' });
-    await expect(sendHybridEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
+    await expect(service.sendHybridEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
   });
 
   it('should sucessfully send password protected email', async () => {
     const encEmail: PwdProtectedEmail = await createPwdProtectedEmail(email, mockPassword);
 
     const spy = vi.spyOn(emailjs, 'send').mockResolvedValue({ status: 200, text: 'OK' });
-    await sendPwdProtectedEmail(encEmail);
+    await service.sendPwdProtectedEmail(encEmail);
 
     expect(spy).toHaveBeenCalled();
     expect(spy).toHaveBeenCalledWith(
@@ -118,9 +120,9 @@ describe('Test sending email functions', async () => {
 
     vi.spyOn(emailjs, 'send').mockRejectedValue({ status: 401, text: 'Mock Error' });
 
-    await expect(sendPwdProtectedEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
+    await expect(service.sendPwdProtectedEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
 
     vi.spyOn(emailjs, 'send').mockRejectedValue(new Error('Mock Error'));
-    await expect(sendPwdProtectedEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
+    await expect(service.sendPwdProtectedEmail(encEmail)).rejects.toThrow(/Failed to email to the recipient/);
   });
 });

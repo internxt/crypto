@@ -25,12 +25,12 @@ export async function createPwdProtectedEmailAndSubject(email: Email, password: 
       email.body,
       email.params.subject,
       aux,
-      email.params.id,
+      email.id,
     );
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
     const encSubjectStr = ciphertextToBase64(subjectEnc);
     const params = { ...email.params, subject: encSubjectStr };
-    return { enc, encryptedKey, params };
+    return { enc, encryptedKey, params, id: email.id };
   } catch (error) {
     throw new Error('Failed to password-protect email and subject', { cause: error });
   }
@@ -58,7 +58,7 @@ export async function decryptPwdProtectedEmailAndSubject(
       aux,
     );
     const params = { ...encryptedEmail.params, subject };
-    return { body, params };
+    return { body, params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Failed to decrypt password-protect email', { cause: error });
   }

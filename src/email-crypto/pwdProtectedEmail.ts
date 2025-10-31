@@ -20,9 +20,9 @@ export async function createPwdProtectedEmail(email: Email, password: string): P
       throw new Error('Failed to password-protect email: Invalid email structure');
     }
     const aux = getAux(email.params);
-    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.params.id);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.id);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
-    return { enc, encryptedKey, params: email.params };
+    return { enc, encryptedKey, params: email.params, id: email.id };
   } catch (error) {
     throw new Error('Failed to password-protect email', { cause: error });
   }
@@ -40,7 +40,7 @@ export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail
     const aux = getAux(encryptedEmail.params);
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
     const body = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
-    return { body, params: encryptedEmail.params };
+    return { body, params: encryptedEmail.params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Failed to decrypt password-protect email', { cause: error });
   }

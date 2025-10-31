@@ -8,7 +8,7 @@ import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test derive key', () => {
-  function createTestInput(size): Uint8Array {
+  function createTestInput(size: number): Uint8Array {
     const result = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       result[i] = i % 251;

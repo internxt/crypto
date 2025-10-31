@@ -15,6 +15,7 @@ import {
   HybridEncKey,
   PrivateKeys,
   EmailPublicParameters,
+  Email,
 } from '../../src/types';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
@@ -36,7 +37,6 @@ describe('Test email crypto functions', async () => {
   };
 
   const emailParams: EmailPublicParameters = {
-    id: 'test id',
     labels: ['test label 1', 'test label2'],
     createdAt: '2023-06-14T08:11:22.000Z',
     subject: 'test subject',
@@ -45,7 +45,8 @@ describe('Test email crypto functions', async () => {
     replyToEmailID: 2,
   };
 
-  const email = {
+  const email: Email = {
+    id: 'test id',
     body: emailBody,
     params: emailParams,
   };
@@ -91,8 +92,9 @@ describe('Test email crypto functions', async () => {
     const bad_encrypted_email: HybridEncryptedEmail = {
       encryptedKey: encKey,
       enc: emailCiphertext,
-      recipientID: '1',
+      recipientEmail: userBob.email,
       params: emailParams,
+      id: 'test id',
     };
 
     await expect(
