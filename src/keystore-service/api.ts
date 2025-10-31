@@ -199,3 +199,7 @@ export class KeyServiceAPI {
     }
   }
 }
+
+export function getKeyServiceAPI(baseUrl: string): KeyServiceAPI {
+  return new KeyServiceAPI(baseUrl);
+}

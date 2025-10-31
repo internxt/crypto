@@ -76,3 +76,7 @@ export class EmailServiceAPI {
     }
   }
 }
+
+export function getEmailServiceAPI(serviceId: string, templateId: string, publicKey: string): EmailServiceAPI {
+  return new EmailServiceAPI(serviceId, templateId, publicKey);
+}
