@@ -4,7 +4,7 @@ import { publicKeyToBase64 } from '../../src/utils';
 import { PublicKeys } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto';
-import { KeyServiceAPI } from '../../src/keystore-service';
+import { getKeyServiceAPI } from '../../src/keystore-service';
 
 vi.mock('axios');
 
@@ -16,7 +16,7 @@ describe('Test key service functions', async () => {
   const mockEmail = 'user-email';
   const eccKeyPair = await generateEccKeys();
   const kyberKeyPair = generateKyberKeys();
-  const keyService = new KeyServiceAPI('/api');
+  const keyService = getKeyServiceAPI('/api');
 
   const pk: PublicKeys = {
     eccPublicKey: eccKeyPair.publicKey,

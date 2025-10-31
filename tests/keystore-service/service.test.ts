@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { EncryptedKeystore, KeystoreType } from '../../src/types';
 import { encryptedKeystoreToBase64 } from '../../src/utils';
-import { KeyServiceAPI } from '../../src/keystore-service';
+import { getKeyServiceAPI } from '../../src/keystore-service';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
 
 vi.mock('axios');
@@ -12,7 +12,7 @@ describe('Test keystore send/get service functions', () => {
     vi.clearAllMocks();
   });
   const mockUserID = 'userID';
-  const service = new KeyServiceAPI('test-base-url');
+  const service = getKeyServiceAPI('test-base-url');
   const mockType = KeystoreType.ENCRYPTION;
   const mockCiphertext = { iv: new Uint8Array([1, 2, 3, 4, 5]), ciphertext: new Uint8Array([1, 2, 3, 4, 5]) };
   const mockEncryptedKeystore: EncryptedKeystore = {

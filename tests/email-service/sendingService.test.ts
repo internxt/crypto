@@ -9,7 +9,7 @@ import {
 } from '../../src/types';
 
 import { encryptEmailHybrid, createPwdProtectedEmail, generateEmailKeys } from '../../src/email-crypto';
-import { EmailServiceAPI } from '../../src/email-service';
+import { getEmailServiceAPI } from '../../src/email-service';
 import emailjs from '@emailjs/browser';
 
 vi.mock('@emailjs/browser', () => ({
@@ -27,7 +27,7 @@ describe('Test sending email functions', async () => {
 
   const userAlice: User = { email: 'alice email', name: 'alice' };
   const userBob: User = { email: 'bob email', name: 'bob' };
-  const service = new EmailServiceAPI('test-service-id', 'test-template-id', 'test-public-key');
+  const service = getEmailServiceAPI('test-service-id', 'test-template-id', 'test-public-key');
 
   const serviceId = 'test-service-id';
   const templateId = 'test-template-id';

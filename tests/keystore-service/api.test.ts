@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { KeystoreType, EncryptedKeystore } from '../../src/types';
-import { KeyServiceAPI } from '../../src/keystore-service';
+import { getKeyServiceAPI } from '../../src/keystore-service';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
 import { encryptedKeystoreToBase64 } from '../../src/utils';
 
@@ -21,7 +21,7 @@ describe('Test keystore send/get functions', () => {
     type: mockType,
   };
   const mockEncryptedKeystoreBase64 = encryptedKeystoreToBase64(mockEncryptedKeystore);
-  const service = new KeyServiceAPI('test-base-url');
+  const service = getKeyServiceAPI('test-base-url');
 
   describe('sendKeystore', () => {
     const url = `/uploadKeystore/${mockUserID}`;

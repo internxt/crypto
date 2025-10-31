@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { EmailServiceAPI } from '../../src/email-service/api-send';
+import { getEmailServiceAPI } from '../../src/email-service/api-send';
 import { User, EmailPublicParameters } from '../../src/types';
 
 describe('Check sending api', () => {
@@ -23,7 +23,7 @@ describe('Check sending api', () => {
     const templateID = import.meta.env['VITE_TEMPLATE_ID'];
     const publicKey = import.meta.env['VITE_PUBLIC_KEY'];
 
-    const senderService = new EmailServiceAPI(serverId, templateID, publicKey);
+    const senderService = getEmailServiceAPI(serverId, templateID, publicKey);
     const sender: User = { email: senderEmail, name: 'Mock Sender Name' };
     const recipient: User = { email: recipientEmail, name: 'Mock Recipient Name' };
     const subject = 'Mock  email subject';
@@ -43,7 +43,7 @@ describe('Check sending api', () => {
     const templateID = 'mock template id';
     const publicKey = 'invalid public key';
 
-    const sender = new EmailServiceAPI(serverId, templateID, publicKey);
+    const sender = getEmailServiceAPI(serverId, templateID, publicKey);
     await expect(sender.sendEmail(emailBody, param)).rejects.toThrowError(/Failed to send an email/);
   });
 });
