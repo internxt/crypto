@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 import { KeystoreType, EncryptedKeystore, PublicKeys } from '../types';
 import { getUserID } from '../keystore-crypto/core';
 import { base64ToEncryptedKeystore, encryptedKeystoreToBase64, base64ToPublicKey } from '../utils';
@@ -9,6 +9,27 @@ export class KeyServiceAPI {
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
+
+  /**
+   * Converts the specific client error into a proprietary error for our apps
+   * @param error
+   * @private
+   */
+  private normalizeError(error: AxiosError) {
+    let errorMessage: string;
+    if (error.response?.status === 401) {
+      errorMessage = 'Unauthorized: Invalid or expired token';
+    } else if (error.response?.status === 403) {
+      errorMessage = 'Forbidden: Insufficient permissions';
+    } else if (error.response?.status === 404) {
+      errorMessage = 'Keystore not found for the specified user';
+    } else {
+      errorMessage = 'AxiosError:' + (error.message ?? 'Unknown error');
+    }
+
+    throw new Error(errorMessage);
+  }
+
   /**
    * Sends a user's encrypted keystore to the server
    * @param keystore - The encrypted keystore
@@ -30,14 +51,7 @@ export class KeyServiceAPI {
       return response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          throw new Error('Unauthorized: Invalid or expired token');
-        }
-        if (error.response?.status === 403) {
-          throw new Error('Forbidden: Insufficient permissions');
-        } else {
-          throw new Error('AxiosError:', error);
-        }
+        this.normalizeError(error);
       }
       throw new Error('Failed to send keystore', { cause: error });
     }
@@ -60,17 +74,7 @@ export class KeyServiceAPI {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          throw new Error('Unauthorized: Invalid or expired token');
-        }
-        if (error.response?.status === 403) {
-          throw new Error('Forbidden: Insufficient permissions');
-        }
-        if (error.response?.status === 404) {
-          throw new Error('Keystore not found for the specified user');
-        } else {
-          throw new Error('AxiosError:', error);
-        }
+        this.normalizeError(error);
       }
 
       throw new Error('Failed to retrive keystore', { cause: error });
@@ -169,17 +173,7 @@ export class KeyServiceAPI {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          throw new Error('Unauthorized: Invalid or expired token');
-        }
-        if (error.response?.status === 403) {
-          throw new Error('Forbidden: Insufficient permissions');
-        }
-        if (error.response?.status === 404) {
-          throw new Error('User is not found');
-        } else {
-          throw new Error('AxiosError:', error);
-        }
+        this.normalizeError(error);
       }
       throw new Error('Failed to retrieve public keys', { cause: error });
     }
