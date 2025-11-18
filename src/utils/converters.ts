@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
 
 /**
  * Converts a Uint8Array into a hexadecimal string.
@@ -7,7 +7,7 @@ import { Buffer } from 'buffer';
  * @returns The hexadecimal string representation of the array.
  */
 export function uint8ArrayToHex(array: Uint8Array): string {
-  return Buffer.from(array).toString('hex');
+  return bytesToHex(array);
 }
 
 /**
@@ -37,7 +37,7 @@ export function uint8ToUTF8(array: Uint8Array): string {
  * @returns A Uint8Array created from the hex string.
  */
 export function hexToUint8Array(hex: string): Uint8Array {
-  return new Uint8Array(Buffer.from(hex, 'hex'));
+  return hexToBytes(hex);
 }
 
 /**
@@ -46,8 +46,10 @@ export function hexToUint8Array(hex: string): Uint8Array {
  * @param array - The Uint8Array to convert.
  * @returns The base64 string representation of the array.
  */
-export function uint8ArrayToBase64(array: Uint8Array): string {
-  return Buffer.from(array).toString('base64');
+export function uint8ArrayToBase64(buffer: Uint8Array): string {
+  const array = Uint16Array.from(buffer);
+  const binaryString = new TextDecoder('UTF-16').decode(array);
+  return btoa(binaryString);
 }
 
 /**
@@ -57,5 +59,11 @@ export function uint8ArrayToBase64(array: Uint8Array): string {
  * @returns A Uint8Array created from the base64 string.
  */
 export function base64ToUint8Array(str: string): Uint8Array {
-  return new Uint8Array(Buffer.from(str, 'base64'));
+  const binaryString = atob(str);
+  const len = binaryString.length;
+  const array = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    array[i] = binaryString.charCodeAt(i);
+  }
+  return new Uint8Array(array.buffer);
 }

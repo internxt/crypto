@@ -62,10 +62,10 @@ describe('Test derive key', () => {
   it('derive symmetric key from two keys should fail for small key', async () => {
     const short_key = new Uint8Array([1, 2, 3]);
     const key2 = genSymmetricKey();
-    await expect(deriveSymmetricKeyFromTwoKeys(short_key, key2)).rejects.toThrowError(
+    expect(() => deriveSymmetricKeyFromTwoKeys(short_key, key2)).toThrowError(
       /Failed to derive symmetric key from two keys/,
     );
-    await expect(deriveSymmetricKeyFromTwoKeys(key2, short_key)).rejects.toThrowError(
+    expect(() => deriveSymmetricKeyFromTwoKeys(key2, short_key)).toThrowError(
       /Failed to derive symmetric key from two keys/,
     );
 

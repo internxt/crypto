@@ -1,6 +1,6 @@
 {
   "name": "internxt-crypto",
-  "version": "0.0.9-alpha",
+  "version": "0.0.10-alpha",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
@@ -9,10 +9,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "dev": "vite",
-    "build": "vite build",
-    "start": "vite preview",
-    "build:staging": "vite build --mode staging",
+    "build": "tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "format": "prettier \"{src,tests}/**/*.{ts,tsx}\" --write",
@@ -23,6 +20,7 @@
     "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
     "@playwright/test": "^1.54.2",
+    "@swc/core": "^1.15.2",
     "@types/flexsearch": "^0.7.42",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-istanbul": "^3.2.4",
@@ -32,22 +30,100 @@
     "lint-staged": "^16.1.4",
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
+    "tsup": "^8.5.1",
     "typescript": "^4.4.2",
-    "vite": "^7.0.6",
     "vitest": "^3.2.4"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "@noble/hashes": "^2.0.1",
     "@noble/post-quantum": "^0.4.1",
     "@scure/bip39": "^1.6.0",
     "axios": "^1.11.0",
-    "buffer": "^6.0.3",
     "flexsearch": "^0.8.205",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
     "idb": "^8.0.3",
     "uuid": "^11.1.0"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./asymmetric-crypto": {
+      "types": "./dist/asymmetric-crypto.d.ts",
+      "import": "./dist/asymmetric-crypto.mjs",
+      "require": "./dist/asymmetric-crypto.js"
+    },
+    "./symmetric-crypto": {
+      "types": "./dist/symmetric-crypto.d.ts",
+      "import": "./dist/symmetric-crypto.mjs",
+      "require": "./dist/symmetric-crypto.js"
+    },
+    "./post-quantum-crypto": {
+      "types": "./dist/post-quantum-crypto.d.ts",
+      "import": "./dist/post-quantum-crypto.mjs",
+      "require": "./dist/post-quantum-crypto.js"
+    },
+    "./hash": {
+      "types": "./dist/hash.d.ts",
+      "import": "./dist/hash.mjs",
+      "require": "./dist/hash.js"
+    },
+    "./derive-key": {
+      "types": "./dist/derive-key.d.ts",
+      "import": "./dist/derive-key.mjs",
+      "require": "./dist/derive-key.js"
+    },
+    "./email-crypto": {
+      "types": "./dist/email-crypto.d.ts",
+      "import": "./dist/email-crypto.mjs",
+      "require": "./dist/email-crypto.js"
+    },
+    "./keystore-crypto": {
+      "types": "./dist/keystore-crypto.d.ts",
+      "import": "./dist/keystore-crypto.mjs",
+      "require": "./dist/keystore-crypto.js"
+    },
+    "./keystore-service": {
+      "types": "./dist/keystore-service.d.ts",
+      "import": "./dist/keystore-service.mjs",
+      "require": "./dist/keystore-service.js"
+    },
+    "./email-search": {
+      "types": "./dist/email-search.d.ts",
+      "import": "./dist/email-search.mjs",
+      "require": "./dist/email-search.js"
+    },
+    "./email-service": {
+      "types": "./dist/email-service.d.ts",
+      "import": "./dist/email-service.mjs",
+      "require": "./dist/email-service.js"
+    },
+    "./storage-service": {
+      "types": "./dist/storage-service.d.ts",
+      "import": "./dist/storage-service.mjs",
+      "require": "./dist/storage-service.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js"
+    },
+    "./constants": {
+      "types": "./dist/constants.d.ts",
+      "import": "./dist/constants.mjs",
+      "require": "./dist/constants.js"
+    }
+  },
+  "sideEffects": false,
   "lint-staged": {
     "*.{js,jsx,tsx,ts}": [
       "prettier --write"

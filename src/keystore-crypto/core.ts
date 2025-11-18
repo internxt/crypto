@@ -4,7 +4,7 @@ import { SymmetricCiphertext } from '../types';
 import sessionStorageService from '../storage-service/sessionStorageService';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
 import { CONTEXT_LOGIN, CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
-import { getBitsFromString } from '../hash';
+import { getBytesFromString } from '../hash';
 
 /**
  * Encrypts the keystore content using symmetric encryption
@@ -107,7 +107,7 @@ export async function deriveIdentityKeystoreKey(baseKey: Uint8Array): Promise<Cr
  * @returns The derived secret key for protecting the recovery keystore
  */
 export async function deriveRecoveryKey(recoveryCodes: string): Promise<CryptoKey> {
-  const recoveryCodesBuffer = await getBitsFromString(AES_KEY_BIT_LENGTH, recoveryCodes);
+  const recoveryCodesBuffer = await getBytesFromString(AES_KEY_BIT_LENGTH / 8, recoveryCodes);
   return deriveSymmetricCryptoKeyFromContext(CONTEXT_RECOVERY, recoveryCodesBuffer);
 }
 
