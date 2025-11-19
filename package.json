@@ -22,31 +22,31 @@
   "devDependencies": {
     "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
-    "@playwright/test": "^1.54.2",
     "@types/flexsearch": "^0.7.42",
-    "@vitest/browser": "^3.2.4",
-    "@vitest/coverage-istanbul": "^3.2.4",
+    "@vitest/browser": "^4.0.10",
+    "@vitest/browser-playwright": "^4.0.10",
+    "@vitest/coverage-istanbul": "^4.0.10",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "lint-staged": "^16.1.4",
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
-    "typescript": "^4.4.2",
+    "typescript": "^5.9.3",
     "vite": "^7.0.6",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
-    "@noble/post-quantum": "^0.4.1",
-    "@scure/bip39": "^1.6.0",
+    "@noble/post-quantum": "^0.5.2",
+    "@scure/bip39": "^2.0.1",
     "axios": "^1.11.0",
     "buffer": "^6.0.3",
     "flexsearch": "^0.8.205",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
     "idb": "^8.0.3",
-    "uuid": "^11.1.0"
+    "uuid": "^13.0.0"
   },
   "lint-staged": {
     "*.{js,jsx,tsx,ts}": [
