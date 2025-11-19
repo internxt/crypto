@@ -73,7 +73,7 @@ export function genSymmetricKey(): Uint8Array {
  */
 export async function deriveSymmetricCryptoKey(keyMaterial: string): Promise<CryptoKey> {
   try {
-    const hashBuffer = await getBytesFromString(AES_KEY_BIT_LENGTH / 8, keyMaterial);
+    const hashBuffer = getBytesFromString(AES_KEY_BIT_LENGTH / 8, keyMaterial);
     return importSymmetricCryptoKey(hashBuffer);
   } catch (error) {
     throw new Error('Failed to derive CryptoKey from the given key material', { cause: error });

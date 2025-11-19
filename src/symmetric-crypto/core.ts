@@ -10,7 +10,7 @@ import { AUX_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
  * @param freeFiled - The string with an unrestricted content. Can be a device identifier, etc.
  * @returns The resulting 128-bits initialization vector.
  */
-export async function createNISTbasedIV(freeField?: string): Promise<Uint8Array> {
+export function createNISTbasedIV(freeField?: string): Uint8Array {
   try {
     if (!freeField) {
       return randomBytes(IV_LEN_BYTES);
@@ -21,7 +21,7 @@ export async function createNISTbasedIV(freeField?: string): Promise<Uint8Array>
     const randFiled = randomBytes(12);
     iv.set(randFiled, 0);
 
-    const freeFiledFixedLength = await getBytesFromString(4, freeField);
+    const freeFiledFixedLength = getBytesFromString(4, freeField);
     iv.set(freeFiledFixedLength, 12);
 
     return iv;
