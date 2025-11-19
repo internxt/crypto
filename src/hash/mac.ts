@@ -1,6 +1,6 @@
-import { computeKeyedHash } from './core';
-import { HASH_BIT_LEN, AES_KEY_BIT_LENGTH } from '../constants';
-import { getBitsFromString } from './blake3';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { AES_KEY_BIT_LENGTH } from '../constants';
+import { getBytesFromString, keyedHash } from './blake3';
 
 /**
  * Computes mac for the given key material and data
@@ -9,11 +9,11 @@ import { getBitsFromString } from './blake3';
  * @param data - The data to hash
  * @returns The resulting hash hex string
  */
-export async function computeMac(keyMaterial: string, data: string[]): Promise<string> {
+export function computeMac(keyMaterial: string, data: Uint8Array[]): string {
   try {
-    const key = await getBitsFromString(AES_KEY_BIT_LENGTH, keyMaterial);
-    const hasher = await computeKeyedHash(HASH_BIT_LEN, key, data);
-    return hasher.digest();
+    const key = getBytesFromString(AES_KEY_BIT_LENGTH / 8, keyMaterial);
+    const hash = keyedHash(key, data);
+    return bytesToHex(hash);
   } catch (error) {
     throw new Error('Failed to compute mac', { cause: error });
   }
