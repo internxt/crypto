@@ -97,8 +97,6 @@ export {
   base64ToIdentityKeys,
   base64ToEncryptionKeys,
   base64ToEncryptedKeystore,
-  mediaKeysToBase64,
-  base64ToMediaKeys,
   base64ToPublicKey,
   publicKeyToBase64,
 } from './utils';
