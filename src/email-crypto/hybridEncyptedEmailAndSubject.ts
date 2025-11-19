@@ -1,4 +1,4 @@
-import { ciphertextToBase64, base64ToCiphertext } from '../utils';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import { PublicKeys, PrivateKeys, HybridEncryptedEmail, Email, UserWithPublicKeys } from '../types';
 import {
   encryptEmailContentAndSubjectSymmetrically,
@@ -29,7 +29,7 @@ export async function encryptEmailAndSubjectHybrid(
       aux,
       email.id,
     );
-    const encSubjectStr = ciphertextToBase64(subjectEnc);
+    const encSubjectStr = uint8ArrayToBase64(subjectEnc);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
     const params = { ...email.params, subject: encSubjectStr };
     return { enc, encryptedKey, recipientEmail: recipient.email, params, id: email.id };
@@ -59,7 +59,7 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
       aux,
       email.id,
     );
-    const encSubjectStr = ciphertextToBase64(subjectEnc);
+    const encSubjectStr = uint8ArrayToBase64(subjectEnc);
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
     for (const recipient of recipients) {
@@ -91,7 +91,7 @@ export async function decryptEmailAndSubjectHybrid(
   try {
     const aux = getAuxWithoutSubject(encryptedEmail.params);
     const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
-    const encSubject = base64ToCiphertext(encryptedEmail.params.subject);
+    const encSubject = base64ToUint8Array(encryptedEmail.params.subject);
     const { body, subject } = await decryptEmailAndSubjectSymmetrically(
       encryptedEmail.enc,
       encSubject,

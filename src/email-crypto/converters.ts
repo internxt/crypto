@@ -1,4 +1,4 @@
-import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8, ciphertextToBase64 } from '../utils';
+import { uint8ArrayToBase64, base64ToUint8Array, UTF8ToUint8, uint8ToUTF8 } from '../utils';
 import {
   EmailBody,
   HybridEncKey,
@@ -200,7 +200,7 @@ export function hybridEncyptedEmailToBase64(email: HybridEncryptedEmail): string
   try {
     const json = JSON.stringify({
       encryptedKey: encHybridKeyToBase64(email.encryptedKey),
-      enc: ciphertextToBase64(email.enc),
+      enc: uint8ArrayToBase64(email.enc),
       recipientEmail: email.recipientEmail,
     });
     const base64 = btoa(json);
@@ -220,7 +220,7 @@ export function pwdProtectedEmailToBase64(email: PwdProtectedEmail): string {
   try {
     const json = JSON.stringify({
       encryptedKey: pwdProtectedKeyToBase64(email.encryptedKey),
-      enc: ciphertextToBase64(email.enc),
+      enc: uint8ArrayToBase64(email.enc),
     });
     const base64 = btoa(json);
     return base64;

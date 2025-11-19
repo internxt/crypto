@@ -14,7 +14,7 @@ describe('Test keystore send/get service functions', () => {
   const mockUserID = 'userID';
   const service = getKeyServiceAPI('test-base-url');
   const mockType = KeystoreType.ENCRYPTION;
-  const mockCiphertext = { iv: new Uint8Array([1, 2, 3, 4, 5]), ciphertext: new Uint8Array([1, 2, 3, 4, 5]) };
+  const mockCiphertext = new Uint8Array([1, 2, 3, 4, 5]);
   const mockEncryptedKeystore: EncryptedKeystore = {
     userID: mockUserID,
     encryptedKeys: mockCiphertext,

@@ -1,4 +1,4 @@
-import { ciphertextToBase64, base64ToCiphertext } from '../utils';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import { PwdProtectedEmail, Email } from '../types';
 import {
   encryptEmailContentAndSubjectSymmetrically,
@@ -28,7 +28,7 @@ export async function createPwdProtectedEmailAndSubject(email: Email, password: 
       email.id,
     );
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
-    const encSubjectStr = ciphertextToBase64(subjectEnc);
+    const encSubjectStr = uint8ArrayToBase64(subjectEnc);
     const params = { ...email.params, subject: encSubjectStr };
     return { enc, encryptedKey, params, id: email.id };
   } catch (error) {
@@ -50,7 +50,7 @@ export async function decryptPwdProtectedEmailAndSubject(
   try {
     const aux = getAuxWithoutSubject(encryptedEmail.params);
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    const encSubject = base64ToCiphertext(encryptedEmail.params.subject);
+    const encSubject = base64ToUint8Array(encryptedEmail.params.subject);
     const { body, subject } = await decryptEmailAndSubjectSymmetrically(
       encryptedEmail.enc,
       encSubject,
