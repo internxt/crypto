@@ -1,5 +1,5 @@
 import { uint8ArrayToBase64, base64ToUint8Array } from '.';
-import { IdentityKeys, EncryptionKeys, EncryptedKeystore, MediaKeys, PublicKeys } from '../types';
+import { IdentityKeys, EncryptionKeys, EncryptedKeystore, PublicKeys } from '../types';
 import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric-crypto';
 import { base64ToCiphertext, ciphertextToBase64 } from './aesConverters';
 
@@ -139,50 +139,6 @@ export function base64ToEncryptedKeystore(base64: string): EncryptedKeystore {
     return result;
   } catch (error) {
     throw new Error('Failed to convert base64 to encrypted keystore', { cause: error });
-  }
-}
-
-/**
- * Converts media keys to base64
- *
- * @param keys - The media keys
- * @returns The resulting base64 string
- */
-export function mediaKeysToBase64(keys: MediaKeys): string {
-  try {
-    const json = JSON.stringify({
-      olmKey: uint8ArrayToBase64(keys.olmKey),
-      pqKey: uint8ArrayToBase64(keys.pqKey),
-      index: keys.index.toString(),
-      userID: keys.userID,
-    });
-    const base64 = btoa(json);
-    return base64;
-  } catch (error) {
-    throw new Error('Failed to convert media keys to base64', { cause: error });
-  }
-}
-
-/**
- * Converts base64 to media keys
- *
- * @param base64 - The base64 input
- * @returns The resulting media keys
- */
-export async function base64ToMediaKeys(base64: string): Promise<MediaKeys> {
-  try {
-    const json = atob(base64);
-    const obj = JSON.parse(json);
-
-    const result: MediaKeys = {
-      olmKey: base64ToUint8Array(obj.olmKey),
-      pqKey: base64ToUint8Array(obj.pqKey),
-      index: Number(obj.index),
-      userID: obj.userID,
-    };
-    return result;
-  } catch (error) {
-    throw new Error('Failed convert base64 to media keys', { cause: error });
   }
 }
 

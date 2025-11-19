@@ -108,6 +108,11 @@ dist
 .temp
 .cache
 
+# misc
+.DS_Store
+.env*
+!.env.example
+
 # Docusaurus cache and generated files
 .docusaurus
 

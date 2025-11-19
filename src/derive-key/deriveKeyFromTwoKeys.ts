@@ -1,5 +1,5 @@
 import { CONTEXT_DERIVE } from '../constants';
-import { deriveKeyFromTwoKeysAndContext } from './core';
+import { deriveKeyFromTwoKeysAndContext } from './deriveKeysFromKey';
 
 import { importSymmetricCryptoKey } from '../symmetric-crypto';
 

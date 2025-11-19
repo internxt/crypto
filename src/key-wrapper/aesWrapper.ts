@@ -1,5 +1,5 @@
 import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, CONTEXT_WRAPPING, AES_ALGORITHM } from '../constants';
-import { deriveKeyFromTwoKeysAndContext } from '../derive-key/core';
+import { deriveKeyFromTwoKeysAndContext } from '../derive-key';
 
 /**
  * Converts wrapping key in Uint8Array into CryptoKey
@@ -9,7 +9,10 @@ import { deriveKeyFromTwoKeysAndContext } from '../derive-key/core';
  */
 export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
   try {
-    return await crypto.subtle.importKey(KEY_FORMAT, key, KEY_WRAPPING_ALGORITHM, false, ['wrapKey', 'unwrapKey']);
+    return await crypto.subtle.importKey(KEY_FORMAT, key as BufferSource, KEY_WRAPPING_ALGORITHM, false, [
+      'wrapKey',
+      'unwrapKey',
+    ]);
   } catch (error) {
     throw new Error('Failed to import wrapping key', { cause: error });
   }
@@ -45,7 +48,7 @@ export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey
   try {
     return await crypto.subtle.unwrapKey(
       KEY_FORMAT,
-      encryptedKey,
+      encryptedKey as BufferSource,
       wrappingKey,
       KEY_WRAPPING_ALGORITHM,
       AES_ALGORITHM,

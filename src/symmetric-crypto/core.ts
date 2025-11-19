@@ -56,7 +56,11 @@ export async function encryptMessage(
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
   try {
-    const encrypted = await crypto.subtle.encrypt({ name: AES_ALGORITHM, iv, additionalData }, encryptionKey, message);
+    const encrypted = await crypto.subtle.encrypt(
+      { name: AES_ALGORITHM, iv: iv as BufferSource, additionalData: additionalData as BufferSource },
+      encryptionKey,
+      message as BufferSource,
+    );
     return new Uint8Array(encrypted);
   } catch (error) {
     throw new Error('Failed to encrypt symmetrically', { cause: error });
@@ -80,9 +84,9 @@ export async function decryptMessage(
 ): Promise<Uint8Array> {
   try {
     const decrypted = await crypto.subtle.decrypt(
-      { name: AES_ALGORITHM, iv, additionalData },
+      { name: AES_ALGORITHM, iv: iv as BufferSource, additionalData: additionalData as BufferSource },
       encryptionKey,
-      ciphertext,
+      ciphertext as BufferSource,
     );
     return new Uint8Array(decrypted);
   } catch (error) {
