@@ -107,7 +107,7 @@ export async function deriveIdentityKeystoreKey(baseKey: Uint8Array): Promise<Cr
  * @returns The derived secret key for protecting the recovery keystore
  */
 export async function deriveRecoveryKey(recoveryCodes: string): Promise<CryptoKey> {
-  const recoveryCodesBuffer = await getBytesFromString(AES_KEY_BIT_LENGTH / 8, recoveryCodes);
+  const recoveryCodesBuffer = getBytesFromString(AES_KEY_BIT_LENGTH / 8, recoveryCodes);
   return deriveSymmetricCryptoKeyFromContext(CONTEXT_RECOVERY, recoveryCodesBuffer);
 }
 

@@ -17,7 +17,7 @@ export async function encryptSymmetrically(
   freeField?: string,
 ): Promise<SymmetricCiphertext> {
   try {
-    const iv = await createNISTbasedIV(freeField);
+    const iv = createNISTbasedIV(freeField);
     const additionalData = await makeAuxFixedLength(aux);
     const ciphertext = await encryptMessage(message, encryptionKey, iv, additionalData);
     return { ciphertext, iv };

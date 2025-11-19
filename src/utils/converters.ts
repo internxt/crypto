@@ -63,7 +63,7 @@ export function base64ToUint8Array(str: string): Uint8Array {
   const len = binaryString.length;
   const array = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
-    array[i] = binaryString.charCodeAt(i);
+    array[i] = binaryString.codePointAt(i)!;
   }
   return new Uint8Array(array.buffer);
 }

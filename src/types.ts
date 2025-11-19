@@ -25,13 +25,6 @@ export type PublicKeys = {
   kyberPublicKey: Uint8Array;
 };
 
-export type MediaKeys = {
-  olmKey: Uint8Array;
-  pqKey: Uint8Array;
-  index: number;
-  userID: string;
-};
-
 export type PrivateKeys = {
   eccPrivateKey: CryptoKey;
   kyberPrivateKey: Uint8Array;
