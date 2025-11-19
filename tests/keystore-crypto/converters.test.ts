@@ -3,13 +3,11 @@ import {
   base64ToEncryptedKeystore,
   base64ToEncryptionKeys,
   base64ToIdentityKeys,
-  base64ToMediaKeys,
   encryptedKeystoreToBase64,
   encryptionKeysToBase64,
   identityKeysToBase64,
-  mediaKeysToBase64,
 } from '../../src/utils';
-import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KeystoreType, MediaKeys } from '../../src/types';
+import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KeystoreType } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
@@ -67,18 +65,5 @@ describe('Test converter functions', () => {
     const deserializedKeystore = await base64ToEncryptedKeystore(serializedKeystore);
 
     expect(deserializedKeystore).toStrictEqual(keystore);
-  });
-
-  it('should sucessfully serialize and decerialize media keys', async () => {
-    const key: MediaKeys = {
-      userID: 'mock user ID',
-      olmKey: new Uint8Array([42, 13, 250, 4, 0]),
-      pqKey: new Uint8Array([42, 13, 250, 4, 0]),
-      index: 1,
-    };
-    const serializedKey = mediaKeysToBase64(key);
-    const deserializedKey = await base64ToMediaKeys(serializedKey);
-
-    expect(deserializedKey).toStrictEqual(key);
   });
 });
