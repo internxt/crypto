@@ -1,5 +1,5 @@
 import { randomBytes } from '@noble/post-quantum/utils.js';
-import { getBitsFromString } from '../hash';
+import { getBytesFromString } from '../hash';
 import { AUX_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
 
 /**
@@ -21,7 +21,7 @@ export async function createNISTbasedIV(freeField?: string): Promise<Uint8Array>
     const randFiled = randomBytes(12);
     iv.set(randFiled, 0);
 
-    const freeFiledFixedLength = await getBitsFromString(32, freeField);
+    const freeFiledFixedLength = await getBytesFromString(4, freeField);
     iv.set(freeFiledFixedLength, 12);
 
     return iv;
@@ -37,7 +37,7 @@ export async function createNISTbasedIV(freeField?: string): Promise<Uint8Array>
  * @returns The resulting fixed-length auxilary string.
  */
 export async function makeAuxFixedLength(aux: string): Promise<Uint8Array> {
-  return getBitsFromString(AUX_LEN, aux);
+  return getBytesFromString(AUX_LEN / 8, aux);
 }
 
 /**

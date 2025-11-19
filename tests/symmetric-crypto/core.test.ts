@@ -3,7 +3,7 @@ import { createNISTbasedIV } from '../../src/symmetric-crypto/core';
 import { genSymmetricCryptoKey, encryptSymmetrically } from '../../src/symmetric-crypto';
 import { base64ToCiphertext, ciphertextToBase64 } from '../../src/utils';
 import { SymmetricCiphertext } from '../../src/types';
-import { getBitsFromString } from '../../src/hash';
+import { getBytesFromString } from '../../src/hash';
 
 describe('Test symmetric functions', () => {
   it('should generate iv as expected', async () => {
@@ -11,7 +11,7 @@ describe('Test symmetric functions', () => {
     const iv = await createNISTbasedIV(freeField);
     const number = iv.slice(12);
 
-    const hash = await getBitsFromString(32, freeField);
+    const hash = await getBytesFromString(4, freeField);
 
     expect(number).toStrictEqual(hash);
     expect(iv.length).toBe(16);

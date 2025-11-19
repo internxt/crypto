@@ -14,7 +14,6 @@ export const CONTEXT_ENC_KEYSTORE = 'CRYPTO library 2025-07-30 16:18:03 key for 
 export const CONTEXT_RECOVERY = 'CRYPTO library 2025-07-30 16:20:00 key for account recovery';
 export const CONTEXT_INDEX = 'CRYPTO library 2025-07-30 17:20:00 key for protecting current search indices';
 export const CONTEXT_DERIVE = 'CRYPTO library 2025-08-27 17:08:00 derive one key from two keys';
-export const CONTEXT_RATCHET = 'CRYPTO library 2025-08-28 18:27:00 ratchet media key';
 
 export const PREFIX_MEDIA_KEY_COMMITMENT = 'CRYPTO library 2025-08-26 18:29:00 prefix for commitment to media keys';
 export const PREFIX_PUBLIC_KEY_COMMITMENT = 'CRYPTO library 2025-08-26 18:30:00 prefix for commitment to public keys';
