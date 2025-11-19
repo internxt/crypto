@@ -1,6 +1,5 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
-import { SymmetricCiphertext } from '../types';
 import sessionStorageService from '../storage-service/sessionStorageService';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
 import { CONTEXT_LOGIN, CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
@@ -20,7 +19,7 @@ export async function encryptKeystoreContent(
   content: string,
   userID: string,
   tag: string,
-): Promise<SymmetricCiphertext> {
+): Promise<Uint8Array> {
   try {
     const aux = userID + tag;
     const message = base64ToUint8Array(content);
@@ -42,7 +41,7 @@ export async function encryptKeystoreContent(
  */
 export async function decryptKeystoreContent(
   secretKey: CryptoKey,
-  encryptedKeys: SymmetricCiphertext,
+  encryptedKeys: Uint8Array,
   userID: string,
   tag: string,
 ): Promise<string> {

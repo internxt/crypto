@@ -8,7 +8,7 @@ export enum KeystoreType {
 export type EncryptedKeystore = {
   userID: string;
   type: KeystoreType;
-  encryptedKeys: SymmetricCiphertext;
+  encryptedKeys: Uint8Array;
 };
 
 export type User = {
@@ -44,7 +44,7 @@ export type EncryptionKeys = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  enc: SymmetricCiphertext;
+  enc: Uint8Array;
   recipientEmail: string;
   params: EmailPublicParameters;
   id: string;
@@ -52,19 +52,14 @@ export type HybridEncryptedEmail = {
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  enc: SymmetricCiphertext;
+  enc: Uint8Array;
   params: EmailPublicParameters;
   id: string;
 };
 
-export type SymmetricCiphertext = {
-  ciphertext: Uint8Array;
-  iv: Uint8Array;
-};
-
 export type StoredEmail = {
   params: EmailPublicParameters;
-  content: SymmetricCiphertext;
+  content: Uint8Array;
   id: string;
 };
 

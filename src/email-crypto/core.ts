@@ -1,4 +1,4 @@
-import { SymmetricCiphertext, HybridEncKey, PwdProtectedKey, PublicKeys, PrivateKeys, EmailBody } from '../types';
+import { HybridEncKey, PwdProtectedKey, PublicKeys, PrivateKeys, EmailBody } from '../types';
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { emailBodyToBinary, binaryToEmailBody } from './converters';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
@@ -19,7 +19,7 @@ export async function encryptEmailContentSymmetrically(
   email: EmailBody,
   aux: string,
   emailID: string,
-): Promise<{ enc: SymmetricCiphertext; encryptionKey: CryptoKey }> {
+): Promise<{ enc: Uint8Array; encryptionKey: CryptoKey }> {
   try {
     const encryptionKey = await genSymmetricCryptoKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
@@ -43,7 +43,7 @@ export async function encryptEmailContentAndSubjectSymmetrically(
   subject: string,
   aux: string,
   emailID: string,
-): Promise<{ enc: SymmetricCiphertext; subjectEnc: SymmetricCiphertext; encryptionKey: CryptoKey }> {
+): Promise<{ enc: Uint8Array; subjectEnc: Uint8Array; encryptionKey: CryptoKey }> {
   try {
     const encryptionKey = await genSymmetricCryptoKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
@@ -63,8 +63,8 @@ export async function encryptEmailContentAndSubjectSymmetrically(
  * @returns The decrypted email
  */
 export async function decryptEmailAndSubjectSymmetrically(
-  emailCiphertext: SymmetricCiphertext,
-  encSubject: SymmetricCiphertext,
+  emailCiphertext: Uint8Array,
+  encSubject: Uint8Array,
   encryptionKey: CryptoKey,
   aux: string,
 ): Promise<{ body: EmailBody; subject: string }> {
@@ -89,7 +89,7 @@ export async function encryptEmailContentSymmetricallyWithKey(
   encryptionKey: CryptoKey,
   aux: string,
   emailID: string,
-): Promise<SymmetricCiphertext> {
+): Promise<Uint8Array> {
   try {
     const binaryEmail = emailBodyToBinary(emailBody);
     const ciphertext = await encryptSymmetrically(encryptionKey, binaryEmail, aux, emailID);
@@ -107,7 +107,7 @@ export async function encryptEmailContentSymmetricallyWithKey(
  * @returns The decrypted email
  */
 export async function decryptEmailSymmetrically(
-  emailCiphertext: SymmetricCiphertext,
+  emailCiphertext: Uint8Array,
   encryptionKey: CryptoKey,
   aux: string,
 ): Promise<EmailBody> {

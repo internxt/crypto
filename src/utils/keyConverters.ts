@@ -1,7 +1,6 @@
 import { uint8ArrayToBase64, base64ToUint8Array } from '.';
 import { IdentityKeys, EncryptionKeys, EncryptedKeystore, PublicKeys } from '../types';
 import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric-crypto';
-import { base64ToCiphertext, ciphertextToBase64 } from './aesConverters';
 
 /**
  * Converts identity keys to base64
@@ -55,7 +54,7 @@ export async function encryptionKeysToBase64(keys: EncryptionKeys): Promise<stri
  */
 export function encryptedKeystoreToBase64(keystore: EncryptedKeystore): string {
   try {
-    const ciphertext = ciphertextToBase64(keystore.encryptedKeys);
+    const ciphertext = uint8ArrayToBase64(keystore.encryptedKeys);
     const json = JSON.stringify({
       userID: keystore.userID,
       type: keystore.type.toString(),
@@ -130,7 +129,7 @@ export function base64ToEncryptedKeystore(base64: string): EncryptedKeystore {
   try {
     const json = atob(base64);
     const obj = JSON.parse(json);
-    const ciphertext = base64ToCiphertext(obj.encryptedKeys);
+    const ciphertext = base64ToUint8Array(obj.encryptedKeys);
     const result: EncryptedKeystore = {
       userID: obj.userID,
       type: obj.type,
