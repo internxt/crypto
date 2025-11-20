@@ -1,6 +1,6 @@
 import { randomBytes } from '@noble/post-quantum/utils.js';
-import { getBytesFromString } from '../hash';
-import { AUX_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
+import { getBytesFromData } from '../hash';
+import { AUX_BYTE_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
 
 /**
  * Creates an initialization vector (IV) using RGB-based construction (8.2.2 NIST Special Publication 800-38D)
@@ -10,7 +10,7 @@ import { AUX_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
  * @param freeFiled - The string with an unrestricted content. Can be a device identifier, etc.
  * @returns The resulting 128-bits initialization vector.
  */
-export function createNISTbasedIV(freeField?: string): Uint8Array {
+export function createNISTbasedIV(freeField?: Uint8Array): Uint8Array {
   try {
     if (!freeField) {
       return randomBytes(IV_LEN_BYTES);
@@ -21,7 +21,7 @@ export function createNISTbasedIV(freeField?: string): Uint8Array {
     const randFiled = randomBytes(12);
     iv.set(randFiled, 0);
 
-    const freeFiledFixedLength = getBytesFromString(4, freeField);
+    const freeFiledFixedLength = getBytesFromData(4, freeField);
     iv.set(freeFiledFixedLength, 12);
 
     return iv;
@@ -36,8 +36,8 @@ export function createNISTbasedIV(freeField?: string): Uint8Array {
  * @param aux - The auxilay string of arbitrary length
  * @returns The resulting fixed-length auxilary string.
  */
-export async function makeAuxFixedLength(aux: string): Promise<Uint8Array> {
-  return getBytesFromString(AUX_LEN / 8, aux);
+export async function makeAuxFixedLength(aux: Uint8Array): Promise<Uint8Array> {
+  return getBytesFromData(AUX_BYTE_LEN, aux);
 }
 
 /**

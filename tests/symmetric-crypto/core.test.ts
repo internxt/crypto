@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { createNISTbasedIV } from '../../src/symmetric-crypto/core';
-import { getBytesFromString } from '../../src/hash';
+import { getBytesFromData } from '../../src/hash';
 
 describe('Test symmetric functions', () => {
   it('should generate iv as expected', async () => {
-    const freeField = '4';
+    const freeField = new TextEncoder().encode('4');
     const iv = createNISTbasedIV(freeField);
     const number = iv.slice(12);
 
-    const hash = getBytesFromString(4, freeField);
+    const hash = getBytesFromData(4, freeField);
 
     expect(number).toStrictEqual(hash);
     expect(iv.length).toBe(16);

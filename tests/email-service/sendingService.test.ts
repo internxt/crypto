@@ -11,6 +11,7 @@ import {
 import { encryptEmailHybrid, createPwdProtectedEmail, generateEmailKeys } from '../../src/email-crypto';
 import { getEmailServiceAPI } from '../../src/email-service';
 import emailjs from '@emailjs/browser';
+import { generateID } from '../../src/utils';
 
 vi.mock('@emailjs/browser', () => ({
   default: {
@@ -42,13 +43,13 @@ describe('Test sending email functions', async () => {
     sender: userAlice,
     subject: 'test subject',
     recipient: userBob,
-    replyToEmailID: 1,
+    replyToEmailID: generateID(),
   };
 
   const email: Email = {
     body: emailBody,
     params: emailParams,
-    id: 'test id',
+    id: generateID(),
   };
 
   const { privateKeys: alicePrivateKeys } = await generateEmailKeys();

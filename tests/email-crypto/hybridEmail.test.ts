@@ -18,6 +18,7 @@ import {
   Email,
 } from '../../src/types';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
+import { generateID } from '../../src/utils';
 
 describe('Test email crypto functions', async () => {
   const emailBody: EmailBody = {
@@ -27,13 +28,11 @@ describe('Test email crypto functions', async () => {
   const userAlice = {
     email: 'alice email',
     name: 'alice',
-    id: '1',
   };
 
   const userBob = {
     email: 'bob email',
     name: 'bob',
-    id: '2',
   };
 
   const emailParams: EmailPublicParameters = {
@@ -42,11 +41,11 @@ describe('Test email crypto functions', async () => {
     subject: 'test subject',
     sender: userAlice,
     recipient: userBob,
-    replyToEmailID: 2,
+    replyToEmailID: generateID(),
   };
 
   const email: Email = {
-    id: 'test id',
+    id: generateID(),
     body: emailBody,
     params: emailParams,
   };
@@ -82,8 +81,13 @@ describe('Test email crypto functions', async () => {
 
   it('should throw an error if hybrid email decryption fails', async () => {
     const key = await genSymmetricCryptoKey();
-
-    const emailCiphertext = await encryptSymmetrically(key, new Uint8Array([1, 2, 3]), 'aux', 'userID');
+    const freeField = new Uint8Array([1, 2, 3, 4]);
+    const emailCiphertext = await encryptSymmetrically(
+      key,
+      new Uint8Array([1, 2, 3]),
+      new TextEncoder().encode('aux'),
+      freeField,
+    );
     const encKey: HybridEncKey = {
       kyberCiphertext: new Uint8Array([1, 2, 3]),
       encryptedKey: new Uint8Array([4, 5, 6, 7]),
@@ -93,7 +97,7 @@ describe('Test email crypto functions', async () => {
       enc: emailCiphertext,
       recipientEmail: userBob.email,
       params: emailParams,
-      id: 'test id',
+      id: generateID(),
     };
 
     await expect(decryptEmailHybrid(bad_encrypted_email, alicePublicKeys, bobPrivateKeys)).rejects.toThrowError(
@@ -113,7 +117,6 @@ describe('Test email crypto functions', async () => {
     const eveWithPublicKeys = {
       email: 'eve email',
       name: 'eve',
-      id: '3',
       publicKeys: evePublicKeys,
     };
 
@@ -124,7 +127,7 @@ describe('Test email crypto functions', async () => {
     );
 
     expect(encryptedEmail.length).toBe(2);
-    expect(encryptedEmail[0].enc.ciphertext).toBe(encryptedEmail[1].enc.ciphertext);
+    expect(encryptedEmail[0].enc).toBe(encryptedEmail[1].enc);
   });
 
   it('should throw an error if encryption to multiple recipients fails', async () => {
@@ -139,7 +142,6 @@ describe('Test email crypto functions', async () => {
     const bad_eveWithPublicKeys = {
       email: 'eve email',
       name: 'eve',
-      id: '3',
       publicKeys: bad_evePublicKeys,
     };
     await expect(

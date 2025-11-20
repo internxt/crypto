@@ -44,7 +44,9 @@ describe('Test symmetric key functions', () => {
   });
 
   it('should sucessfully derive CryptoKey', async () => {
-    const keyMaterial = 'Srp6AzybbyludWuaVwGoHa1C2H0Qtv7JR0sKGLSWe8Ho8_q9hezfYD2RYb9IUrW999pH4VlABgDLse484zAapg';
+    const keyMaterial = new TextEncoder().encode(
+      'Srp6AzybbyludWuaVwGoHa1C2H0Qtv7JR0sKGLSWe8Ho8_q9hezfYD2RYb9IUrW999pH4VlABgDLse484zAapg',
+    );
     const key = await deriveSymmetricCryptoKey(keyMaterial);
     expect(key).toBeInstanceOf(CryptoKey);
   });

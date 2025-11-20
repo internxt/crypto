@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { KeystoreType, EncryptedKeystore } from '../../src/types';
+import { KEYSTORE_TAGS, EncryptedKeystore } from '../../src/types';
 import { getKeyServiceAPI } from '../../src/keystore-service';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
 import { encryptedKeystoreToBase64 } from '../../src/utils';
@@ -12,11 +12,11 @@ describe('Test keystore send/get functions', () => {
     vi.clearAllMocks();
   });
 
-  const mockUserID = 'userID';
-  const mockType = KeystoreType.ENCRYPTION;
-  const mockCiphertext = { iv: new Uint8Array([1, 2, 3, 4, 5]), ciphertext: new Uint8Array([1, 2, 3, 4, 5]) };
+  const mockUserEmail = 'mock email';
+  const mockType = KEYSTORE_TAGS.ENCRYPTION;
+  const mockCiphertext = new Uint8Array([1, 2, 3, 4, 5]);
   const mockEncryptedKeystore: EncryptedKeystore = {
-    userID: mockUserID,
+    userEmail: mockUserEmail,
     encryptedKeys: mockCiphertext,
     type: mockType,
   };
@@ -24,7 +24,7 @@ describe('Test keystore send/get functions', () => {
   const service = getKeyServiceAPI('test-base-url');
 
   describe('sendKeystore', () => {
-    const url = `/uploadKeystore/${mockUserID}`;
+    const url = `/uploadKeystore/${mockUserEmail}`;
 
     it('should successfully send keystore with valid parameters', async () => {
       const mockResponse = {
@@ -36,7 +36,7 @@ describe('Test keystore send/get functions', () => {
       };
 
       vi.mocked(axios.post).mockResolvedValue(mockResponse);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
       const result = await service.sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url);
 
@@ -66,7 +66,7 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.post).mockRejectedValueOnce(unauthorizedError);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
       await expect(service.sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(
         'Unauthorized: Invalid or expired token',
@@ -84,7 +84,7 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.post).mockRejectedValueOnce(forbiddenError);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
       await expect(service.sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(
         'Forbidden: Insufficient permissions',
@@ -94,7 +94,7 @@ describe('Test keystore send/get functions', () => {
     it('should handle network errors', async () => {
       const networkError = new Error('Network Error');
       vi.mocked(axios.post).mockRejectedValueOnce(networkError);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
       await expect(service.sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(
         /Failed to send keystore/,
@@ -107,7 +107,7 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.post).mockRejectedValueOnce(errorWithNoResponse);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
       await expect(service.sendEncryptedKeystoreToServer(mockEncryptedKeystoreBase64, url)).rejects.toThrow(
         /AxiosError/,
@@ -116,7 +116,7 @@ describe('Test keystore send/get functions', () => {
   });
 
   describe('getKeystore', () => {
-    const url = `/downloadKeystore/${mockUserID}/${mockType}`;
+    const url = `/downloadKeystore/${mockUserEmail}/${mockType}`;
 
     it('should successfully retrieve keystore with valid parameters', async () => {
       const mockResponse = {
@@ -128,9 +128,9 @@ describe('Test keystore send/get functions', () => {
       };
 
       vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
-      const result = await service.requestEncryptedKeystore(mockUserID, mockType);
+      const result = await service.requestEncryptedKeystore(mockUserEmail, mockType);
 
       expect(axios.get).toHaveBeenCalledWith('test-base-url' + url, {
         withCredentials: true,
@@ -152,9 +152,9 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.get).mockRejectedValueOnce(unauthorizedError);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
-      await expect(service.requestEncryptedKeystore(mockUserID, mockType)).rejects.toThrow(
+      await expect(service.requestEncryptedKeystore(mockUserEmail, mockType)).rejects.toThrow(
         'Unauthorized: Invalid or expired token',
       );
     });
@@ -170,9 +170,9 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.get).mockRejectedValueOnce(forbiddenError);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
-      await expect(service.requestEncryptedKeystore(mockUserID, mockType)).rejects.toThrow(
+      await expect(service.requestEncryptedKeystore(mockUserEmail, mockType)).rejects.toThrow(
         'Forbidden: Insufficient permissions',
       );
     });
@@ -188,9 +188,9 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.get).mockRejectedValueOnce(notFoundError);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
-      await expect(service.requestEncryptedKeystore(mockUserID, mockType)).rejects.toThrow(
+      await expect(service.requestEncryptedKeystore(mockUserEmail, mockType)).rejects.toThrow(
         'Keystore not found for the specified user',
       );
     });
@@ -198,9 +198,9 @@ describe('Test keystore send/get functions', () => {
     it('should handle network errors', async () => {
       const networkError = new Error('Network Error');
       vi.mocked(axios.get).mockRejectedValueOnce(networkError);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
-      await expect(service.requestEncryptedKeystore(mockUserID, mockType)).rejects.toThrow(
+      await expect(service.requestEncryptedKeystore(mockUserEmail, mockType)).rejects.toThrow(
         /Failed to retrive keystore/,
       );
     });
@@ -212,9 +212,9 @@ describe('Test keystore send/get functions', () => {
 
       vi.mocked(axios.get).mockRejectedValueOnce(errorWithoutResponce);
       vi.mocked(axios.isAxiosError).mockReturnValueOnce(true);
-      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
+      vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserEmail);
 
-      await expect(service.requestEncryptedKeystore(mockUserID, mockType)).rejects.toThrow(/AxiosError/);
+      await expect(service.requestEncryptedKeystore(mockUserEmail, mockType)).rejects.toThrow(/AxiosError/);
     });
   });
 });

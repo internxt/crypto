@@ -1,6 +1,6 @@
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { AES_KEY_BIT_LENGTH } from '../constants';
-import { getBytesFromString, keyedHash } from './blake3';
+import { getBytesFromData, hashDataArrayWithKey } from './blake3';
 
 /**
  * Computes mac for the given key material and data
@@ -9,10 +9,10 @@ import { getBytesFromString, keyedHash } from './blake3';
  * @param data - The data to hash
  * @returns The resulting hash hex string
  */
-export function computeMac(keyMaterial: string, data: Uint8Array[]): string {
+export function computeMac(keyMaterial: Uint8Array, data: Uint8Array[]): string {
   try {
-    const key = getBytesFromString(AES_KEY_BIT_LENGTH / 8, keyMaterial);
-    const hash = keyedHash(key, data);
+    const key = getBytesFromData(AES_KEY_BIT_LENGTH / 8, keyMaterial);
+    const hash = hashDataArrayWithKey(key, data);
     return bytesToHex(hash);
   } catch (error) {
     throw new Error('Failed to compute mac', { cause: error });

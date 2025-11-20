@@ -9,6 +9,7 @@ import {
   PwdProtectedEmail,
   Email,
 } from '../types';
+import { concatBytes } from '@noble/hashes/utils.js';
 
 /**
  * Converts a User type into a base64 string.
@@ -22,6 +23,24 @@ export function userToBase64(user: User): string {
     return btoa(json);
   } catch (error) {
     throw new Error('Failed to convert User to base64', { cause: error });
+  }
+}
+
+export function userToBytes(user: User): Uint8Array {
+  try {
+    const json = JSON.stringify(user);
+    return UTF8ToUint8(json);
+  } catch (error) {
+    throw new Error('Failed to convert User to bytes', { cause: error });
+  }
+}
+
+export function recipientsToBytes(recipients: User[]): Uint8Array {
+  try {
+    const array = recipients.map((user) => userToBytes(user));
+    return concatBytes(...array);
+  } catch (error) {
+    throw new Error('Failed to convert recipients to bytes', { cause: error });
   }
 }
 
