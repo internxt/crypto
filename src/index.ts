@@ -113,6 +113,7 @@ export {
   uuidToBytes,
   bytesToUuid,
   mnemonicToBytes,
+  bytesToMnemonic,
 } from './utils';
 export * from './types';
 export * from './constants';

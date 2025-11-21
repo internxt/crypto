@@ -20,3 +20,13 @@ export function genMnemonic(bits: number): string {
 export function mnemonicToBytes(mnemonic: string): Uint8Array {
   return bip39.mnemonicToEntropy(mnemonic, wordlist);
 }
+
+/**
+ * Converts a Uint8Array to a mnemonic
+ *
+ * @param bytes - The bytes to convert
+ * @returns The mnemonic string
+ */
+export function bytesToMnemonic(bytes: Uint8Array): string {
+  return bip39.entropyToMnemonic(bytes, wordlist);
+}
