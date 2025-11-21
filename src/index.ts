@@ -9,6 +9,7 @@ export {
 export {
   deriveSymmetricKeyFromTwoKeys,
   deriveSymmetricCryptoKeyFromTwoKeys,
+  deriveSymmetricKeyFromTwoKeysAndContext,
   deriveSymmetricKeyFromContext,
   deriveSymmetricCryptoKeyFromContext,
   getKeyFromPassword,
@@ -28,9 +29,11 @@ export {
   decryptPwdProtectedEmail,
   createPwdProtectedEmailAndSubject,
   decryptPwdProtectedEmailAndSubject,
-  getAux,
-  getAuxWithoutSubject,
-  generateEmailID,
+  generateEmailKeys,
+  paramsToBase64,
+  base64ToParams,
+  hybridEncyptedEmailToBase64,
+  pwdProtectedEmailToBase64,
 } from './email-crypto';
 export {
   openDatabase,
@@ -58,7 +61,16 @@ export {
   searchEmails,
 } from './email-search';
 export { getEmailServiceAPI } from './email-service';
-export { hashData, getBytesFromData, getBytesFromDataHex, getBytesFromString, computeMac } from './hash';
+export {
+  hashDataArray,
+  hashDataArrayWithKey,
+  hashDataArrayHex,
+  hashDataArrayWithKeyHex,
+  getBytesFromData,
+  getBytesFromDataHex,
+  getBytesFromDataArrayHex,
+  computeMac,
+} from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
 export {
   generateIdentityKeys,
@@ -82,8 +94,6 @@ export {
   deriveSymmetricCryptoKey,
 } from './symmetric-crypto';
 export {
-  ciphertextToBase64,
-  base64ToCiphertext,
   uint8ArrayToHex,
   UTF8ToUint8,
   uint8ToUTF8,
@@ -99,6 +109,10 @@ export {
   base64ToEncryptedKeystore,
   base64ToPublicKey,
   publicKeyToBase64,
+  generateID,
+  uuidToBytes,
+  bytesToUuid,
+  mnemonicToBytes,
 } from './utils';
 export * from './types';
 export * from './constants';
