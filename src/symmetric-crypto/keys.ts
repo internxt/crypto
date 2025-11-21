@@ -1,5 +1,5 @@
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../constants';
-import { getBytesFromString } from '../hash';
+import { getBytesFromData } from '../hash';
 
 /**
  * Converts Uint8Array into CryptoKey
@@ -71,9 +71,9 @@ export function genSymmetricKey(): Uint8Array {
  *
  * @returns The derived CryptoKey.
  */
-export async function deriveSymmetricCryptoKey(keyMaterial: string): Promise<CryptoKey> {
+export async function deriveSymmetricCryptoKey(keyMaterial: Uint8Array): Promise<CryptoKey> {
   try {
-    const hashBuffer = getBytesFromString(AES_KEY_BIT_LENGTH / 8, keyMaterial);
+    const hashBuffer = getBytesFromData(AES_KEY_BIT_LENGTH / 8, keyMaterial);
     return importSymmetricCryptoKey(hashBuffer);
   } catch (error) {
     throw new Error('Failed to derive CryptoKey from the given key material', { cause: error });

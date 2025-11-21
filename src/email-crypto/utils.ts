@@ -1,5 +1,7 @@
+import { concatBytes } from '@noble/hashes/utils.js';
 import { EmailPublicParameters } from '../types';
-import { v4 as uuidv4 } from 'uuid';
+import { UTF8ToUint8, uuidToBytes } from '../utils';
+import { userToBytes, recipientsToBytes } from './converters';
 
 /**
  * Creates an auxilary string from public fields of the email.
@@ -7,10 +9,17 @@ import { v4 as uuidv4 } from 'uuid';
  * @param params - The email public parameters.
  * @returns The resulting auxilary string
  */
-export function getAux(params: EmailPublicParameters): string {
+export function getAux(params: EmailPublicParameters): Uint8Array {
   try {
-    const { subject, replyToEmailID, sender, recipients } = params;
-    const aux = JSON.stringify({ subject, replyToEmailID, sender, recipients });
+    const { subject, replyToEmailID, sender, recipient, recipients } = params;
+    const subjectBytes = UTF8ToUint8(subject);
+    const replyBytes = replyToEmailID ? uuidToBytes(replyToEmailID) : new Uint8Array();
+    const senderBytes = userToBytes(sender);
+    const recipientBytes = userToBytes(recipient);
+    const recipientsBytes = recipients ? recipientsToBytes(recipients) : new Uint8Array();
+
+    const aux = concatBytes(subjectBytes, replyBytes, senderBytes, recipientBytes, recipientsBytes);
+
     return aux;
   } catch (error) {
     throw new Error('Failed to create aux', { cause: error });
@@ -23,21 +32,18 @@ export function getAux(params: EmailPublicParameters): string {
  * @param params - The email public parameters.
  * @returns The resulting auxilary string
  */
-export function getAuxWithoutSubject(params: EmailPublicParameters): string {
+export function getAuxWithoutSubject(params: EmailPublicParameters): Uint8Array {
   try {
-    const { replyToEmailID, sender, recipients } = params;
-    const aux = JSON.stringify({ replyToEmailID, sender, recipients });
+    const { replyToEmailID, sender, recipient, recipients } = params;
+    const replyBytes = replyToEmailID ? uuidToBytes(replyToEmailID) : new Uint8Array();
+    const senderBytes = userToBytes(sender);
+    const recipientBytes = userToBytes(recipient);
+    const recipientsBytes = recipients ? recipientsToBytes(recipients) : new Uint8Array();
+
+    const aux = concatBytes(replyBytes, senderBytes, recipientBytes, recipientsBytes);
+
     return aux;
   } catch (error) {
     throw new Error('Failed to create aux without subject', { cause: error });
   }
-}
-
-/**
- * Creates a random email ID.
- *
- * @returns The resulting auxilary string
- */
-export function generateEmailID(): string {
-  return uuidv4();
 }

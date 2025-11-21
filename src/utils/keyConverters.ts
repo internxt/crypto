@@ -56,7 +56,7 @@ export function encryptedKeystoreToBase64(keystore: EncryptedKeystore): string {
   try {
     const ciphertext = uint8ArrayToBase64(keystore.encryptedKeys);
     const json = JSON.stringify({
-      userID: keystore.userID,
+      userEmail: keystore.userEmail,
       type: keystore.type.toString(),
       encryptedKeys: ciphertext,
     });
@@ -131,7 +131,7 @@ export function base64ToEncryptedKeystore(base64: string): EncryptedKeystore {
     const obj = JSON.parse(json);
     const ciphertext = base64ToUint8Array(obj.encryptedKeys);
     const result: EncryptedKeystore = {
-      userID: obj.userID,
+      userEmail: obj.userEmail,
       type: obj.type,
       encryptedKeys: ciphertext,
     };

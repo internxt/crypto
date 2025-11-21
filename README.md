@@ -142,11 +142,11 @@ const emailParams: EmailPublicParameters = {
   subject: 'email subject',
   sender: userAlice,
   recipient: userBob,
-  replyToEmailID: 2,
+  replyToEmailID: generateID(),
 };
 
 const email: Email = {
-  id: 'email id',
+  id:  generateID(),
   params: emailParams,
   body: emailBody,
 };

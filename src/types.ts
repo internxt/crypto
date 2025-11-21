@@ -1,12 +1,5 @@
-export enum KeystoreType {
-  IDENTITY = 'identity',
-  ENCRYPTION = 'encryption',
-  RECOVERY = 'recovery',
-  INDEX = 'index',
-}
-
 export type EncryptedKeystore = {
-  userID: string;
+  userEmail: string;
   type: KeystoreType;
   encryptedKeys: Uint8Array;
 };
@@ -84,7 +77,7 @@ export type EmailPublicParameters = {
   sender: User;
   recipient: User;
   recipients?: User[];
-  replyToEmailID?: number;
+  replyToEmailID?: string;
   labels?: string[];
 };
 
@@ -104,3 +97,12 @@ export interface EmailSearchResult {
   email: Email;
   score?: number;
 }
+
+export const KEYSTORE_TAGS = {
+  IDENTITY: 'Identity keystore',
+  ENCRYPTION: 'Encryption keystore',
+  RECOVERY: 'Key recovery keystore',
+  INDEX: 'Current encrypted indices',
+} as const;
+
+export type KeystoreType = (typeof KEYSTORE_TAGS)[keyof typeof KEYSTORE_TAGS];

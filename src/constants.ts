@@ -1,6 +1,6 @@
 export const AES_ALGORITHM = 'AES-GCM';
 export const AES_KEY_BIT_LENGTH = 256;
-export const AUX_LEN = 128;
+export const AUX_BYTE_LEN = 16;
 export const IV_LEN_BYTES = 16;
 
 export const KEY_WRAPPING_ALGORITHM = 'AES-KW';
@@ -26,11 +26,6 @@ export const ARGON2ID_ITERATIONS = 4;
 export const ARGON2ID_MEMORY_SIZE = 65536;
 export const ARGON2ID_SALT_BYTE_LENGTH = 16;
 export const ARGON2ID_OUTPUT_BYTE_LENGTH = 32;
-
-export const IDENTITY_KEYSTORE_TAG = 'Identity keystore';
-export const ENCRYPTION_KEYSTORE_TAG = 'Encryption keystore';
-export const RECOVERY_KEYSTORE_TAG = 'Key recovery keystroe';
-export const INDEX_KEYSTORE_TAG = 'Current encrypted indices';
 
 export const KYBER512_PUBLIC_KEY_LENGTH = 800;
 export const KYBER512_SECRET_KEY_LENGTH = 1632;

@@ -7,7 +7,7 @@ import {
   encryptionKeysToBase64,
   identityKeysToBase64,
 } from '../../src/utils';
-import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KeystoreType } from '../../src/types';
+import { EncryptedKeystore, EncryptionKeys, IdentityKeys, KEYSTORE_TAGS } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto/kyber768';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
@@ -54,11 +54,13 @@ describe('Test converter functions', () => {
   it('should sucessfully serialize and decerialize an encrypted keystore', async () => {
     const sk = await genSymmetricCryptoKey();
     const message = new Uint8Array([1, 2, 3, 4, 5]);
-    const cipher = await encryptSymmetrically(sk, message, 'mock-aux', 'userID');
+    const aux = new Uint8Array([2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    const freeFiled = new Uint8Array([7, 7, 7]);
+    const cipher = await encryptSymmetrically(sk, message, aux, freeFiled);
 
     const keystore: EncryptedKeystore = {
-      userID: 'mock-user-id',
-      type: KeystoreType.ENCRYPTION,
+      userEmail: 'mock-user-email',
+      type: KEYSTORE_TAGS.ENCRYPTION,
       encryptedKeys: cipher,
     };
     const serializedKeystore = await encryptedKeystoreToBase64(keystore);

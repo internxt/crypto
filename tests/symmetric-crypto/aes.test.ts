@@ -5,9 +5,10 @@ describe('Test symmetric functions', () => {
   it('should sucessfully encrypt and decrypt', async () => {
     const key = await genSymmetricCryptoKey();
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
-    const aux = 'additional data';
+    const aux = new TextEncoder().encode('additional data');
+    const freeField = new Uint8Array([1, 2, 3]);
 
-    const enc = await encryptSymmetrically(key, message, aux, 'userID');
+    const enc = await encryptSymmetrically(key, message, aux, freeField);
     const result = await decryptSymmetrically(key, enc, aux);
 
     expect(result).toStrictEqual(message);

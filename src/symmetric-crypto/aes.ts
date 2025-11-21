@@ -14,8 +14,8 @@ import { IV_LEN_BYTES } from '../constants';
 export async function encryptSymmetrically(
   encryptionKey: CryptoKey,
   message: Uint8Array,
-  aux: string,
-  freeField?: string,
+  aux: Uint8Array,
+  freeField?: Uint8Array,
 ): Promise<Uint8Array> {
   try {
     const iv = createNISTbasedIV(freeField);
@@ -38,7 +38,7 @@ export async function encryptSymmetrically(
 export async function decryptSymmetrically(
   encryptionKey: CryptoKey,
   encryptedMessage: Uint8Array,
-  aux: string,
+  aux: Uint8Array,
 ): Promise<Uint8Array> {
   try {
     const additionalData = await makeAuxFixedLength(aux);
