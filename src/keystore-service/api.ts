@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import { KeystoreType, EncryptedKeystore, PublicKeys } from '../types';
+import { KeystoreType, KEYSTORE_TAGS, EncryptedKeystore, PublicKeys } from '../types';
 import { getUserID } from '../keystore-crypto/core';
 import { base64ToEncryptedKeystore, encryptedKeystoreToBase64, base64ToPublicKey } from '../utils';
 
@@ -64,7 +64,7 @@ export class KeyServiceAPI {
    */
   async requestEncryptedKeystore(userID: string, keystoreType: KeystoreType): Promise<string> {
     try {
-      const url = `/downloadKeystore/${userID}/${keystoreType.toString()}`;
+      const url = `/downloadKeystore/${userID}/${keystoreType}`;
       const response = await axios.get<string>(this.baseUrl + `${url}`, {
         withCredentials: true,
         headers: {
@@ -107,7 +107,7 @@ export class KeyServiceAPI {
    * @returns Encrypted keystore containing encryption keys
    */
   async getEncryptionKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KeystoreType.ENCRYPTION);
+    return this.getKeystoreFromServer(KEYSTORE_TAGS.ENCRYPTION);
   }
 
   /**
@@ -116,7 +116,7 @@ export class KeyServiceAPI {
    * @returns Encrypted Identity Keystore
    */
   async getIdentityKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KeystoreType.IDENTITY);
+    return this.getKeystoreFromServer(KEYSTORE_TAGS.IDENTITY);
   }
 
   /**
@@ -125,7 +125,7 @@ export class KeyServiceAPI {
    * @returns Encrypted Recovery Keystore
    */
   async getRecoveryKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KeystoreType.RECOVERY);
+    return this.getKeystoreFromServer(KEYSTORE_TAGS.RECOVERY);
   }
 
   /**
@@ -134,7 +134,7 @@ export class KeyServiceAPI {
    * @returns Encrypted Index Keytore
    */
   async getIndexKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KeystoreType.INDEX);
+    return this.getKeystoreFromServer(KEYSTORE_TAGS.INDEX);
   }
 
   /**

@@ -3,13 +3,14 @@ import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 import { encryptKeystoreContent, getBaseKey, getUserID, decryptKeystoreContent } from '../../src/keystore-crypto/core';
 import sessionStorageService from '../../src/storage-service/sessionStorageService';
 import { base64ToUint8Array } from '../../src/utils';
+import { KEYSTORE_TAGS } from '../../src/types';
 
 describe('Test keystore keys functions', () => {
   it('should sucessfully create and open a keystore', async () => {
     const key = await genSymmetricCryptoKey();
     const mockContext = btoa('mock context string');
     const mockUserID = 'mock user ID';
-    const mockTag = 'mock tag';
+    const mockTag = KEYSTORE_TAGS.ENCRYPTION;
     const keystore = await encryptKeystoreContent(key, mockContext, mockUserID, mockTag);
     const decryptedContent = await decryptKeystoreContent(key, keystore, mockUserID, mockTag);
 

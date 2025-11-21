@@ -1,6 +1,6 @@
-import { EncryptionKeys, EncryptedKeystore, KeystoreType } from '../types';
+import { EncryptionKeys, EncryptedKeystore, KEYSTORE_TAGS } from '../types';
 import { encryptionKeysToBase64, base64ToEncryptionKeys, genMnemonic } from '../utils';
-import { ENCRYPTION_KEYSTORE_TAG, RECOVERY_KEYSTORE_TAG, AES_KEY_BIT_LENGTH } from '../constants';
+import { AES_KEY_BIT_LENGTH } from '../constants';
 import {
   encryptKeystoreContent,
   decryptKeystoreContent,
@@ -54,24 +54,24 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
   recoveryCodes: string;
 }> {
   try {
-    const userID = getUserID();
+    const userEmail = getUserID();
     const baseKey = getBaseKey();
     const keys = await generateEncryptionKeys();
     const content = await encryptionKeysToBase64(keys);
 
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
-    const ciphertext = await encryptKeystoreContent(secretKey, content, userID, ENCRYPTION_KEYSTORE_TAG);
+    const ciphertext = await encryptKeystoreContent(secretKey, content, userEmail, KEYSTORE_TAGS.ENCRYPTION);
     const encryptionKeystore: EncryptedKeystore = {
-      userID,
-      type: KeystoreType.ENCRYPTION,
+      userEmail,
+      type: KEYSTORE_TAGS.ENCRYPTION,
       encryptedKeys: ciphertext,
     };
     const recoveryCodes = generateRecoveryCodes();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
-    const encKeys = await encryptKeystoreContent(recoveryKey, content, userID, RECOVERY_KEYSTORE_TAG);
+    const encKeys = await encryptKeystoreContent(recoveryKey, content, userEmail, KEYSTORE_TAGS.RECOVERY);
     const recoveryKeystore: EncryptedKeystore = {
-      userID,
-      type: KeystoreType.RECOVERY,
+      userEmail,
+      type: KEYSTORE_TAGS.RECOVERY,
       encryptedKeys: encKeys,
     };
     return { encryptionKeystore, recoveryKeystore, recoveryCodes };
@@ -89,7 +89,7 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
  */
 export async function openEncryptionKeystore(encryptedKeystore: EncryptedKeystore): Promise<EncryptionKeys> {
   try {
-    if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
+    if (encryptedKeystore.type != KEYSTORE_TAGS.ENCRYPTION) {
       throw new Error('Input is invalid');
     }
     const baseKey = getBaseKey();
@@ -97,8 +97,8 @@ export async function openEncryptionKeystore(encryptedKeystore: EncryptedKeystor
     const json = await decryptKeystoreContent(
       secretKey,
       encryptedKeystore.encryptedKeys,
-      encryptedKeystore.userID,
-      ENCRYPTION_KEYSTORE_TAG,
+      encryptedKeystore.userEmail,
+      KEYSTORE_TAGS.ENCRYPTION,
     );
     const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
     return keys;
@@ -120,15 +120,15 @@ export async function openRecoveryKeystore(
   encryptedKeystore: EncryptedKeystore,
 ): Promise<EncryptionKeys> {
   try {
-    if (encryptedKeystore.type != KeystoreType.RECOVERY) {
+    if (encryptedKeystore.type != KEYSTORE_TAGS.RECOVERY) {
       throw new Error('Input is invalid');
     }
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
     const json = await decryptKeystoreContent(
       recoveryKey,
       encryptedKeystore.encryptedKeys,
-      encryptedKeystore.userID,
-      RECOVERY_KEYSTORE_TAG,
+      encryptedKeystore.userEmail,
+      KEYSTORE_TAGS.RECOVERY,
     );
     const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
     return keys;

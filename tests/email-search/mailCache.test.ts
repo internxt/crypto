@@ -10,11 +10,11 @@ import {
   closeDatabase,
   createCacheFromDB,
   getEmailCount,
+  MailDB,
 } from '../../src/email-search';
 import { Email } from '../../src/types';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 import { generateTestEmails, generateTestEmail, getAllEmailSize, getEmailSize } from './helper';
-import { MailDB } from '../../src/email-search';
 
 describe('Test mail cache functions', () => {
   beforeAll(async () => {

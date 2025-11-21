@@ -1,5 +1,4 @@
-import { IdentityKeys, EncryptedKeystore, KeystoreType } from '../types';
-import { IDENTITY_KEYSTORE_TAG } from '../constants';
+import { IdentityKeys, EncryptedKeystore, KEYSTORE_TAGS } from '../types';
 import {
   encryptKeystoreContent,
   decryptKeystoreContent,
@@ -36,15 +35,15 @@ export async function generateIdentityKeys(): Promise<IdentityKeys> {
  */
 export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
   try {
-    const type = KeystoreType.IDENTITY;
-    const userID = getUserID();
+    const type = KEYSTORE_TAGS.IDENTITY;
+    const userEmail = getUserID();
     const baseKey = getBaseKey();
     const keys = await generateIdentityKeys();
     const content = await identityKeysToBase64(keys);
     const secretKey = await deriveIdentityKeystoreKey(baseKey);
-    const encryptedKeys = await encryptKeystoreContent(secretKey, content, userID, IDENTITY_KEYSTORE_TAG);
+    const encryptedKeys = await encryptKeystoreContent(secretKey, content, userEmail, KEYSTORE_TAGS.IDENTITY);
     const result: EncryptedKeystore = {
-      userID,
+      userEmail,
       type,
       encryptedKeys,
     };
@@ -63,7 +62,7 @@ export async function createIdentityKeystore(): Promise<EncryptedKeystore> {
  */
 export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore): Promise<IdentityKeys> {
   try {
-    if (encryptedKeystore.type != KeystoreType.IDENTITY) {
+    if (encryptedKeystore.type != KEYSTORE_TAGS.IDENTITY) {
       throw new Error('Input is invalid');
     }
     const baseKey = getBaseKey();
@@ -71,8 +70,8 @@ export async function openIdentityKeystore(encryptedKeystore: EncryptedKeystore)
     const json = await decryptKeystoreContent(
       secretKey,
       encryptedKeystore.encryptedKeys,
-      encryptedKeystore.userID,
-      IDENTITY_KEYSTORE_TAG,
+      encryptedKeystore.userEmail,
+      KEYSTORE_TAGS.IDENTITY,
     );
     const keys: IdentityKeys = await base64ToIdentityKeys(json);
     return keys;
