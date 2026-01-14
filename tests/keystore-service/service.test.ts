@@ -100,24 +100,5 @@ describe('Test keystore send/get service functions', () => {
       expect(axios.get).toHaveBeenCalledWith(url + `/${mockType}`, credentialField);
       expect(result).toEqual(mockEncryptedKeystore);
     });
-
-    it('should successfully retrieve index keystore', async () => {
-      const mockType = KeystoreType.INDEX;
-
-      vi.mocked(axios.get).mockResolvedValueOnce(mockResponse);
-      const result = await service.getIndexKeystoreFromServer(mockUserEmail);
-
-      expect(axios.get).toHaveBeenCalledWith(url + `/${mockType}`, credentialField);
-      expect(result).toEqual(mockEncryptedKeystore);
-    });
-
-    it('should throw an error if cannot retrive a keystore', async () => {
-      const networkError = new Error('Network Error');
-      vi.mocked(axios.get).mockRejectedValueOnce(networkError);
-
-      await expect(service.getIndexKeystoreFromServer(mockUserEmail)).rejects.toThrow(
-        /Failed to retrieve keystore from the server/,
-      );
-    });
   });
 });

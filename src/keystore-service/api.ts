@@ -118,15 +118,6 @@ export class KeyServiceAPI {
   }
 
   /**
-   * Gets a user's encrypted Index Keystore from the server
-   *
-   * @returns Encrypted Index Keytore
-   */
-  async getIndexKeystoreFromServer(userEmail: string): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(userEmail, KeystoreType.INDEX);
-  }
-
-  /**
    * Gets a user's encrypted keystore from the server
    *
    * @param type - The requested keystore's type

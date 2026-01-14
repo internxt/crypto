@@ -94,7 +94,6 @@ export interface EmailSearchResult {
 }
 
 export enum KeystoreType {
-  INDEX = 'Current encrypted indices',
   ENCRYPTION = 'Encryption keystore',
-  RECOVERY = 'Key recovery keystore',
+  RECOVERY = 'Recovery keystore',
 }
