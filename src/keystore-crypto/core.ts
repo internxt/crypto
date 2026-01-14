@@ -67,12 +67,11 @@ export async function deriveRecoveryKey(recoveryCodes: string): Promise<CryptoKe
 }
 
 /**
- * Derives a secret key for protecting the keystore
- * 
+ * Derives a secret key for protecting the encryption keystore
+ *
  * @param baseKey - The base secret key from which a new key secret will be derived
- * @returns The derived secret key for protecting the keystore
-
-*/
+ * @returns The derived secret key for protecting the encryption keystore
+ */
 export async function deriveEncryptionKeystoreKey(baseKey: Uint8Array): Promise<CryptoKey> {
   return deriveSymmetricCryptoKeyFromContext(CONTEXT_ENC_KEYSTORE, baseKey);
 }
