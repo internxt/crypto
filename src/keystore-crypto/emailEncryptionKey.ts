@@ -1,17 +1,7 @@
 import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
 import { emailKeysToBase64, base64ToEmailKeys, genMnemonic } from '../utils';
-import { AES_KEY_BIT_LENGTH } from '../constants';
 import { encryptKeystoreContent, decryptKeystoreContent, deriveEncryptionKeystoreKey, deriveRecoveryKey } from './core';
 import { generateEmailKeys } from '../email-crypto';
-
-/**
- * Generates recovery codes
- *
- * @returns The generated recovery codes
- */
-export function generateRecoveryCodes(): string {
-  return genMnemonic(AES_KEY_BIT_LENGTH);
-}
 
 /**
  * Generates email keys and creates encrypted main and recovery keystores
@@ -39,7 +29,7 @@ export async function createEncryptionAndRecoveryKeystores(
       type: KeystoreType.ENCRYPTION,
       encryptedKeys: ciphertext,
     };
-    const recoveryCodes = generateRecoveryCodes();
+    const recoveryCodes = genMnemonic();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
     const encKeys = await encryptKeystoreContent(recoveryKey, content, userEmail, KeystoreType.RECOVERY);
     const recoveryKeystore: EncryptedKeystore = {

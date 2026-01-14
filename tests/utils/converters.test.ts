@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { hexToUint8Array, base64ToUint8Array, uint8ArrayToHex, uint8ArrayToBase64 } from '../../src/utils';
+import {
+  hexToUint8Array,
+  base64ToUint8Array,
+  uint8ArrayToHex,
+  uint8ArrayToBase64,
+  generateUuid,
+  uuidToBytes,
+  bytesToUuid,
+  genMnemonic,
+  mnemonicToBytes,
+  bytesToMnemonic,
+} from '../../src/utils';
 
 describe('arrayToHex', () => {
   it('converts a simple Uint8Array to hex and back', () => {
@@ -23,5 +34,23 @@ describe('arrayToHex', () => {
 
     expect(uint8str).toBe('AAEC/w==');
     expect(result).toStrictEqual(arr);
+  });
+});
+
+describe('test uuid and mnemonic generation', () => {
+  it('generates uuid and converts it to bytes and back', () => {
+    const uuid = generateUuid();
+    const bytes = uuidToBytes(uuid);
+    const result = bytesToUuid(bytes);
+
+    expect(result).toBe(uuid);
+  });
+
+  it('generates mnemonic and converts it to bytes and back', () => {
+    const mnemonic = genMnemonic();
+    const bytes = mnemonicToBytes(mnemonic);
+    const result = bytesToMnemonic(bytes);
+
+    expect(result).toBe(mnemonic);
   });
 });
