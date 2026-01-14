@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
 import { EmailBody, User, EmailPublicParameters, Email } from '../../src/types';
-import { generateID } from '../../src/utils';
+import { generateUuid } from '../../src/utils';
 
 describe('Test email crypto functions', () => {
   const emailBody: EmailBody = {
@@ -24,13 +24,13 @@ describe('Test email crypto functions', () => {
     subject: 'test subject',
     sender: userAlice,
     recipient: userBob,
-    replyToEmailID: generateID(),
+    replyToEmailID: generateUuid(),
   };
 
   const email = {
     body: emailBody,
     params: emailParams,
-    id: generateID(),
+    id: generateUuid(),
   };
 
   it('should encrypt and decrypt email sucessfully', async () => {

@@ -6,7 +6,7 @@ import {
   encryptEmailContentAndSubjectSymmetrically,
   encryptEmailContentSymmetrically,
 } from '../../src/email-crypto/core';
-import { generateID } from '../../src/utils';
+import { generateUuid } from '../../src/utils';
 import { getAux, getAuxWithoutSubject } from '../../src/email-crypto';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
@@ -31,16 +31,16 @@ describe('Test email crypto functions', () => {
     subject: 'test subject',
     sender: userAlice,
     recipient: userBob,
-    replyToEmailID: generateID(),
+    replyToEmailID: generateUuid(),
   };
 
-  const id = generateID();
+  const id = generateUuid();
 
   const aux = getAux(emailParams);
 
   it('should generate email id', async () => {
-    const result1 = generateID();
-    const result2 = generateID();
+    const result1 = generateUuid();
+    const result2 = generateUuid();
     expect(result1).not.toEqual(result2);
     expect(result1).toHaveLength(36);
   });

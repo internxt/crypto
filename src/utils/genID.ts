@@ -4,7 +4,7 @@ import { v4 as uuidv4, parse, stringify } from 'uuid';
  *
  * @returns The resulting auxilary string
  */
-export function generateID(): string {
+export function generateUuid(): string {
   return uuidv4();
 }
 

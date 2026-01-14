@@ -72,12 +72,7 @@ export {
   computeMac,
 } from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
-export {
-  generateRecoveryCodes,
-  createEncryptionAndRecoveryKeystores,
-  openEncryptionKeystore,
-  openRecoveryKeystore,
-} from './keystore-crypto';
+export { createEncryptionAndRecoveryKeystores, openEncryptionKeystore, openRecoveryKeystore } from './keystore-crypto';
 export { getKeyServiceAPI } from './keystore-service';
 export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto/kyber768';
 export {
@@ -101,7 +96,7 @@ export {
   base64ToEncryptedKeystore,
   base64ToPublicKey,
   publicKeyToBase64,
-  generateID,
+  generateUuid,
   uuidToBytes,
   bytesToUuid,
   mnemonicToBytes,

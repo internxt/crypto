@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { deriveEncryptionKeystoreKey, deriveRecoveryKey } from '../../src/keystore-crypto/core';
-import { generateRecoveryCodes } from '../../src/keystore-crypto';
 import { exportSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto/keys';
 import { AES_KEY_BIT_LENGTH } from '../../src/constants';
+import { genMnemonic } from '../../src/utils';
 
 describe('Test keystore key generation functions', () => {
   it('correct symmetric key length', async () => {
@@ -13,7 +13,7 @@ describe('Test keystore key generation functions', () => {
   });
 
   it('should give different derived keys for the same baseKey', async () => {
-    const codes = generateRecoveryCodes();
+    const codes = genMnemonic();
     const baseKey = await genSymmetricKey();
 
     const encryptionCryoptoKey = await deriveEncryptionKeystoreKey(baseKey);

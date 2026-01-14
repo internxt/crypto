@@ -1,6 +1,6 @@
 import { Email, User } from '../../src/types';
 import { emailToBinary } from '../../src/email-crypto';
-import { generateID } from '../../src/utils';
+import { generateUuid } from '../../src/utils';
 
 const randomString = (length: number = 8): string =>
   Math.random()
@@ -19,7 +19,7 @@ export const generateTestEmail = (): Email => {
   const recipient = randomUser();
 
   return {
-    id: generateID(),
+    id: generateUuid(),
     body: {
       text: `This is a test email body: ${randomString(20)}`,
       ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
@@ -30,7 +30,7 @@ export const generateTestEmail = (): Email => {
       sender,
       recipient,
       recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
-      replyToEmailID: generateID(),
+      replyToEmailID: generateUuid(),
       labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
     },
   };
@@ -55,7 +55,7 @@ export const generateEmailWithGivenText = (data: string): Email => {
   const recipient = randomUser();
 
   return {
-    id: generateID(),
+    id: generateUuid(),
     body: {
       text: data,
       ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
@@ -66,7 +66,7 @@ export const generateEmailWithGivenText = (data: string): Email => {
       sender,
       recipient,
       recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
-      replyToEmailID: generateID(),
+      replyToEmailID: generateUuid(),
       labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
     },
   };
