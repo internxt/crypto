@@ -25,10 +25,10 @@ describe('Test keystore create/open functions', async () => {
     const result_rec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(result_enc).toStrictEqual(result_rec);
-    expect(result_enc.userPrivateKey).instanceOf(CryptoKey);
-    expect(result_enc.userPublicKey).instanceOf(CryptoKey);
-    expect(result_enc.userPrivateKyberKey.length).toBe(KYBER768_SECRET_KEY_LENGTH);
-    expect(result_enc.userPublicKyberKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
+    expect(result_enc.privateKeys.eccPrivateKey).instanceOf(CryptoKey);
+    expect(result_enc.publicKeys.eccPublicKey).instanceOf(CryptoKey);
+    expect(result_enc.privateKeys.kyberPrivateKey.length).toBe(KYBER768_SECRET_KEY_LENGTH);
+    expect(result_enc.publicKeys.kyberPublicKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
   });
 
   it('should throw an error if no base key for keystore opening', async () => {

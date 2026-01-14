@@ -23,10 +23,14 @@ describe('Test converter functions', () => {
     const keyPair = await generateEccKeys();
     const kyberKeyPair = generateKyberKeys();
     const key: EmailKeys = {
-      userPrivateKey: keyPair.privateKey,
-      userPublicKey: keyPair.publicKey,
-      userPrivateKyberKey: kyberKeyPair.secretKey,
-      userPublicKyberKey: kyberKeyPair.publicKey,
+      publicKeys: {
+        eccPublicKey: keyPair.publicKey,
+        kyberPublicKey: kyberKeyPair.publicKey,
+      },
+      privateKeys: {
+        eccPrivateKey: keyPair.privateKey,
+        kyberPrivateKey: kyberKeyPair.secretKey,
+      },
     };
     const serializedKey = await emailKeysToBase64(key);
     const deserializedKey = await base64ToEmailKeys(serializedKey);

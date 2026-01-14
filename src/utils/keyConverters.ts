@@ -1,5 +1,5 @@
 import { uint8ArrayToBase64, base64ToUint8Array } from '.';
-import { EmailKeys, EncryptedKeystore, PublicKeys } from '../types';
+import { EmailKeys, EncryptedKeystore, PublicKeys, PrivateKeys } from '../types';
 import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } from '../asymmetric-crypto';
 
 /**
@@ -10,18 +10,16 @@ import { exportPublicKey, exportPrivateKey, importPublicKey, importPrivateKey } 
  */
 export async function emailKeysToBase64(keys: EmailKeys): Promise<string> {
   try {
-    const pkArray = await exportPublicKey(keys.userPublicKey);
-    const skArray = await exportPrivateKey(keys.userPrivateKey);
+    const publicKeys = await publicKeyToBase64(keys.publicKeys);
+    const privateKeys = await privateKeyToBase64(keys.privateKeys);
     const json = JSON.stringify({
-      userPublicKey: uint8ArrayToBase64(pkArray),
-      userPrivateKey: uint8ArrayToBase64(skArray),
-      userPublicKyberKey: uint8ArrayToBase64(keys.userPublicKyberKey),
-      userPrivateKyberKey: uint8ArrayToBase64(keys.userPrivateKyberKey),
+      publicKeys,
+      privateKeys,
     });
     const base64 = btoa(json);
     return base64;
   } catch (error) {
-    throw new Error('Failed to convert identity keys to base64', { cause: error });
+    throw new Error('Failed to convert email keys to base64', { cause: error });
   }
 }
 
@@ -56,17 +54,11 @@ export async function base64ToEmailKeys(base64: string): Promise<EmailKeys> {
   try {
     const json = atob(base64);
     const obj = JSON.parse(json);
-    const pkArray = base64ToUint8Array(obj.userPublicKey);
-    const skArray = base64ToUint8Array(obj.userPrivateKey);
-    const pkCryptoKey = await importPublicKey(pkArray);
-    const skCryptoKey = await importPrivateKey(skArray);
-    const pkKyber = base64ToUint8Array(obj.userPublicKyberKey);
-    const skKyber = base64ToUint8Array(obj.userPrivateKyberKey);
+    const publicKeys = await base64ToPublicKey(obj.publicKeys);
+    const privateKeys = await base64ToPrivateKey(obj.privateKeys);
     const result: EmailKeys = {
-      userPublicKey: pkCryptoKey,
-      userPrivateKey: skCryptoKey,
-      userPublicKyberKey: pkKyber,
-      userPrivateKyberKey: skKyber,
+      publicKeys,
+      privateKeys,
     };
     return result;
   } catch (error) {
@@ -135,5 +127,47 @@ export async function publicKeyToBase64(key: PublicKeys): Promise<string> {
     return base64;
   } catch (error) {
     throw new Error('Failed to convert key of the type PublicKeys to base64', { cause: error });
+  }
+}
+
+/**
+ * Converts a base64 string into PrivateKeys type.
+ *
+ * @param base64 - The base64 representation of the private key.
+ * @returns The resulting PrivateKeys.
+ */
+export async function base64ToPrivateKey(base64: string): Promise<PrivateKeys> {
+  try {
+    const json = atob(base64);
+    const obj = JSON.parse(json);
+    const eccPrivateKeyBytes = base64ToUint8Array(obj.eccPrivateKey);
+    const eccPrivateKey = await importPrivateKey(eccPrivateKeyBytes);
+    const kyberPrivateKey = base64ToUint8Array(obj.kyberPrivateKey);
+    return {
+      eccPrivateKey,
+      kyberPrivateKey,
+    };
+  } catch (error) {
+    throw new Error('Failed to convert base64 to PrivateKeys', { cause: error });
+  }
+}
+
+/**
+ * Converts a PrivateKeys type into base64 string.
+ *
+ * @param key - The PrivateKeys key.
+ * @returns The resulting base64 string.
+ */
+export async function privateKeyToBase64(key: PrivateKeys): Promise<string> {
+  try {
+    const eccPrivateKeyArray = await exportPrivateKey(key.eccPrivateKey);
+    const json = JSON.stringify({
+      eccPrivateKey: uint8ArrayToBase64(eccPrivateKeyArray),
+      kyberPrivateKey: uint8ArrayToBase64(key.kyberPrivateKey),
+    });
+    const base64 = btoa(json);
+    return base64;
+  } catch (error) {
+    throw new Error('Failed to convert key of the type PrivateKeys to base64', { cause: error });
   }
 }

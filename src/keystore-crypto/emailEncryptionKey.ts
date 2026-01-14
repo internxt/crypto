@@ -2,8 +2,7 @@ import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
 import { emailKeysToBase64, base64ToEmailKeys, genMnemonic } from '../utils';
 import { AES_KEY_BIT_LENGTH } from '../constants';
 import { encryptKeystoreContent, decryptKeystoreContent, deriveEncryptionKeystoreKey, deriveRecoveryKey } from './core';
-import { generateEccKeys } from '../asymmetric-crypto';
-import { generateKyberKeys } from '../post-quantum-crypto';
+import { generateEmailKeys } from '../email-crypto';
 
 /**
  * Generates recovery codes
@@ -12,27 +11,6 @@ import { generateKyberKeys } from '../post-quantum-crypto';
  */
 export function generateRecoveryCodes(): string {
   return genMnemonic(AES_KEY_BIT_LENGTH);
-}
-
-/**
- * Generates email keys
- *
- * @returns The generated encryption keys
- */
-export async function generateEmailKeys(): Promise<EmailKeys> {
-  try {
-    const keyPair = await generateEccKeys();
-    const keyPairKyber = generateKyberKeys();
-    const result: EmailKeys = {
-      userPrivateKey: keyPair.privateKey,
-      userPublicKey: keyPair.publicKey,
-      userPublicKyberKey: keyPairKyber.publicKey,
-      userPrivateKyberKey: keyPairKyber.secretKey,
-    };
-    return result;
-  } catch (error) {
-    throw new Error('Failed to generate email keys', { cause: error });
-  }
 }
 
 /**

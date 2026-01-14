@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { publicKeyToBase64, base64ToPublicKey } from '../../src/utils';
-import { PublicKeys } from '../../src/types';
+import { publicKeyToBase64, base64ToPublicKey, privateKeyToBase64, base64ToPrivateKey } from '../../src/utils';
+import { PrivateKeys, PublicKeys } from '../../src/types';
 import { generateEccKeys } from '../../src/asymmetric-crypto';
 import { generateKyberKeys } from '../../src/post-quantum-crypto';
 
 describe('key converters', () => {
-  it('public key converter to base64 and back works', async () => {
+  it('public and private key converter to base64 and back works', async () => {
     const eccKeyPair = await generateEccKeys();
     const kyberKeyPair = await generateKyberKeys();
 
@@ -16,6 +16,14 @@ describe('key converters', () => {
     const base64 = await publicKeyToBase64(key);
     const result = await base64ToPublicKey(base64);
     expect(result).toEqual(key);
+
+    const privateKey: PrivateKeys = {
+      eccPrivateKey: eccKeyPair.privateKey,
+      kyberPrivateKey: kyberKeyPair.secretKey,
+    };
+    const base64Private = await privateKeyToBase64(privateKey);
+    const resultPrivate = await base64ToPrivateKey(base64Private);
+    expect(resultPrivate).toEqual(privateKey);
   });
 
   it('throws error if public key converter to base64 fails', async () => {

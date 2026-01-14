@@ -24,10 +24,8 @@ export type PrivateKeys = {
 };
 
 export type EmailKeys = {
-  userPublicKey: CryptoKey;
-  userPrivateKey: CryptoKey;
-  userPublicKyberKey: Uint8Array;
-  userPrivateKyberKey: Uint8Array;
+  publicKeys: PublicKeys;
+  privateKeys: PrivateKeys;
 };
 
 export type HybridEncryptedEmail = {
