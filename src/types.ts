@@ -23,12 +23,7 @@ export type PrivateKeys = {
   kyberPrivateKey: Uint8Array;
 };
 
-export type IdentityKeys = {
-  userPublicKey: CryptoKey;
-  userPrivateKey: CryptoKey;
-};
-
-export type EncryptionKeys = {
+export type EmailKeys = {
   userPublicKey: CryptoKey;
   userPrivateKey: CryptoKey;
   userPublicKyberKey: Uint8Array;
@@ -98,11 +93,7 @@ export interface EmailSearchResult {
   score?: number;
 }
 
-export const KEYSTORE_TAGS = {
-  IDENTITY: 'Identity keystore',
-  ENCRYPTION: 'Encryption keystore',
-  RECOVERY: 'Key recovery keystore',
-  INDEX: 'Current encrypted indices',
-} as const;
-
-export type KeystoreType = (typeof KEYSTORE_TAGS)[keyof typeof KEYSTORE_TAGS];
+export enum KeystoreType {
+  ENCRYPTION = 'Encryption keystore',
+  RECOVERY = 'Recovery keystore',
+}

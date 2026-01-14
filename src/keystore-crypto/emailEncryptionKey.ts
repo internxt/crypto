@@ -1,14 +1,7 @@
-import { EncryptionKeys, EncryptedKeystore, KEYSTORE_TAGS } from '../types';
-import { encryptionKeysToBase64, base64ToEncryptionKeys, genMnemonic } from '../utils';
+import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
+import { emailKeysToBase64, base64ToEmailKeys, genMnemonic } from '../utils';
 import { AES_KEY_BIT_LENGTH } from '../constants';
-import {
-  encryptKeystoreContent,
-  decryptKeystoreContent,
-  getUserID,
-  getBaseKey,
-  deriveEncryptionKeystoreKey,
-  deriveRecoveryKey,
-} from './core';
+import { encryptKeystoreContent, decryptKeystoreContent, deriveEncryptionKeystoreKey, deriveRecoveryKey } from './core';
 import { generateEccKeys } from '../asymmetric-crypto';
 import { generateKyberKeys } from '../post-quantum-crypto';
 
@@ -22,15 +15,15 @@ export function generateRecoveryCodes(): string {
 }
 
 /**
- * Generates encryption keys
+ * Generates email keys
  *
  * @returns The generated encryption keys
  */
-export async function generateEncryptionKeys(): Promise<EncryptionKeys> {
+export async function generateEmailKeys(): Promise<EmailKeys> {
   try {
     const keyPair = await generateEccKeys();
     const keyPairKyber = generateKyberKeys();
-    const result: EncryptionKeys = {
+    const result: EmailKeys = {
       userPrivateKey: keyPair.privateKey,
       userPublicKey: keyPair.publicKey,
       userPublicKyberKey: keyPairKyber.publicKey,
@@ -38,40 +31,42 @@ export async function generateEncryptionKeys(): Promise<EncryptionKeys> {
     };
     return result;
   } catch (error) {
-    throw new Error('Failed to generate encryption keys', { cause: error });
+    throw new Error('Failed to generate email keys', { cause: error });
   }
 }
 
 /**
- * Generates email encryption keys and creates encrypted encryption and recovery keystores
- * The encryption key is derived from the base key (stored in session storage)
+ * Generates email keys and creates encrypted main and recovery keystores
+ * The main keystore encryption key is derived from the base key (stored in session storage)
+ * The recovery keystore encryption key is derived from the recovery codes
  *
  * @returns The encryption and recovery keystores
  */
-export async function createEncryptionAndRecoveryKeystores(): Promise<{
+export async function createEncryptionAndRecoveryKeystores(
+  userEmail: string,
+  baseKey: Uint8Array,
+): Promise<{
   encryptionKeystore: EncryptedKeystore;
   recoveryKeystore: EncryptedKeystore;
   recoveryCodes: string;
 }> {
   try {
-    const userEmail = getUserID();
-    const baseKey = getBaseKey();
-    const keys = await generateEncryptionKeys();
-    const content = await encryptionKeysToBase64(keys);
+    const keys = await generateEmailKeys();
+    const content = await emailKeysToBase64(keys);
 
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
-    const ciphertext = await encryptKeystoreContent(secretKey, content, userEmail, KEYSTORE_TAGS.ENCRYPTION);
+    const ciphertext = await encryptKeystoreContent(secretKey, content, userEmail, KeystoreType.ENCRYPTION);
     const encryptionKeystore: EncryptedKeystore = {
       userEmail,
-      type: KEYSTORE_TAGS.ENCRYPTION,
+      type: KeystoreType.ENCRYPTION,
       encryptedKeys: ciphertext,
     };
     const recoveryCodes = generateRecoveryCodes();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
-    const encKeys = await encryptKeystoreContent(recoveryKey, content, userEmail, KEYSTORE_TAGS.RECOVERY);
+    const encKeys = await encryptKeystoreContent(recoveryKey, content, userEmail, KeystoreType.RECOVERY);
     const recoveryKeystore: EncryptedKeystore = {
       userEmail,
-      type: KEYSTORE_TAGS.RECOVERY,
+      type: KeystoreType.RECOVERY,
       encryptedKeys: encKeys,
     };
     return { encryptionKeystore, recoveryKeystore, recoveryCodes };
@@ -85,22 +80,25 @@ export async function createEncryptionAndRecoveryKeystores(): Promise<{
  * The decryption key is derived from the base key (stored in session storage)
  *
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
+ * @param baseKey - The base key from which the decryption key will be derived
  * @returns The encryption keys
  */
-export async function openEncryptionKeystore(encryptedKeystore: EncryptedKeystore): Promise<EncryptionKeys> {
+export async function openEncryptionKeystore(
+  encryptedKeystore: EncryptedKeystore,
+  baseKey: Uint8Array,
+): Promise<EmailKeys> {
   try {
-    if (encryptedKeystore.type != KEYSTORE_TAGS.ENCRYPTION) {
+    if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
       throw new Error('Input is invalid');
     }
-    const baseKey = getBaseKey();
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
     const json = await decryptKeystoreContent(
       secretKey,
       encryptedKeystore.encryptedKeys,
       encryptedKeystore.userEmail,
-      KEYSTORE_TAGS.ENCRYPTION,
+      KeystoreType.ENCRYPTION,
     );
-    const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
+    const keys: EmailKeys = await base64ToEmailKeys(json);
     return keys;
   } catch (error) {
     throw new Error('Failed to open encryption keystore', { cause: error });
@@ -118,9 +116,9 @@ export async function openEncryptionKeystore(encryptedKeystore: EncryptedKeystor
 export async function openRecoveryKeystore(
   recoveryCodes: string,
   encryptedKeystore: EncryptedKeystore,
-): Promise<EncryptionKeys> {
+): Promise<EmailKeys> {
   try {
-    if (encryptedKeystore.type != KEYSTORE_TAGS.RECOVERY) {
+    if (encryptedKeystore.type != KeystoreType.RECOVERY) {
       throw new Error('Input is invalid');
     }
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
@@ -128,9 +126,9 @@ export async function openRecoveryKeystore(
       recoveryKey,
       encryptedKeystore.encryptedKeys,
       encryptedKeystore.userEmail,
-      KEYSTORE_TAGS.RECOVERY,
+      KeystoreType.RECOVERY,
     );
-    const keys: EncryptionKeys = await base64ToEncryptionKeys(json);
+    const keys: EmailKeys = await base64ToEmailKeys(json);
     return keys;
   } catch (error) {
     throw new Error('Failed to open recovery keystore', { cause: error });

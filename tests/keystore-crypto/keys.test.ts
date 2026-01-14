@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  deriveEncryptionKeystoreKey,
-  deriveIdentityKeystoreKey,
-  deriveRecoveryKey,
-} from '../../src/keystore-crypto/core';
+import { deriveEncryptionKeystoreKey, deriveRecoveryKey } from '../../src/keystore-crypto/core';
 import { generateRecoveryCodes } from '../../src/keystore-crypto';
 import { exportSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto/keys';
 import { AES_KEY_BIT_LENGTH } from '../../src/constants';
@@ -20,16 +16,12 @@ describe('Test keystore key generation functions', () => {
     const codes = generateRecoveryCodes();
     const baseKey = await genSymmetricKey();
 
-    const identityCryptoKey = await deriveIdentityKeystoreKey(baseKey);
     const encryptionCryoptoKey = await deriveEncryptionKeystoreKey(baseKey);
     const recoveryCryptoKey = await deriveRecoveryKey(codes);
 
-    const identityKey = await exportSymmetricCryptoKey(identityCryptoKey);
     const encryptionKey = await exportSymmetricCryptoKey(encryptionCryoptoKey);
     const recoveryKey = await exportSymmetricCryptoKey(recoveryCryptoKey);
 
-    expect(identityKey).not.toStrictEqual(encryptionKey);
-    expect(identityKey).not.toStrictEqual(recoveryKey);
     expect(encryptionKey).not.toStrictEqual(recoveryKey);
   });
 });

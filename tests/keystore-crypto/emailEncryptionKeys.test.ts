@@ -4,16 +4,12 @@ import {
   openEncryptionKeystore,
   openRecoveryKeystore,
 } from '../../src/keystore-crypto';
-import { v4 as uuidv4 } from 'uuid';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
-import sessionStorageService from '../../src/storage-service/sessionStorageService';
 import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH } from '../../src/constants';
-import { uint8ArrayToBase64 } from '../../src/utils';
 
 describe('Test keystore create/open functions', async () => {
-  const mockUserID = uuidv4();
+  const mockUserEmail = 'mock user email';
   const secretKey = await genSymmetricKey();
-  const secretKeyBase64 = uint8ArrayToBase64(secretKey);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -21,10 +17,11 @@ describe('Test keystore create/open functions', async () => {
   });
 
   it('should successfully create and open encryption keystore', async () => {
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKeyBase64);
-    const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores();
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(secretKeyBase64);
-    const result_enc = await openEncryptionKeystore(encryptionKeystore);
+    const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
+      mockUserEmail,
+      secretKey,
+    );
+    const result_enc = await openEncryptionKeystore(encryptionKeystore, secretKey);
     const result_rec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(result_enc).toStrictEqual(result_rec);
@@ -34,21 +31,15 @@ describe('Test keystore create/open functions', async () => {
     expect(result_enc.userPublicKyberKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
   });
 
-  it('should throw an error if no base key for keystore creation', async () => {
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID);
-
-    await expect(createEncryptionAndRecoveryKeystores()).rejects.toThrowError(
-      /Failed to create encryption and recovery keystores/,
-    );
-  });
-
   it('should throw an error if no base key for keystore opening', async () => {
-    vi.spyOn(sessionStorageService, 'get').mockReturnValueOnce(mockUserID).mockReturnValueOnce(secretKeyBase64);
-    const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores();
+    const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores(
+      mockUserEmail,
+      secretKey,
+    );
 
-    vi.spyOn(sessionStorageService, 'get').mockResolvedValueOnce('');
-
-    await expect(openEncryptionKeystore(encryptionKeystore)).rejects.toThrowError(/Failed to open encryption keystore/);
+    await expect(openEncryptionKeystore(encryptionKeystore, new Uint8Array([]))).rejects.toThrowError(
+      /Failed to open encryption keystore/,
+    );
     await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Failed to open recovery keystore/);
   });
 });

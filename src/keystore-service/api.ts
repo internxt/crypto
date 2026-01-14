@@ -1,6 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import { KeystoreType, KEYSTORE_TAGS, EncryptedKeystore, PublicKeys } from '../types';
-import { getUserID } from '../keystore-crypto/core';
+import { KeystoreType, EncryptedKeystore, PublicKeys } from '../types';
 import { base64ToEncryptedKeystore, encryptedKeystoreToBase64, base64ToPublicKey } from '../utils';
 
 export class KeyServiceAPI {
@@ -85,12 +84,11 @@ export class KeyServiceAPI {
    * Uploads encrypted keystore to the server
    *
    * @param encryptedKeystore - The encrypted keystore
-   * @param type - The keystore's type
    * @returns Server response
    */
   async uploadKeystoreToServer(encryptedKeystore: EncryptedKeystore): Promise<AxiosResponse> {
     try {
-      const userID = getUserID();
+      const userID = encryptedKeystore.userEmail;
       const keystoreType = encryptedKeystore.type;
       const url = `/uploadKeystore/${userID}/${keystoreType}`;
       const ciphertextBase64 = encryptedKeystoreToBase64(encryptedKeystore);
@@ -106,17 +104,8 @@ export class KeyServiceAPI {
    *
    * @returns Encrypted keystore containing encryption keys
    */
-  async getEncryptionKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KEYSTORE_TAGS.ENCRYPTION);
-  }
-
-  /**
-   * Gets a user's encrypted Identity Keystore from the server
-   *
-   * @returns Encrypted Identity Keystore
-   */
-  async getIdentityKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KEYSTORE_TAGS.IDENTITY);
+  async getEncryptionKeystoreFromServer(userEmail: string): Promise<EncryptedKeystore> {
+    return this.getKeystoreFromServer(userEmail, KeystoreType.ENCRYPTION);
   }
 
   /**
@@ -124,17 +113,8 @@ export class KeyServiceAPI {
    *
    * @returns Encrypted Recovery Keystore
    */
-  async getRecoveryKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KEYSTORE_TAGS.RECOVERY);
-  }
-
-  /**
-   * Gets a user's encrypted Index Keystore from the server
-   *
-   * @returns Encrypted Index Keytore
-   */
-  async getIndexKeystoreFromServer(): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(KEYSTORE_TAGS.INDEX);
+  async getRecoveryKeystoreFromServer(userEmail: string): Promise<EncryptedKeystore> {
+    return this.getKeystoreFromServer(userEmail, KeystoreType.RECOVERY);
   }
 
   /**
@@ -143,10 +123,9 @@ export class KeyServiceAPI {
    * @param type - The requested keystore's type
    * @returns Encrypted  Keytore
    */
-  async getKeystoreFromServer(type: KeystoreType): Promise<EncryptedKeystore> {
+  async getKeystoreFromServer(userEmail: string, type: KeystoreType): Promise<EncryptedKeystore> {
     try {
-      const userID = getUserID();
-      const response = await this.requestEncryptedKeystore(userID, type);
+      const response = await this.requestEncryptedKeystore(userEmail, type);
       const result = base64ToEncryptedKeystore(response);
       return result;
     } catch (error) {
