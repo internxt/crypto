@@ -73,11 +73,7 @@ export {
 } from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
 export {
-  generateIdentityKeys,
-  createIdentityKeystore,
-  openIdentityKeystore,
   generateRecoveryCodes,
-  generateEncryptionKeys,
   createEncryptionAndRecoveryKeystores,
   openEncryptionKeystore,
   openRecoveryKeystore,
@@ -101,11 +97,7 @@ export {
   uint8ArrayToBase64,
   base64ToUint8Array,
   genMnemonic,
-  identityKeysToBase64,
-  encryptionKeysToBase64,
   encryptedKeystoreToBase64,
-  base64ToIdentityKeys,
-  base64ToEncryptionKeys,
   base64ToEncryptedKeystore,
   base64ToPublicKey,
   publicKeyToBase64,
