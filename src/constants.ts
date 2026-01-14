@@ -9,16 +9,10 @@ export const CONTEXT_WRAPPING = 'CRYPTO library 2025-08-22 18:10:00 key derived 
 
 export const ECC_ALGORITHM = 'X25519';
 
-export const CONTEXT_LOGIN = 'CRYPTO library 2025-07-26 16:18:03 key for opening identity keystore';
 export const CONTEXT_ENC_KEYSTORE = 'CRYPTO library 2025-07-30 16:18:03 key for opening encryption keys keystore';
 export const CONTEXT_RECOVERY = 'CRYPTO library 2025-07-30 16:20:00 key for account recovery';
 export const CONTEXT_INDEX = 'CRYPTO library 2025-07-30 17:20:00 key for protecting current search indices';
 export const CONTEXT_DERIVE = 'CRYPTO library 2025-08-27 17:08:00 derive one key from two keys';
-
-export const PREFIX_MEDIA_KEY_COMMITMENT = 'CRYPTO library 2025-08-26 18:29:00 prefix for commitment to media keys';
-export const PREFIX_PUBLIC_KEY_COMMITMENT = 'CRYPTO library 2025-08-26 18:30:00 prefix for commitment to public keys';
-export const PREFIX_IDENTITY_KEY_COMMITMENT =
-  'CRYPTO library 2025-08-26 18:45:00 prefix for commitment to identity keys';
 
 // Second recommended parameter set from RFC 9106
 export const ARGON2ID_PARALLELISM = 3;
