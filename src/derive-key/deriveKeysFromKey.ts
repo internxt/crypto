@@ -48,7 +48,7 @@ export async function deriveSymmetricCryptoKeyFromContext(context: string, baseK
  * @returns The derived secret key
  */
 export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array): Uint8Array {
-  return deriveKeyFromTwoKeysAndContext(key1, key2, CONTEXT_DERIVE);
+  return deriveSymmetricKeyFromTwoKeysAndContext(key1, key2, CONTEXT_DERIVE);
 }
 
 /**
@@ -76,7 +76,11 @@ export async function deriveSymmetricCryptoKeyFromTwoKeys(key1: Uint8Array, key2
  * @param context - The context string
  * @returns The derived symmetric key
  */
-export function deriveKeyFromTwoKeysAndContext(key1: Uint8Array, key2: Uint8Array, context: string): Uint8Array {
+export function deriveSymmetricKeyFromTwoKeysAndContext(
+  key1: Uint8Array,
+  key2: Uint8Array,
+  context: string,
+): Uint8Array {
   try {
     if (key2.length != AES_KEY_BIT_LENGTH / 8 || key1.length != AES_KEY_BIT_LENGTH / 8) {
       throw new Error(`Input key length must be exactly ${AES_KEY_BIT_LENGTH / 8} bytes`);

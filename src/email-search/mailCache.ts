@@ -52,7 +52,12 @@ export const createCacheFromDB = async (indexKey: CryptoKey, esDB: MailDB): Prom
 
       let cacheFull = false;
       while (!cacheFull) {
-        const { emails, nextCursor: newCursor } = await getEmailBatch(esDB, indexKey, MAX_EMAIL_PER_BATCH, nextCursor);
+        const { emails, nextCursor: newCursor }: { emails: Email[]; nextCursor?: IDBValidKey } = await getEmailBatch(
+          esDB,
+          indexKey,
+          MAX_EMAIL_PER_BATCH,
+          nextCursor,
+        );
         if (!newCursor || !emails.length) break;
         nextCursor = newCursor;
 

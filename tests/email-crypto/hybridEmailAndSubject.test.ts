@@ -18,7 +18,7 @@ import {
   Email,
 } from '../../src/types';
 import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
-import { generateID } from '../../src/utils';
+import { generateUuid } from '../../src/utils';
 
 describe('Test email crypto functions', async () => {
   const emailBody: EmailBody = {
@@ -41,11 +41,11 @@ describe('Test email crypto functions', async () => {
     subject: 'test subject',
     sender: userAlice,
     recipient: userBob,
-    replyToEmailID: generateID(),
+    replyToEmailID: generateUuid(),
   };
 
   const email: Email = {
-    id: generateID(),
+    id: generateUuid(),
     body: emailBody,
     params: emailParams,
   };

@@ -1,5 +1,5 @@
 import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, CONTEXT_WRAPPING, AES_ALGORITHM } from '../constants';
-import { deriveKeyFromTwoKeysAndContext } from '../derive-key';
+import { deriveSymmetricKeyFromTwoKeysAndContext } from '../derive-key';
 
 /**
  * Converts wrapping key in Uint8Array into CryptoKey
@@ -30,7 +30,7 @@ export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint
     if (eccSecret.length !== kyberSecret.length) {
       throw new Error('secrets must have equal length');
     }
-    const key = await deriveKeyFromTwoKeysAndContext(eccSecret, kyberSecret, CONTEXT_WRAPPING);
+    const key = await deriveSymmetricKeyFromTwoKeysAndContext(eccSecret, kyberSecret, CONTEXT_WRAPPING);
     return await importWrappingKey(key);
   } catch (error) {
     throw new Error('Failed to derive wrapping key', { cause: error });
