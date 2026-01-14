@@ -47,7 +47,7 @@ describe('key converters', () => {
     await expect(base64ToPrivateKey(base64)).rejects.toThrowError(/Failed to convert base64 to PrivateKeys/);
   });
 
-  it('throws error if public key converter to base64 fails', async () => {
+  it('throws error if key converter to base64 fails', async () => {
     const eccKeyPair = await generateEccKeys();
     const kyberKeyPair = await generateKyberKeys();
 
@@ -57,6 +57,14 @@ describe('key converters', () => {
     };
     await expect(publicKeyToBase64(bad_key)).rejects.toThrowError(
       /Failed to convert key of the type PublicKeys to base64/,
+    );
+
+    const bad_private_key: PrivateKeys = {
+      eccPrivateKey: eccKeyPair.publicKey,
+      kyberPrivateKey: kyberKeyPair.secretKey,
+    };
+    await expect(privateKeyToBase64(bad_private_key)).rejects.toThrowError(
+      /Failed to convert key of the type PrivateKeys to base64/,
     );
   });
   it('throws error if base64 to public key converter fails', async () => {
