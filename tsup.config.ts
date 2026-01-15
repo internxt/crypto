@@ -12,7 +12,6 @@ export default defineConfig({
     'keystore-crypto': 'src/keystore-crypto/index.ts',
     'keystore-service': 'src/keystore-service/index.ts',
     'email-search': 'src/email-search/index.ts',
-    'email-service': 'src/email-service/index.ts',
     'storage-service': 'src/storage-service/index.ts',
     utils: 'src/utils/index.ts',
     types: 'src/types.ts',

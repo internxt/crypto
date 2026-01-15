@@ -30,10 +30,6 @@ export {
   createPwdProtectedEmailAndSubject,
   decryptPwdProtectedEmailAndSubject,
   generateEmailKeys,
-  paramsToBase64,
-  base64ToParams,
-  hybridEncyptedEmailToBase64,
-  pwdProtectedEmailToBase64,
 } from './email-crypto';
 export {
   openDatabase,
@@ -60,7 +56,6 @@ export {
   buildSearchIndexFromCache,
   searchEmails,
 } from './email-search';
-export { getEmailServiceAPI } from './email-service';
 export {
   hashDataArray,
   hashDataArrayWithKey,
@@ -92,8 +87,6 @@ export {
   uint8ArrayToBase64,
   base64ToUint8Array,
   genMnemonic,
-  encryptedKeystoreToBase64,
-  base64ToEncryptedKeystore,
   base64ToPublicKey,
   publicKeyToBase64,
   generateUuid,
