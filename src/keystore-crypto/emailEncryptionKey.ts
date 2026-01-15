@@ -1,5 +1,5 @@
 import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
-import { emailKeysToBase64, base64ToEmailKeys, genMnemonic } from '../utils';
+import { genMnemonic } from '../utils';
 import { encryptKeystoreContent, decryptKeystoreContent, deriveEncryptionKeystoreKey, deriveRecoveryKey } from './core';
 import { generateEmailKeys } from '../email-crypto';
 
@@ -20,23 +20,14 @@ export async function createEncryptionAndRecoveryKeystores(
 }> {
   try {
     const keys = await generateEmailKeys();
-    const content = await emailKeysToBase64(keys);
 
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
-    const ciphertext = await encryptKeystoreContent(secretKey, content, userEmail, KeystoreType.ENCRYPTION);
-    const encryptionKeystore: EncryptedKeystore = {
-      userEmail,
-      type: KeystoreType.ENCRYPTION,
-      encryptedKeys: ciphertext,
-    };
+    const encryptionKeystore = await encryptKeystoreContent(secretKey, keys, userEmail, KeystoreType.ENCRYPTION);
+
     const recoveryCodes = genMnemonic();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
-    const encKeys = await encryptKeystoreContent(recoveryKey, content, userEmail, KeystoreType.RECOVERY);
-    const recoveryKeystore: EncryptedKeystore = {
-      userEmail,
-      type: KeystoreType.RECOVERY,
-      encryptedKeys: encKeys,
-    };
+    const recoveryKeystore = await encryptKeystoreContent(recoveryKey, keys, userEmail, KeystoreType.RECOVERY);
+
     return { encryptionKeystore, recoveryKeystore, recoveryCodes };
   } catch (error) {
     throw new Error('Failed to create encryption and recovery keystores', { cause: error });
@@ -60,13 +51,7 @@ export async function openEncryptionKeystore(
       throw new Error('Input is invalid');
     }
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
-    const json = await decryptKeystoreContent(
-      secretKey,
-      encryptedKeystore.encryptedKeys,
-      encryptedKeystore.userEmail,
-      KeystoreType.ENCRYPTION,
-    );
-    const keys: EmailKeys = await base64ToEmailKeys(json);
+    const keys = await decryptKeystoreContent(secretKey, encryptedKeystore);
     return keys;
   } catch (error) {
     throw new Error('Failed to open encryption keystore', { cause: error });
@@ -90,13 +75,7 @@ export async function openRecoveryKeystore(
       throw new Error('Input is invalid');
     }
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
-    const json = await decryptKeystoreContent(
-      recoveryKey,
-      encryptedKeystore.encryptedKeys,
-      encryptedKeystore.userEmail,
-      KeystoreType.RECOVERY,
-    );
-    const keys: EmailKeys = await base64ToEmailKeys(json);
+    const keys = await decryptKeystoreContent(recoveryKey, encryptedKeystore);
     return keys;
   } catch (error) {
     throw new Error('Failed to open recovery keystore', { cause: error });

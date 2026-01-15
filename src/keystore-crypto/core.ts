@@ -1,8 +1,10 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
-import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes } from '../utils';
+import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes, publicKeyToBase64 } from '../utils';
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
 import { CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
 import { getBytesFromData } from '../hash';
+import { EmailKeys, EncryptedKeystore, KeystoreType } from 'types';
+import { exportPrivateKey, importPrivateKey, importPublicKey } from '../asymmetric-crypto';
 
 /**
  * Encrypts the keystore content using symmetric encryption
@@ -15,15 +17,30 @@ import { getBytesFromData } from '../hash';
  */
 export async function encryptKeystoreContent(
   secretKey: CryptoKey,
-  content: string,
-  userID: string,
-  tag: string,
-): Promise<Uint8Array> {
+  keys: EmailKeys,
+  userEmail: string,
+  type: KeystoreType,
+): Promise<EncryptedKeystore> {
   try {
-    const aux = UTF8ToUint8(userID + tag);
-    const message = base64ToUint8Array(content);
-    const result = await encryptSymmetrically(secretKey, message, aux);
-    return result;
+    const aux = UTF8ToUint8(userEmail + type);
+    const publicKeys = await publicKeyToBase64(keys.publicKeys);
+    const kyberPrivateKeyEnc = await encryptSymmetrically(secretKey, keys.privateKeys.kyberPrivateKey, aux);
+    const eccPrivateKey = await exportPrivateKey(keys.privateKeys.eccPrivateKey);
+    const eccPrivateKeyEnc = await encryptSymmetrically(secretKey, eccPrivateKey, aux);
+    const encryptedKeys = {
+      publicKeys,
+      privateKeys: {
+        kyberPrivateKeyBase64: uint8ArrayToBase64(kyberPrivateKeyEnc),
+        eccPrivateKeyBase64: uint8ArrayToBase64(eccPrivateKeyEnc),
+      },
+    };
+
+    const keystore: EncryptedKeystore = {
+      userEmail,
+      type,
+      encryptedKeys,
+    };
+    return keystore;
   } catch (error) {
     throw new Error('Failed to encrypt keystore content', { cause: error });
   }
@@ -40,15 +57,29 @@ export async function encryptKeystoreContent(
  */
 export async function decryptKeystoreContent(
   secretKey: CryptoKey,
-  encryptedKeys: Uint8Array,
-  userEmail: string,
-  tag: string,
-): Promise<string> {
+  encryptedKeystore: EncryptedKeystore,
+): Promise<EmailKeys> {
   try {
-    const aux = UTF8ToUint8(userEmail + tag);
-    const content = await decryptSymmetrically(secretKey, encryptedKeys, aux);
-    const result = uint8ArrayToBase64(content);
-    return result;
+    const aux = UTF8ToUint8(encryptedKeystore.userEmail + encryptedKeystore.type);
+    const kyberPublicKey = base64ToUint8Array(encryptedKeystore.encryptedKeys.publicKeys.kyberPublicKeyBase64);
+    const eccPublicArray = base64ToUint8Array(encryptedKeystore.encryptedKeys.publicKeys.eccPublicKeyBase64);
+    const eccPublicKey = await importPublicKey(eccPublicArray);
+    const encKyberPrivateKey = base64ToUint8Array(encryptedKeystore.encryptedKeys.privateKeys.kyberPrivateKeyBase64);
+    const kyberPrivateKey = await decryptSymmetrically(secretKey, encKyberPrivateKey, aux);
+    const eccEncArray = base64ToUint8Array(encryptedKeystore.encryptedKeys.privateKeys.eccPrivateKeyBase64);
+    const eccKey = await decryptSymmetrically(secretKey, eccEncArray, aux);
+    const eccPrivateKey = await importPrivateKey(eccKey);
+    const keys = {
+      publicKeys: {
+        kyberPublicKey,
+        eccPublicKey,
+      },
+      privateKeys: {
+        kyberPrivateKey,
+        eccPrivateKey,
+      },
+    };
+    return keys;
   } catch (error) {
     throw new Error('Failed to decrypt keystore content', { cause: error });
   }
