@@ -1,3 +1,4 @@
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import { PublicKeys, PrivateKeys, HybridEncryptedEmail, Email, UserWithPublicKeys } from '../types';
 import {
   encryptEmailContentSymmetrically,
@@ -24,7 +25,8 @@ export async function encryptEmailHybrid(
     const aux = getAux(email.params);
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.id);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
-    return { enc, encryptedKey, recipientEmail: recipient.email, params: email.params, id: email.id };
+    const encryptedText = uint8ArrayToBase64(enc);
+    return { enc: encryptedText, encryptedKey, recipientEmail: recipient.email, params: email.params, id: email.id };
   } catch (error) {
     throw new Error('Failed to encrypt email with hybrid encryption', { cause: error });
   }
@@ -46,11 +48,18 @@ export async function encryptEmailHybridForMultipleRecipients(
   try {
     const aux = getAux(email.params);
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(email.body, aux, email.id);
+    const encryptedText = uint8ArrayToBase64(enc);
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
     for (const recipient of recipients) {
       const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
-      encryptedEmails.push({ enc, encryptedKey, recipientEmail: recipient.email, params: email.params, id: email.id });
+      encryptedEmails.push({
+        enc: encryptedText,
+        encryptedKey,
+        recipientEmail: recipient.email,
+        params: email.params,
+        id: email.id,
+      });
     }
     return encryptedEmails;
   } catch (error) {
@@ -74,7 +83,8 @@ export async function decryptEmailHybrid(
   try {
     const aux = getAux(encryptedEmail.params);
     const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
-    const body = await decryptEmailSymmetrically(encryptedEmail.enc, encryptionKey, aux);
+    const enc = base64ToUint8Array(encryptedEmail.enc);
+    const body = await decryptEmailSymmetrically(enc, encryptionKey, aux);
     return { body, params: encryptedEmail.params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Failed to decrypt email with hybrid encryption', { cause: error });

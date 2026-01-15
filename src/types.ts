@@ -45,7 +45,7 @@ export type EmailKeysEncrypted = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  enc: Uint8Array;
+  enc: string;
   recipientEmail: string;
   params: EmailPublicParameters;
   id: string;
@@ -53,7 +53,7 @@ export type HybridEncryptedEmail = {
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  enc: Uint8Array;
+  enc: string;
   params: EmailPublicParameters;
   id: string;
 };
@@ -65,13 +65,13 @@ export type StoredEmail = {
 };
 
 export type HybridEncKey = {
-  kyberCiphertext: Uint8Array;
-  encryptedKey: Uint8Array;
+  kyberCiphertext: string;
+  encryptedKey: string;
 };
 
 export type PwdProtectedKey = {
-  encryptedKey: Uint8Array;
-  salt: Uint8Array;
+  encryptedKey: string;
+  salt: string;
 };
 
 export type EmailBody = {
