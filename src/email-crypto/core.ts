@@ -141,8 +141,8 @@ export async function encryptKeysHybrid(
     );
     const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
     const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
-    const encryptedKeyBase64 = await uint8ArrayToBase64(encryptedKey);
-    const kyberCiphertextBase64 = await uint8ArrayToBase64(kyberCiphertext);
+    const encryptedKeyBase64 = uint8ArrayToBase64(encryptedKey);
+    const kyberCiphertextBase64 = uint8ArrayToBase64(kyberCiphertext);
 
     return { encryptedKey: encryptedKeyBase64, kyberCiphertext: kyberCiphertextBase64 };
   } catch (error) {
