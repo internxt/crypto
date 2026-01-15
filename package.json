@@ -42,7 +42,6 @@
     "@noble/post-quantum": "^0.5.2",
     "@scure/bip39": "^2.0.1",
     "axios": "^1.11.0",
-    "buffer": "^6.0.3",
     "flexsearch": "^0.8.205",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
