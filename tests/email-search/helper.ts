@@ -50,7 +50,7 @@ export function getEmailSize(email: Email): number {
   return emailToBinary(email).byteLength;
 }
 
-export const generateEmailWithGivenText = (data: string): Email => {
+const generateEmailWithGivenText = (data: string): Email => {
   const sender = randomUser();
   const recipient = randomUser();
 
