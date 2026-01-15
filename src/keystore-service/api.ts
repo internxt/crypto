@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import { KeystoreType, EncryptedKeystore, PublicKeys } from '../types';
-import { base64ToEncryptedKeystore, encryptedKeystoreToBase64, base64ToPublicKey } from '../utils';
+import { KeystoreType, EncryptedKeystore, PublicKeys, PublicKeysBase64 } from '../types';
+import { base64ToPublicKey } from '../utils';
 
 export class KeyServiceAPI {
   private readonly baseUrl: string;
@@ -35,10 +35,11 @@ export class KeyServiceAPI {
    * @param url - The user specific part of the url
    * @returns Server response
    */
-  async sendEncryptedKeystoreToServer(encryptedKeystore: string, url: string): Promise<AxiosResponse> {
+  async uploadKeystoreToServer(encryptedKeystore: EncryptedKeystore): Promise<AxiosResponse> {
     try {
+      const url = `${this.baseUrl}/uploadKeystore`;
       const response = await axios.post(
-        this.baseUrl + `${url}`,
+        url,
         { encryptedKeystore },
         {
           withCredentials: true,
@@ -61,10 +62,11 @@ export class KeyServiceAPI {
    * @param url - The user-specific part of the url
    * @returns The user's encrypted keystore as base64 string
    */
-  async requestEncryptedKeystore(userID: string, keystoreType: KeystoreType): Promise<string> {
+  async getKeystoreFromServer(userID: string, keystoreType: KeystoreType): Promise<EncryptedKeystore> {
     try {
-      const url = `/downloadKeystore/${userID}/${keystoreType}`;
-      const response = await axios.get<string>(this.baseUrl + `${url}`, {
+      const url = `${this.baseUrl}/downloadKeystore`;
+      const response = await axios.get<EncryptedKeystore>(url, {
+        params: { userID, keystoreType },
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json',
@@ -81,66 +83,15 @@ export class KeyServiceAPI {
   }
 
   /**
-   * Uploads encrypted keystore to the server
-   *
-   * @param encryptedKeystore - The encrypted keystore
-   * @returns Server response
-   */
-  async uploadKeystoreToServer(encryptedKeystore: EncryptedKeystore): Promise<AxiosResponse> {
-    try {
-      const userID = encryptedKeystore.userEmail;
-      const keystoreType = encryptedKeystore.type;
-      const url = `/uploadKeystore/${userID}/${keystoreType}`;
-      const ciphertextBase64 = encryptedKeystoreToBase64(encryptedKeystore);
-      const result = await this.sendEncryptedKeystoreToServer(ciphertextBase64, url);
-      return result;
-    } catch (error) {
-      throw new Error('Failed to upload keystore to the server', { cause: error });
-    }
-  }
-
-  /**
-   * Gets a user's encrypted keystore containing encryption keys from the server
-   *
-   * @returns Encrypted keystore containing encryption keys
-   */
-  async getEncryptionKeystoreFromServer(userEmail: string): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(userEmail, KeystoreType.ENCRYPTION);
-  }
-
-  /**
-   * Gets a user's encrypted Recovery Keystore from the server
-   *
-   * @returns Encrypted Recovery Keystore
-   */
-  async getRecoveryKeystoreFromServer(userEmail: string): Promise<EncryptedKeystore> {
-    return this.getKeystoreFromServer(userEmail, KeystoreType.RECOVERY);
-  }
-
-  /**
-   * Gets a user's encrypted keystore from the server
-   *
-   * @param type - The requested keystore's type
-   * @returns Encrypted  Keytore
-   */
-  async getKeystoreFromServer(userEmail: string, type: KeystoreType): Promise<EncryptedKeystore> {
-    try {
-      const response = await this.requestEncryptedKeystore(userEmail, type);
-      const result = base64ToEncryptedKeystore(response);
-      return result;
-    } catch (error) {
-      throw new Error('Failed to retrieve keystore from the server', { cause: error });
-    }
-  }
-  /**
    * Obtains recipients public keys from the server
    *
    * @param emails - The recipients' emails
    * @returns The list of recipients' public keys
    */
-  async getRecipientsPublicKeysFromServer(emails: string[]): Promise<string[]> {
+  async getRecipientsPublicKeysFromServer(emails: string[]): Promise<PublicKeysBase64[]> {
     try {
-      const response = await axios.get<string[]>('/api/getPublicKeys', {
+      const url = `${this.baseUrl}/getPublicKeys`;
+      const response = await axios.get<PublicKeysBase64[]>(url, {
         params: {
           emails: emails,
         },
@@ -166,7 +117,7 @@ export class KeyServiceAPI {
    */
   async getRecipientsPublicKeys(emails: string[]): Promise<PublicKeys[]> {
     try {
-      const publicKeysBase64: string[] = await this.getRecipientsPublicKeysFromServer(emails);
+      const publicKeysBase64: PublicKeysBase64[] = await this.getRecipientsPublicKeysFromServer(emails);
       const result: PublicKeys[] = [];
       for (const keyBase64 of publicKeysBase64) {
         const publicKeys = await base64ToPublicKey(keyBase64);

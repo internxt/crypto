@@ -1,7 +1,7 @@
 export type EncryptedKeystore = {
   userEmail: string;
   type: KeystoreType;
-  encryptedKeys: Uint8Array;
+  encryptedKeys: EmailKeysEncrypted;
 };
 
 export type User = {
@@ -18,9 +18,19 @@ export type PublicKeys = {
   kyberPublicKey: Uint8Array;
 };
 
+export type PublicKeysBase64 = {
+  eccPublicKeyBase64: string;
+  kyberPublicKeyBase64: string;
+};
+
 export type PrivateKeys = {
   eccPrivateKey: CryptoKey;
   kyberPrivateKey: Uint8Array;
+};
+
+export type PrivateKeysEncrypted = {
+  eccPrivateKeyBase64: string;
+  kyberPrivateKeyBase64: string;
 };
 
 export type EmailKeys = {
@@ -28,9 +38,14 @@ export type EmailKeys = {
   privateKeys: PrivateKeys;
 };
 
+export type EmailKeysEncrypted = {
+  publicKeys: PublicKeysBase64;
+  privateKeys: PrivateKeysEncrypted;
+};
+
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  enc: Uint8Array;
+  enc: string;
   recipientEmail: string;
   params: EmailPublicParameters;
   id: string;
@@ -38,7 +53,7 @@ export type HybridEncryptedEmail = {
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  enc: Uint8Array;
+  enc: string;
   params: EmailPublicParameters;
   id: string;
 };
@@ -50,13 +65,13 @@ export type StoredEmail = {
 };
 
 export type HybridEncKey = {
-  kyberCiphertext: Uint8Array;
-  encryptedKey: Uint8Array;
+  kyberCiphertext: string;
+  encryptedKey: string;
 };
 
 export type PwdProtectedKey = {
-  encryptedKey: Uint8Array;
-  salt: Uint8Array;
+  encryptedKey: string;
+  salt: string;
 };
 
 export type EmailBody = {
@@ -92,6 +107,6 @@ export interface EmailSearchResult {
 }
 
 export enum KeystoreType {
-  ENCRYPTION = 'Encryption keystore',
-  RECOVERY = 'Recovery keystore',
+  ENCRYPTION = 'Encryption',
+  RECOVERY = 'Recovery',
 }

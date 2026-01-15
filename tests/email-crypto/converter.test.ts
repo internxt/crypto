@@ -1,15 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, User, HybridEncKey, PwdProtectedKey } from '../../src/types';
-import {
-  emailBodyToBinary,
-  binaryToEmailBody,
-  pwdProtectedKeyToBase64,
-  base64ToPwdProtectedKey,
-  encHybridKeyToBase64,
-  base64ToEncHybridKey,
-  userToBase64,
-  base64ToUser,
-} from '../../src/email-crypto';
+import { EmailBody } from '../../src/types';
+import { emailBodyToBinary, binaryToEmailBody } from '../../src/email-crypto';
 describe('Test email crypto functions', () => {
   it('email converter to binary and back works', async () => {
     const email: EmailBody = {
@@ -43,64 +34,5 @@ describe('Test email crypto functions', () => {
     expect(() => emailBodyToBinary(bad_email as any as EmailBody)).toThrowError(
       /Failed to convert EmailBody to Uint8Array/,
     );
-  });
-
-  const alice: User = {
-    name: 'Alice',
-    email: 'alice@email.com',
-  };
-
-  it('user converter to base64 and back works', async () => {
-    const base64 = await userToBase64(alice);
-    const result = await base64ToUser(base64);
-    expect(result).toEqual(alice);
-  });
-
-  it('pwd protected key converter to base64 and back works', async () => {
-    const key: PwdProtectedKey = {
-      encryptedKey: new Uint8Array([1, 2, 3, 4, 5]),
-      salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
-    };
-    const base64 = pwdProtectedKeyToBase64(key);
-    const result = base64ToPwdProtectedKey(base64);
-    expect(result).toStrictEqual(key);
-  });
-
-  it('throws error if pwd protected key to base64 convertion fails', async () => {
-    const bad_key = {
-      salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => pwdProtectedKeyToBase64(bad_key as any)).toThrowError(
-      /Failed to convert password-protected key to base64/,
-    );
-  });
-
-  it('throws error if base64 to pwd protected key convertion fails', async () => {
-    const bad_key = 'bad key';
-    expect(() => base64ToPwdProtectedKey(bad_key)).toThrowError(/Failed to convert base64 to password-protected key/);
-  });
-
-  it('enc hybrid key converter to base64 and back works', async () => {
-    const key: HybridEncKey = {
-      encryptedKey: new Uint8Array([1, 2, 3, 4, 5]),
-      kyberCiphertext: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
-    };
-    const base64 = encHybridKeyToBase64(key);
-    const result = base64ToEncHybridKey(base64);
-    expect(result).toStrictEqual(key);
-  });
-
-  it('throws error if enc hybrid key to base64 convertion fails', async () => {
-    const bad_key = {
-      salt: new Uint8Array([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]),
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => encHybridKeyToBase64(bad_key as any)).toThrowError(/Failed to convert hybrid key to base64/);
-  });
-
-  it('throws error if base64 to enc hybrid key convertion fails', async () => {
-    const bad_key = 'bad key';
-    expect(() => base64ToEncHybridKey(bad_key)).toThrowError(/Failed to convert base64 to hybrid key/);
   });
 });
