@@ -2,21 +2,6 @@ import { UTF8ToUint8, uint8ToUTF8 } from '../utils';
 import { EmailBody, User, Email } from '../types';
 import { concatBytes } from '@noble/hashes/utils.js';
 
-/**
- * Converts a User type into a base64 string.
- *
- * @param user - The given user.
- * @returns The base64 representation of the user.
- */
-export function userToBase64(user: User): string {
-  try {
-    const json = JSON.stringify(user);
-    return btoa(json);
-  } catch (error) {
-    throw new Error('Failed to convert User to base64', { cause: error });
-  }
-}
-
 export function userToBytes(user: User): Uint8Array {
   try {
     const json = JSON.stringify(user);
@@ -32,22 +17,6 @@ export function recipientsToBytes(recipients: User[]): Uint8Array {
     return concatBytes(...array);
   } catch (error) {
     throw new Error('Failed to convert recipients to bytes', { cause: error });
-  }
-}
-
-/**
- * Converts a base64 string into a User type
- *
- * @param base64 - The base64 representation of the user.
- * @returns The User type.
- */
-export function base64ToUser(base64: string): User {
-  try {
-    const json = atob(base64);
-    const user: User = JSON.parse(json);
-    return user;
-  } catch (error) {
-    throw new Error('Failed to convert base64 to User', { cause: error });
   }
 }
 

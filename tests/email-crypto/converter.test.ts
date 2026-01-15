@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, User } from '../../src/types';
-import { emailBodyToBinary, binaryToEmailBody, userToBase64, base64ToUser } from '../../src/email-crypto';
+import { EmailBody } from '../../src/types';
+import { emailBodyToBinary, binaryToEmailBody } from '../../src/email-crypto';
 describe('Test email crypto functions', () => {
   it('email converter to binary and back works', async () => {
     const email: EmailBody = {
@@ -34,16 +34,5 @@ describe('Test email crypto functions', () => {
     expect(() => emailBodyToBinary(bad_email as any as EmailBody)).toThrowError(
       /Failed to convert EmailBody to Uint8Array/,
     );
-  });
-
-  const alice: User = {
-    name: 'Alice',
-    email: 'alice@email.com',
-  };
-
-  it('user converter to base64 and back works', async () => {
-    const base64 = await userToBase64(alice);
-    const result = await base64ToUser(base64);
-    expect(result).toEqual(alice);
   });
 });
