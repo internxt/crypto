@@ -5,7 +5,7 @@ import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
 import { deriveWrappingKey, wrapKey, unwrapKey, importWrappingKey } from '../key-wrapper';
 import { deriveSecretKey } from '../asymmetric-crypto';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
-import { UTF8ToUint8, uint8ToUTF8, uuidToBytes } from '../utils';
+import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
 
 /**
  * Symmetrically encrypts an email with a randomly sampled key.
@@ -141,7 +141,10 @@ export async function encryptKeysHybrid(
     );
     const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
     const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
-    return { encryptedKey, kyberCiphertext };
+    const encryptedKeyBase64 = await uint8ArrayToBase64(encryptedKey);
+    const kyberCiphertextBase64 = await uint8ArrayToBase64(kyberCiphertext);
+
+    return { encryptedKey: encryptedKeyBase64, kyberCiphertext: kyberCiphertextBase64 };
   } catch (error) {
     throw new Error('Failed to encrypt email key using hybrid encryption', { cause: error });
   }
@@ -161,10 +164,12 @@ export async function decryptKeysHybrid(
   recipientPrivateKey: PrivateKeys,
 ): Promise<CryptoKey> {
   try {
+    const kyberCiphertext = base64ToUint8Array(encryptedKey.kyberCiphertext);
+    const encKey = base64ToUint8Array(encryptedKey.encryptedKey);
     const eccSecret = await deriveSecretKey(senderPublicKey.eccPublicKey, recipientPrivateKey.eccPrivateKey);
-    const kyberSecret = decapsulateKyber(encryptedKey.kyberCiphertext, recipientPrivateKey.kyberPrivateKey);
+    const kyberSecret = decapsulateKyber(kyberCiphertext, recipientPrivateKey.kyberPrivateKey);
     const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-    const encryptionKey = await unwrapKey(encryptedKey.encryptedKey, wrappingKey);
+    const encryptionKey = await unwrapKey(encKey, wrappingKey);
     return encryptionKey;
   } catch (error) {
     throw new Error('Failed to decrypt email key encrypted via hybrid encryption', { cause: error });
@@ -183,7 +188,9 @@ export async function passwordProtectKey(emailEncryptionKey: CryptoKey, password
     const { key, salt } = await getKeyFromPassword(password);
     const wrappingKey = await importWrappingKey(key);
     const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
-    return { encryptedKey, salt };
+    const saltStr = uint8ArrayToBase64(salt);
+    const encryptedKeyStr = uint8ArrayToBase64(encryptedKey);
+    return { encryptedKey: encryptedKeyStr, salt: saltStr };
   } catch (error) {
     throw new Error('Failed to password-protect email key', { cause: error });
   }
@@ -201,9 +208,11 @@ export async function removePasswordProtection(
   password: string,
 ): Promise<CryptoKey> {
   try {
-    const key = await getKeyFromPasswordAndSalt(password, emailEncryptionKey.salt);
+    const salt = base64ToUint8Array(emailEncryptionKey.salt);
+    const encryptedKey = base64ToUint8Array(emailEncryptionKey.encryptedKey);
+    const key = await getKeyFromPasswordAndSalt(password, salt);
     const wrappingKey = await importWrappingKey(key);
-    const encryptionKey = await unwrapKey(emailEncryptionKey.encryptedKey, wrappingKey);
+    const encryptionKey = await unwrapKey(encryptedKey, wrappingKey);
     return encryptionKey;
   } catch (error) {
     throw new Error('Failed to remove password-protection from email key', { cause: error });

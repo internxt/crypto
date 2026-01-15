@@ -29,10 +29,11 @@ export async function encryptEmailAndSubjectHybrid(
       aux,
       email.id,
     );
+    const encryptedText = uint8ArrayToBase64(enc);
     const encSubjectStr = uint8ArrayToBase64(subjectEnc);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
     const params = { ...email.params, subject: encSubjectStr };
-    return { enc, encryptedKey, recipientEmail: recipient.email, params, id: email.id };
+    return { enc: encryptedText, encryptedKey, recipientEmail: recipient.email, params, id: email.id };
   } catch (error) {
     throw new Error('Failed to encrypt the email and its subject with hybrid encryption', { cause: error });
   }
@@ -60,12 +61,13 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
       email.id,
     );
     const encSubjectStr = uint8ArrayToBase64(subjectEnc);
+    const encryptedText = uint8ArrayToBase64(enc);
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
     for (const recipient of recipients) {
       const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
       const params = { ...email.params, subject: encSubjectStr };
-      encryptedEmails.push({ enc, encryptedKey, recipientEmail: recipient.email, params, id: email.id });
+      encryptedEmails.push({ enc: encryptedText, encryptedKey, recipientEmail: recipient.email, params, id: email.id });
     }
     return encryptedEmails;
   } catch (error) {
@@ -92,12 +94,8 @@ export async function decryptEmailAndSubjectHybrid(
     const aux = getAuxWithoutSubject(encryptedEmail.params);
     const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
     const encSubject = base64ToUint8Array(encryptedEmail.params.subject);
-    const { body, subject } = await decryptEmailAndSubjectSymmetrically(
-      encryptedEmail.enc,
-      encSubject,
-      encryptionKey,
-      aux,
-    );
+    const enc = base64ToUint8Array(encryptedEmail.enc);
+    const { body, subject } = await decryptEmailAndSubjectSymmetrically(enc, encSubject, encryptionKey, aux);
     const params = { ...encryptedEmail.params, subject };
     return { body, params, id: encryptedEmail.id };
   } catch (error) {

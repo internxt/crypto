@@ -2,7 +2,6 @@ export * as asymmetric from './asymmetric-crypto';
 export * as deriveKey from './derive-key';
 export * as emailCrypto from './email-crypto';
 export * as emailSearch from './email-search';
-export * as emailService from './email-service';
 export * as hash from './hash';
 export * as keyWrapper from './key-wrapper';
 export * as keystoreCrypto from './keystore-crypto';
