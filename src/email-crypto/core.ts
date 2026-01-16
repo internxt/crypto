@@ -1,6 +1,5 @@
-import { HybridEncKey, PwdProtectedKey, PublicKeys, PrivateKeys, EmailBody } from '../types';
+import { HybridEncKey, PwdProtectedKey, PublicKeys, PrivateKeys, EmailBody, EmailBodyEncrypted } from '../types';
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
-import { emailBodyToBinary, binaryToEmailBody } from './converters';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
 import { deriveWrappingKey, wrapKey, unwrapKey, importWrappingKey } from '../key-wrapper';
 import { deriveSecretKey } from '../asymmetric-crypto';
@@ -19,8 +18,11 @@ export async function encryptEmailContentSymmetrically(
   email: EmailBody,
   aux: Uint8Array,
   emailID: string,
-): Promise<{ enc: Uint8Array; encryptionKey: CryptoKey }> {
+): Promise<{ enc: EmailBodyEncrypted; encryptionKey: CryptoKey }> {
   try {
+    if (!email.text) {
+      throw new Error('Invalid input');
+    }
     const encryptionKey = await genSymmetricCryptoKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     return { enc, encryptionKey };
@@ -43,13 +45,17 @@ export async function encryptEmailContentAndSubjectSymmetrically(
   subject: string,
   aux: Uint8Array,
   emailID: string,
-): Promise<{ enc: Uint8Array; subjectEnc: Uint8Array; encryptionKey: CryptoKey }> {
+): Promise<{ enc: EmailBodyEncrypted; encSubject: string; encryptionKey: CryptoKey }> {
   try {
+    if (!subject || !email.text) {
+      throw new Error('Invalid input');
+    }
     const encryptionKey = await genSymmetricCryptoKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     const subjectBuff = UTF8ToUint8(subject);
     const subjectEnc = await encryptSymmetrically(encryptionKey, subjectBuff, aux);
-    return { enc, encryptionKey, subjectEnc };
+    const encSubject = uint8ArrayToBase64(subjectEnc);
+    return { enc, encSubject, encryptionKey };
   } catch (error) {
     throw new Error('Failed to symmetrically encrypt email and subject', { cause: error });
   }
@@ -63,16 +69,17 @@ export async function encryptEmailContentAndSubjectSymmetrically(
  * @returns The decrypted email
  */
 export async function decryptEmailAndSubjectSymmetrically(
-  emailCiphertext: Uint8Array,
-  encSubject: Uint8Array,
   encryptionKey: CryptoKey,
   aux: Uint8Array,
+  encSubject: string,
+  enc: EmailBodyEncrypted,
 ): Promise<{ body: EmailBody; subject: string }> {
   try {
-    const binaryEmail = await decryptSymmetrically(encryptionKey, emailCiphertext, aux);
-    const subject = await decryptSymmetrically(encryptionKey, encSubject, aux);
-    const body = binaryToEmailBody(binaryEmail);
-    return { body, subject: uint8ToUTF8(subject) };
+    const array = base64ToUint8Array(encSubject);
+    const subjectArray = await decryptSymmetrically(encryptionKey, array, aux);
+    const body = await decryptEmailSymmetrically(encryptionKey, aux, enc);
+    const subject = uint8ToUTF8(subjectArray);
+    return { body, subject };
   } catch (error) {
     throw new Error('Failed to symmetrically decrypt email and subject', { cause: error });
   }
@@ -89,14 +96,58 @@ export async function encryptEmailContentSymmetricallyWithKey(
   encryptionKey: CryptoKey,
   aux: Uint8Array,
   emailID: string,
-): Promise<Uint8Array> {
+): Promise<EmailBodyEncrypted> {
   try {
     const freeField = uuidToBytes(emailID);
-    const binaryEmail = emailBodyToBinary(emailBody);
-    const ciphertext = await encryptSymmetrically(encryptionKey, binaryEmail, aux, freeField);
-    return ciphertext;
+    const text = UTF8ToUint8(emailBody.text);
+    const encryptedText = await encryptSymmetrically(encryptionKey, text, aux, freeField);
+    const encText = uint8ArrayToBase64(encryptedText);
+    const result: EmailBodyEncrypted = { encText };
+
+    if (emailBody.attachments) {
+      const encryptedAttachements = await encryptEmailAttachements(emailBody.attachments, encryptionKey, aux, emailID);
+      result.encAttachments = encryptedAttachements?.map(uint8ArrayToBase64);
+    }
+    return result;
   } catch (error) {
     throw new Error('Failed to symmetrically encrypt email with the given key', { cause: error });
+  }
+}
+
+async function encryptEmailAttachements(
+  attachments: string[],
+  encryptionKey: CryptoKey,
+  aux: Uint8Array,
+  emailID: string,
+): Promise<Uint8Array[]> {
+  try {
+    const freeField = uuidToBytes(emailID);
+    const encryptedAttachments = await Promise.all(
+      attachments.map((attachment) => {
+        const binaryAttachment = UTF8ToUint8(attachment);
+        return encryptSymmetrically(encryptionKey, binaryAttachment, aux, freeField);
+      }),
+    );
+    return encryptedAttachments;
+  } catch (error) {
+    throw new Error('Failed to symmetrically encrypt email attachements', { cause: error });
+  }
+}
+
+async function decryptEmailAttachements(
+  encryptedAttachments: Uint8Array[],
+  encryptionKey: CryptoKey,
+  aux: Uint8Array,
+): Promise<Uint8Array[]> {
+  try {
+    const decryptedAttachments = await Promise.all(
+      encryptedAttachments.map((attachment) => {
+        return decryptSymmetrically(encryptionKey, attachment, aux);
+      }),
+    );
+    return decryptedAttachments;
+  } catch (error) {
+    throw new Error('Failed to symmetrically decrypt email attachements', { cause: error });
   }
 }
 
@@ -108,14 +159,22 @@ export async function encryptEmailContentSymmetricallyWithKey(
  * @returns The decrypted email
  */
 export async function decryptEmailSymmetrically(
-  emailCiphertext: Uint8Array,
   encryptionKey: CryptoKey,
   aux: Uint8Array,
+  enc: EmailBodyEncrypted,
 ): Promise<EmailBody> {
   try {
-    const binaryEmail = await decryptSymmetrically(encryptionKey, emailCiphertext, aux);
-    const body = binaryToEmailBody(binaryEmail);
-    return body;
+    const cipher = base64ToUint8Array(enc.encText);
+    const textArray = await decryptSymmetrically(encryptionKey, cipher, aux);
+    const text = uint8ToUTF8(textArray);
+    const result: EmailBody = { text };
+
+    if (enc.encAttachments) {
+      const encAttachements = enc.encAttachments?.map(base64ToUint8Array);
+      const attachmentsArray = await decryptEmailAttachements(encAttachements, encryptionKey, aux);
+      result.attachments = attachmentsArray?.map((att) => uint8ToUTF8(att));
+    }
+    return result;
   } catch (error) {
     throw new Error('Failed to symmetrically decrypt email', { cause: error });
   }
