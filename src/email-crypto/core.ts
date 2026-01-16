@@ -114,7 +114,7 @@ export async function encryptEmailContentSymmetricallyWithKey(
   }
 }
 
-export async function encryptEmailAttachements(
+async function encryptEmailAttachements(
   attachments: string[],
   encryptionKey: CryptoKey,
   aux: Uint8Array,
@@ -134,7 +134,7 @@ export async function encryptEmailAttachements(
   }
 }
 
-export async function decryptEmailAttachements(
+async function decryptEmailAttachements(
   encryptedAttachments: Uint8Array[],
   encryptionKey: CryptoKey,
   aux: Uint8Array,
