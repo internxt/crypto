@@ -47,32 +47,37 @@ describe('Test email crypto functions', () => {
 
   it('should encrypt and decrypt email', async () => {
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, id);
-    const result = await decryptEmailSymmetrically(enc, encryptionKey, aux);
+    const result = await decryptEmailSymmetrically(encryptionKey, aux, enc);
     expect(result).toEqual(emailBody);
   });
 
   it('should throw an error if decryption fails', async () => {
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, id);
     const bad_encryptionKey = await genSymmetricCryptoKey();
-    await expect(decryptEmailSymmetrically(enc, bad_encryptionKey, aux)).rejects.toThrowError(
+    await expect(decryptEmailSymmetrically(bad_encryptionKey, aux, enc)).rejects.toThrowError(
       /Failed to symmetrically decrypt email/,
     );
 
-    const {
-      enc: encBody,
-      encryptionKey: key,
-      subjectEnc,
-    } = await encryptEmailContentAndSubjectSymmetrically(emailBody, emailParams.subject, aux, id);
-    await expect(decryptEmailAndSubjectSymmetrically(encBody, subjectEnc, bad_encryptionKey, aux)).rejects.toThrowError(
+    const bad_aux = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+    await expect(decryptEmailSymmetrically(encryptionKey, bad_aux, enc)).rejects.toThrowError(
+      /Failed to symmetrically decrypt email/,
+    );
+  });
+  it('should throw an error if decryption fails', async () => {
+    const bad_encryptionKey = await genSymmetricCryptoKey();
+    const { enc, encryptionKey, encSubject } = await encryptEmailContentAndSubjectSymmetrically(
+      emailBody,
+      emailParams.subject,
+      aux,
+      id,
+    );
+    await expect(decryptEmailAndSubjectSymmetrically(bad_encryptionKey, aux, encSubject, enc)).rejects.toThrowError(
       /Failed to symmetrically decrypt email and subject/,
     );
 
     const bad_aux = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
-    await expect(decryptEmailSymmetrically(enc, encryptionKey, bad_aux)).rejects.toThrowError(
-      /Failed to symmetrically decrypt email/,
-    );
 
-    await expect(decryptEmailAndSubjectSymmetrically(encBody, subjectEnc, key, bad_aux)).rejects.toThrowError(
+    await expect(decryptEmailAndSubjectSymmetrically(encryptionKey, bad_aux, encSubject, enc)).rejects.toThrowError(
       /Failed to symmetrically decrypt email and subject/,
     );
   });

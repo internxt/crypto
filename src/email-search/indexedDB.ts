@@ -91,13 +91,8 @@ export const encryptAndStoreEmail = async (
 ): Promise<void> => {
   try {
     const aux = getAux(newEmailToStore.params);
-    const ciphertext = await encryptEmailContentSymmetricallyWithKey(
-      newEmailToStore.body,
-      indexKey,
-      aux,
-      newEmailToStore.id,
-    );
-    const encryptedEmail = { content: ciphertext, params: newEmailToStore.params, id: newEmailToStore.id };
+    const enc = await encryptEmailContentSymmetricallyWithKey(newEmailToStore.body, indexKey, aux, newEmailToStore.id);
+    const encryptedEmail: StoredEmail = { enc, params: newEmailToStore.params, id: newEmailToStore.id };
     await esDB.put(DB_LABEL, encryptedEmail);
   } catch (error) {
     throw new Error('Cannot encrypt and add the given email to the database', { cause: error });
@@ -120,9 +115,9 @@ export const encryptAndStoreManyEmail = async (
     const encryptedEmails = await Promise.all(
       newEmailsToStore.map(async (email: Email) => {
         const aux = getAux(email.params);
-        const ciphertext = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.id);
+        const enc = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.id);
 
-        return { content: ciphertext, params: email.params, id: email.id };
+        return { enc, params: email.params, id: email.id };
       }),
     );
 
@@ -143,7 +138,7 @@ export const encryptAndStoreManyEmail = async (
 const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): Promise<Email> => {
   try {
     const aux = getAux(encryptedEmail.params);
-    const email = await decryptEmailSymmetrically(encryptedEmail.content, indexKey, aux);
+    const email = await decryptEmailSymmetrically(indexKey, aux, encryptedEmail.enc);
     return { body: email, params: encryptedEmail.params, id: encryptedEmail.id };
   } catch (error) {
     throw new Error('Cannot decrypt the given email', { cause: error });
@@ -184,7 +179,7 @@ export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB):
     const decryptedEmails = await Promise.all(
       encryptedEmails.map(async (encEmail) => {
         const aux = getAux(encEmail.params);
-        const body = await decryptEmailSymmetrically(encEmail.content, indexKey, aux);
+        const body = await decryptEmailSymmetrically(indexKey, aux, encEmail.enc);
         return { body, params: encEmail.params, id: encEmail.id };
       }),
     );
