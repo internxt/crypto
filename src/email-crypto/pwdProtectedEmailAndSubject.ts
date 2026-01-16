@@ -1,4 +1,3 @@
-import { base64ToUint8Array, uint8ArrayToBase64 } from '../utils';
 import { PwdProtectedEmail, Email } from '../types';
 import {
   encryptEmailContentAndSubjectSymmetrically,
@@ -21,17 +20,15 @@ export async function createPwdProtectedEmailAndSubject(email: Email, password: 
       throw new Error('Failed to password-protect email and subject: Invalid email structure');
     }
     const aux = getAuxWithoutSubject(email.params);
-    const { enc, encryptionKey, subjectEnc } = await encryptEmailContentAndSubjectSymmetrically(
+    const { enc, encryptionKey, encSubject } = await encryptEmailContentAndSubjectSymmetrically(
       email.body,
       email.params.subject,
       aux,
       email.id,
     );
-    const encryptedText = uint8ArrayToBase64(enc);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
-    const encSubjectStr = uint8ArrayToBase64(subjectEnc);
-    const params = { ...email.params, subject: encSubjectStr };
-    return { enc: encryptedText, encryptedKey, params, id: email.id };
+    const params = { ...email.params, subject: encSubject };
+    return { enc, encryptedKey, params, id: email.id };
   } catch (error) {
     throw new Error('Failed to password-protect email and subject', { cause: error });
   }
@@ -51,9 +48,12 @@ export async function decryptPwdProtectedEmailAndSubject(
   try {
     const aux = getAuxWithoutSubject(encryptedEmail.params);
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    const encSubject = base64ToUint8Array(encryptedEmail.params.subject);
-    const enc = base64ToUint8Array(encryptedEmail.enc);
-    const { body, subject } = await decryptEmailAndSubjectSymmetrically(enc, encSubject, encryptionKey, aux);
+    const { body, subject } = await decryptEmailAndSubjectSymmetrically(
+      encryptionKey,
+      aux,
+      encryptedEmail.params.subject,
+      encryptedEmail.enc,
+    );
     const params = { ...encryptedEmail.params, subject };
     return { body, params, id: encryptedEmail.id };
   } catch (error) {

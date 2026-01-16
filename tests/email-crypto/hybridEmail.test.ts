@@ -17,7 +17,6 @@ import {
   EmailPublicParameters,
   Email,
 } from '../../src/types';
-import { encryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 import { generateUuid } from '../../src/utils';
 
 describe('Test email crypto functions', async () => {
@@ -80,21 +79,15 @@ describe('Test email crypto functions', async () => {
   });
 
   it('should throw an error if hybrid email decryption fails', async () => {
-    const key = await genSymmetricCryptoKey();
-    const freeField = new Uint8Array([1, 2, 3, 4]);
-    const emailCiphertext = await encryptSymmetrically(
-      key,
-      new Uint8Array([1, 2, 3]),
-      new TextEncoder().encode('aux'),
-      freeField,
-    );
     const encKey: HybridEncKey = {
-      kyberCiphertext: new Uint8Array([1, 2, 3]),
-      encryptedKey: new Uint8Array([4, 5, 6, 7]),
+      kyberCiphertext: 'mock kyber ciphertext',
+      encryptedKey: 'mock encrypted key',
     };
     const bad_encrypted_email: HybridEncryptedEmail = {
       encryptedKey: encKey,
-      enc: emailCiphertext,
+      enc: {
+        encText: 'mock encrypted text',
+      },
       recipientEmail: userBob.email,
       params: emailParams,
       id: generateUuid(),
