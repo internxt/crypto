@@ -1,46 +1,5 @@
-import {
-  PublicKeys,
-  PrivateKeys,
-  HybridEncryptedEmail,
-  Email,
-  UserWithPublicKeys,
-  EmailBody,
-  EmailBodyEncrypted,
-} from '../types';
-import {
-  encryptEmailContentSymmetrically,
-  decryptEmailSymmetrically,
-  encryptEmailContentAndSubjectSymmetrically,
-  decryptEmailAndSubjectSymmetrically,
-  encryptKeysHybrid,
-  decryptKeysHybrid,
-} from './core';
-import { getAux } from './utils';
-
-async function encryptEmailBody(email: Email, isSubjectEncrypted: boolean) {
-  try {
-    const aux = getAux(email.params, isSubjectEncrypted);
-
-    let enc: EmailBodyEncrypted;
-    let encryptionKey: CryptoKey;
-    let params = email.params;
-
-    if (isSubjectEncrypted) {
-      const result = await encryptEmailContentAndSubjectSymmetrically(email.body, email.params.subject, aux, email.id);
-      enc = result.enc;
-      encryptionKey = result.encryptionKey;
-      params = { ...email.params, subject: result.encSubject };
-    } else {
-      const result = await encryptEmailContentSymmetrically(email.body, aux, email.id);
-      enc = result.enc;
-      encryptionKey = result.encryptionKey;
-    }
-
-    return { encryptionKey, enc, params };
-  } catch (error) {
-    throw new Error('Failed to encrypt email body', { cause: error });
-  }
-}
+import { PublicKeys, PrivateKeys, HybridEncryptedEmail, Email, UserWithPublicKeys } from '../types';
+import { decryptEmailBody, encryptKeysHybrid, decryptKeysHybrid, encryptEmailBody } from './core';
 
 /**
  * Encrypts the email using hybrid encryption.
@@ -116,26 +75,10 @@ export async function decryptEmailHybrid(
   recipientPrivateKeys: PrivateKeys,
 ): Promise<Email> {
   try {
-    const isSubjectEncrypted = encryptedEmail.isSubjectEncrypted;
-    const aux = getAux(encryptedEmail.params, isSubjectEncrypted);
-    const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
-
-    let body: EmailBody;
-    let params = encryptedEmail.params;
-    if (isSubjectEncrypted) {
-      const result = await decryptEmailAndSubjectSymmetrically(
-        encryptionKey,
-        aux,
-        encryptedEmail.params.subject,
-        encryptedEmail.enc,
-      );
-      body = result.body;
-      params = { ...encryptedEmail.params, subject: result.subject };
-    } else {
-      body = await decryptEmailSymmetrically(encryptionKey, aux, encryptedEmail.enc);
-    }
-
-    return { body, params, id: encryptedEmail.id };
+    const { isSubjectEncrypted, params: encParams, enc, encryptedKey, id } = encryptedEmail;
+    const encryptionKey = await decryptKeysHybrid(encryptedKey, senderPublicKeys, recipientPrivateKeys);
+    const { body, params } = await decryptEmailBody(enc, encParams, encryptionKey, isSubjectEncrypted);
+    return { body, params, id };
   } catch (error) {
     throw new Error('Failed to decrypt email with hybrid encryption', { cause: error });
   }

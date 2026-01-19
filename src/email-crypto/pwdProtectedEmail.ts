@@ -1,13 +1,5 @@
-import { PwdProtectedEmail, Email, EmailBodyEncrypted, EmailBody } from '../types';
-import {
-  encryptEmailContentSymmetrically,
-  decryptEmailSymmetrically,
-  encryptEmailContentAndSubjectSymmetrically,
-  decryptEmailAndSubjectSymmetrically,
-  passwordProtectKey,
-  removePasswordProtection,
-} from './core';
-import { getAux } from './utils';
+import { PwdProtectedEmail, Email } from '../types';
+import { decryptEmailBody, passwordProtectKey, removePasswordProtection, encryptEmailBody } from './core';
 
 /**
  * Creates a password-protected email.
@@ -26,22 +18,7 @@ export async function createPwdProtectedEmail(
     if (!email?.body || !email.params) {
       throw new Error('Failed to password-protect email: Invalid email structure');
     }
-    const aux = getAux(email.params, isSubjectEncrypted);
-
-    let enc: EmailBodyEncrypted;
-    let encryptionKey: CryptoKey;
-    let params = email.params;
-
-    if (isSubjectEncrypted) {
-      const result = await encryptEmailContentAndSubjectSymmetrically(email.body, email.params.subject, aux, email.id);
-      enc = result.enc;
-      encryptionKey = result.encryptionKey;
-      params = { ...email.params, subject: result.encSubject };
-    } else {
-      const result = await encryptEmailContentSymmetrically(email.body, aux, email.id);
-      enc = result.enc;
-      encryptionKey = result.encryptionKey;
-    }
+    const { encryptionKey, params, enc } = await encryptEmailBody(email, isSubjectEncrypted);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
 
     return { enc, encryptedKey, params, id: email.id, isSubjectEncrypted };
@@ -60,17 +37,8 @@ export async function createPwdProtectedEmail(
 export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail, password: string): Promise<Email> {
   try {
     const { isSubjectEncrypted, params: encParams, enc, id } = encryptedEmail;
-    const aux = getAux(encParams, isSubjectEncrypted);
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    let body: EmailBody;
-    let params = encParams;
-    if (isSubjectEncrypted) {
-      const result = await decryptEmailAndSubjectSymmetrically(encryptionKey, aux, encParams.subject, enc);
-      body = result.body;
-      params = { ...encParams, subject: result.subject };
-    } else {
-      body = await decryptEmailSymmetrically(encryptionKey, aux, enc);
-    }
+    const { body, params } = await decryptEmailBody(enc, encParams, encryptionKey, isSubjectEncrypted);
     return { body, params, id };
   } catch (error) {
     throw new Error('Failed to decrypt password-protect email', { cause: error });
