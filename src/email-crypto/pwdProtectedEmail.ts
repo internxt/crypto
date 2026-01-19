@@ -7,7 +7,7 @@ import {
   passwordProtectKey,
   removePasswordProtection,
 } from './core';
-import { getAux, getAuxWithoutSubject } from './utils';
+import { getAux } from './utils';
 
 /**
  * Creates a password-protected email.
@@ -26,7 +26,7 @@ export async function createPwdProtectedEmail(
     if (!email?.body || !email.params) {
       throw new Error('Failed to password-protect email: Invalid email structure');
     }
-    const aux = isSubjectEncrypted ? getAuxWithoutSubject(email.params) : getAux(email.params);
+    const aux = getAux(email.params, isSubjectEncrypted);
 
     let enc: EmailBodyEncrypted;
     let encryptionKey: CryptoKey;
@@ -60,7 +60,7 @@ export async function createPwdProtectedEmail(
 export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail, password: string): Promise<Email> {
   try {
     const isSubjectEncrypted = encryptedEmail.isSubjectEncrypted;
-    const aux = isSubjectEncrypted ? getAuxWithoutSubject(encryptedEmail.params) : getAux(encryptedEmail.params);
+    const aux = getAux(encryptedEmail.params, isSubjectEncrypted);
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
     let body: EmailBody;
     let params = encryptedEmail.params;

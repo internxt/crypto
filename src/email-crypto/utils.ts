@@ -4,46 +4,27 @@ import { UTF8ToUint8, uuidToBytes } from '../utils';
 import { userToBytes, recipientsToBytes } from './converters';
 
 /**
- * Creates an auxilary string from public fields of the email.
+ * Creates an auxiliary string from public fields of the email.
  *
  * @param params - The email public parameters.
- * @returns The resulting auxilary string
+ * @param isSubjectEncrypted - Indicates if the email subject field should be encrypted
+ * @returns The resulting auxiliary string
  */
-export function getAux(params: EmailPublicParameters): Uint8Array {
+export function getAux(params: EmailPublicParameters, isSubjectEncrypted: boolean): Uint8Array {
   try {
     const { subject, replyToEmailID, sender, recipient, recipients } = params;
-    const subjectBytes = UTF8ToUint8(subject);
     const replyBytes = replyToEmailID ? uuidToBytes(replyToEmailID) : new Uint8Array();
     const senderBytes = userToBytes(sender);
     const recipientBytes = userToBytes(recipient);
     const recipientsBytes = recipients ? recipientsToBytes(recipients) : new Uint8Array();
 
-    const aux = concatBytes(subjectBytes, replyBytes, senderBytes, recipientBytes, recipientsBytes);
-
-    return aux;
+    if (isSubjectEncrypted) {
+      return concatBytes(replyBytes, senderBytes, recipientBytes, recipientsBytes);
+    } else {
+      const subjectBytes = UTF8ToUint8(subject);
+      return concatBytes(subjectBytes, replyBytes, senderBytes, recipientBytes, recipientsBytes);
+    }
   } catch (error) {
     throw new Error('Failed to create aux', { cause: error });
-  }
-}
-
-/**
- * Creates an auxilary string from public fields of the email (except for subject field).
- *
- * @param params - The email public parameters.
- * @returns The resulting auxilary string
- */
-export function getAuxWithoutSubject(params: EmailPublicParameters): Uint8Array {
-  try {
-    const { replyToEmailID, sender, recipient, recipients } = params;
-    const replyBytes = replyToEmailID ? uuidToBytes(replyToEmailID) : new Uint8Array();
-    const senderBytes = userToBytes(sender);
-    const recipientBytes = userToBytes(recipient);
-    const recipientsBytes = recipients ? recipientsToBytes(recipients) : new Uint8Array();
-
-    const aux = concatBytes(replyBytes, senderBytes, recipientBytes, recipientsBytes);
-
-    return aux;
-  } catch (error) {
-    throw new Error('Failed to create aux without subject', { cause: error });
   }
 }

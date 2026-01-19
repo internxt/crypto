@@ -15,11 +15,11 @@ import {
   encryptKeysHybrid,
   decryptKeysHybrid,
 } from './core';
-import { getAux, getAuxWithoutSubject } from './utils';
+import { getAux } from './utils';
 
 async function encryptEmailBody(email: Email, isSubjectEncrypted: boolean) {
   try {
-    const aux = isSubjectEncrypted ? getAuxWithoutSubject(email.params) : getAux(email.params);
+    const aux = getAux(email.params, isSubjectEncrypted);
 
     let enc: EmailBodyEncrypted;
     let encryptionKey: CryptoKey;
@@ -117,7 +117,7 @@ export async function decryptEmailHybrid(
 ): Promise<Email> {
   try {
     const isSubjectEncrypted = encryptedEmail.isSubjectEncrypted;
-    const aux = isSubjectEncrypted ? getAuxWithoutSubject(encryptedEmail.params) : getAux(encryptedEmail.params);
+    const aux = getAux(encryptedEmail.params, isSubjectEncrypted);
     const encryptionKey = await decryptKeysHybrid(encryptedEmail.encryptedKey, senderPublicKeys, recipientPrivateKeys);
 
     let body: EmailBody;
