@@ -49,6 +49,7 @@ export type HybridEncryptedEmail = {
   recipientEmail: string;
   params: EmailPublicParameters;
   id: string;
+  isSubjectEncrypted: boolean;
 };
 
 export type PwdProtectedEmail = {
@@ -56,6 +57,7 @@ export type PwdProtectedEmail = {
   enc: EmailBodyEncrypted;
   params: EmailPublicParameters;
   id: string;
+  isSubjectEncrypted: boolean;
 };
 
 export type StoredEmail = {
