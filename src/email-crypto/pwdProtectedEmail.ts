@@ -59,24 +59,19 @@ export async function createPwdProtectedEmail(
  */
 export async function decryptPwdProtectedEmail(encryptedEmail: PwdProtectedEmail, password: string): Promise<Email> {
   try {
-    const isSubjectEncrypted = encryptedEmail.isSubjectEncrypted;
-    const aux = getAux(encryptedEmail.params, isSubjectEncrypted);
+    const { isSubjectEncrypted, params: encParams, enc, id } = encryptedEmail;
+    const aux = getAux(encParams, isSubjectEncrypted);
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
     let body: EmailBody;
-    let params = encryptedEmail.params;
+    let params = encParams;
     if (isSubjectEncrypted) {
-      const result = await decryptEmailAndSubjectSymmetrically(
-        encryptionKey,
-        aux,
-        encryptedEmail.params.subject,
-        encryptedEmail.enc,
-      );
+      const result = await decryptEmailAndSubjectSymmetrically(encryptionKey, aux, encParams.subject, enc);
       body = result.body;
-      params = { ...encryptedEmail.params, subject: result.subject };
+      params = { ...encParams, subject: result.subject };
     } else {
-      body = await decryptEmailSymmetrically(encryptionKey, aux, encryptedEmail.enc);
+      body = await decryptEmailSymmetrically(encryptionKey, aux, enc);
     }
-    return { body, params, id: encryptedEmail.id };
+    return { body, params, id };
   } catch (error) {
     throw new Error('Failed to decrypt password-protect email', { cause: error });
   }
