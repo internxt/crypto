@@ -91,6 +91,7 @@ describe('Test email crypto functions', async () => {
       recipientEmail: userBob.email,
       params: emailParams,
       id: generateUuid(),
+      isSubjectEncrypted: false,
     };
 
     await expect(decryptEmailHybrid(bad_encrypted_email, alicePublicKeys, bobPrivateKeys)).rejects.toThrowError(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createPwdProtectedEmailAndSubject, decryptPwdProtectedEmailAndSubject } from '../../src/email-crypto';
+import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
 import { EmailBody, Email, User, EmailPublicParameters } from '../../src/types';
 import { generateUuid } from '../../src/utils';
 
@@ -34,8 +34,8 @@ describe('Test email crypto functions', () => {
   };
 
   it('should encrypt and decrypt email sucessfully', async () => {
-    const encryptedEmail = await createPwdProtectedEmailAndSubject(email, sharedSecret);
-    const decryptedEmail = await decryptPwdProtectedEmailAndSubject(encryptedEmail, sharedSecret);
+    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret, true);
+    const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
     expect(decryptedEmail).toStrictEqual(email);
     expect(encryptedEmail.params.subject).not.toBe(email.params.subject);
   });
@@ -44,15 +44,15 @@ describe('Test email crypto functions', () => {
     const bad_email = {
       params: emailParams,
     } as unknown as Email;
-    await expect(createPwdProtectedEmailAndSubject(bad_email, sharedSecret)).rejects.toThrowError(
+    await expect(createPwdProtectedEmail(bad_email, sharedSecret, true)).rejects.toThrowError(
       /Failed to password-protect email/,
     );
   });
 
   it('should throw an error if a different secret used for decryption', async () => {
-    const encryptedEmail = await createPwdProtectedEmailAndSubject(email, sharedSecret);
+    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret, true);
     const wrongSecret = 'different secret';
-    await expect(decryptPwdProtectedEmailAndSubject(encryptedEmail, wrongSecret)).rejects.toThrowError(
+    await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret)).rejects.toThrowError(
       /Failed to decrypt password-protect email/,
     );
   });
