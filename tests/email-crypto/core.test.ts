@@ -7,7 +7,7 @@ import {
   encryptEmailContentSymmetrically,
 } from '../../src/email-crypto/core';
 import { generateUuid } from '../../src/utils';
-import { getAux, getAuxWithoutSubject } from '../../src/email-crypto';
+import { getAux } from '../../src/email-crypto';
 import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
 
 describe('Test email crypto functions', () => {
@@ -36,7 +36,7 @@ describe('Test email crypto functions', () => {
 
   const id = generateUuid();
 
-  const aux = getAux(emailParams);
+  const aux = getAux(emailParams, false);
 
   it('should generate email id', async () => {
     const result1 = generateUuid();
@@ -85,9 +85,9 @@ describe('Test email crypto functions', () => {
   it('should throw an error if cannot create aux', async () => {
     const bad_params = { replyToEmailID: BigInt(423) };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => getAux(bad_params as any as EmailPublicParameters)).toThrowError(/Failed to create aux/);
+    expect(() => getAux(bad_params as any as EmailPublicParameters, false)).toThrowError(/Failed to create aux/);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => getAuxWithoutSubject(bad_params as any as EmailPublicParameters)).toThrowError(/Failed to create aux/);
+    expect(() => getAux(bad_params as any as EmailPublicParameters, true)).toThrowError(/Failed to create aux/);
   });
 
   it('should throw an error if cannot encrypt', async () => {

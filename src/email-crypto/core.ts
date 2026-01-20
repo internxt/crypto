@@ -1,10 +1,79 @@
-import { HybridEncKey, PwdProtectedKey, PublicKeys, PrivateKeys, EmailBody, EmailBodyEncrypted } from '../types';
+import {
+  HybridEncKey,
+  PwdProtectedKey,
+  PublicKeys,
+  PrivateKeys,
+  EmailBody,
+  EmailBodyEncrypted,
+  Email,
+  EmailPublicParameters,
+} from '../types';
 import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
 import { deriveWrappingKey, wrapKey, unwrapKey, importWrappingKey } from '../key-wrapper';
 import { deriveSecretKey } from '../asymmetric-crypto';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
+import { getAux } from './utils';
+
+export async function encryptEmailBody(
+  email: Email,
+  isSubjectEncrypted: boolean,
+): Promise<{
+  enc: EmailBodyEncrypted;
+  params: EmailPublicParameters;
+  encryptionKey: CryptoKey;
+}> {
+  try {
+    const aux = getAux(email.params, isSubjectEncrypted);
+
+    let enc: EmailBodyEncrypted;
+    let encryptionKey: CryptoKey;
+    let params = email.params;
+
+    if (isSubjectEncrypted) {
+      const result = await encryptEmailContentAndSubjectSymmetrically(email.body, email.params.subject, aux, email.id);
+      enc = result.enc;
+      encryptionKey = result.encryptionKey;
+      params = { ...email.params, subject: result.encSubject };
+    } else {
+      const result = await encryptEmailContentSymmetrically(email.body, aux, email.id);
+      enc = result.enc;
+      encryptionKey = result.encryptionKey;
+    }
+
+    return { encryptionKey, enc, params };
+  } catch (error) {
+    throw new Error('Failed to encrypt email body', { cause: error });
+  }
+}
+
+export async function decryptEmailBody(
+  enc: EmailBodyEncrypted,
+  encParams: EmailPublicParameters,
+  encryptionKey: CryptoKey,
+  isSubjectEncrypted: boolean,
+): Promise<{
+  params: EmailPublicParameters;
+  body: EmailBody;
+}> {
+  try {
+    const aux = getAux(encParams, isSubjectEncrypted);
+    let body: EmailBody;
+    let params = encParams;
+    if (isSubjectEncrypted) {
+      const result = await decryptEmailAndSubjectSymmetrically(encryptionKey, aux, encParams.subject, enc);
+      body = result.body;
+      params = { ...encParams, subject: result.subject };
+    } else {
+      body = await decryptEmailSymmetrically(encryptionKey, aux, enc);
+    }
+
+    return { body, params };
+  } catch (error) {
+    throw new Error('Failed to encrypt email body', { cause: error });
+  }
+}
 
 /**
  * Symmetrically encrypts an email with a randomly sampled key.
