@@ -22,13 +22,8 @@ export {
   encryptEmailHybrid,
   encryptEmailHybridForMultipleRecipients,
   decryptEmailHybrid,
-  encryptEmailAndSubjectHybrid,
-  encryptEmailAndSubjectHybridForMultipleRecipients,
-  decryptEmailAndSubjectHybrid,
   createPwdProtectedEmail,
   decryptPwdProtectedEmail,
-  createPwdProtectedEmailAndSubject,
-  decryptPwdProtectedEmailAndSubject,
   generateEmailKeys,
 } from './email-crypto';
 export {
