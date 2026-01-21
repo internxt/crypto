@@ -8,7 +8,7 @@ import { generateEmailKeys } from '../email-crypto';
  * The main keystore encryption key is derived from the base key (stored in session storage)
  * The recovery keystore encryption key is derived from the recovery codes
  *
- * @returns The encryption and recovery keystores
+ * @returns The encryption and recovery keystores, recovery codes and email keys
  */
 export async function createEncryptionAndRecoveryKeystores(
   userEmail: string,
@@ -17,6 +17,7 @@ export async function createEncryptionAndRecoveryKeystores(
   encryptionKeystore: EncryptedKeystore;
   recoveryKeystore: EncryptedKeystore;
   recoveryCodes: string;
+  keys: EmailKeys;
 }> {
   try {
     const keys = await generateEmailKeys();
@@ -28,7 +29,7 @@ export async function createEncryptionAndRecoveryKeystores(
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
     const recoveryKeystore = await encryptKeystoreContent(recoveryKey, keys, userEmail, KeystoreType.RECOVERY);
 
-    return { encryptionKeystore, recoveryKeystore, recoveryCodes };
+    return { encryptionKeystore, recoveryKeystore, recoveryCodes, keys };
   } catch (error) {
     throw new Error('Failed to create encryption and recovery keystores', { cause: error });
   }
