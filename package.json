@@ -17,18 +17,16 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier \"{src,tests}/**/*.{ts,tsx}\" --write",
     "lint:ts": "eslint \"./{src,tests}/**/*.{ts,tsx}\"",
-    "lint:fix": "yarn run lint:ts --fix"
+    "lint:fix": "yarn run lint:ts --fix", 
+    "unused": "knip"
   },
   "devDependencies": {
     "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
-    "@types/flexsearch": "^0.7.42",
-    "@vitest/browser": "^4.0.10",
     "@vitest/browser-playwright": "^4.0.10",
     "@vitest/coverage-istanbul": "^4.0.10",
     "eslint": "^9.34.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
+    "knip": "^5.82.1",
     "lint-staged": "^16.1.4",
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
@@ -37,11 +35,9 @@
     "vitest": "^4.0.0"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@noble/hashes": "^2.0.1",
     "@noble/post-quantum": "^0.5.2",
     "@scure/bip39": "^2.0.1",
-    "axios": "^1.11.0",
     "flexsearch": "^0.8.205",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
