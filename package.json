@@ -1,6 +1,6 @@
 {
   "name": "internxt-crypto",
-  "version": "0.0.9-alpha",
+  "version": "0.0.11",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
@@ -10,7 +10,7 @@
   "scripts": {
     "prepare": "husky",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsdown",
     "start": "vite preview",
     "build:staging": "vite build --mode staging",
     "test": "vitest run",
@@ -32,6 +32,7 @@
     "lint-staged": "^16.1.4",
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
+    "tsdown": "^0.20.0-beta.4",
     "typescript": "^5.9.3",
     "vite": "^7.0.6",
     "vitest": "^4.0.0"
