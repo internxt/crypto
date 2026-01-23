@@ -20,7 +20,6 @@
     "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
     "@playwright/test": "^1.54.2",
-    "@swc/core": "^1.15.2",
     "@types/flexsearch": "^0.7.42",
     "@vitest/browser": "^4.0.10",
     "@vitest/browser-playwright": "^4.0.10",
