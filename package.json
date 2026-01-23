@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "build": "tsup",
+    "build": "tsdown",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "format": "prettier \"{src,tests}/**/*.{ts,tsx}\" --write",
@@ -31,7 +31,7 @@
     "lint-staged": "^16.1.4",
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.20.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.0"
   },

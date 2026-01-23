@@ -3,7 +3,7 @@ import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes, p
 import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
 import { CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
 import { getBytesFromData } from '../hash';
-import { EmailKeys, EncryptedKeystore, KeystoreType } from 'types';
+import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
 import { exportPrivateKey, importPrivateKey, importPublicKey } from '../asymmetric-crypto';
 
 /**
