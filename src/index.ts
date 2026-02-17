@@ -5,7 +5,6 @@ export * as emailSearch from './email-search';
 export * as hash from './hash';
 export * as keyWrapper from './key-wrapper';
 export * as keystoreCrypto from './keystore-crypto';
-export * as keystoreService from './keystore-service';
 export * as pq from './post-quantum-crypto';
 export * as storage from './storage-service';
 export * as symmetric from './symmetric-crypto';
