@@ -48,70 +48,10 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./asymmetric-crypto": {
-      "types": "./dist/asymmetric-crypto.d.ts",
-      "import": "./dist/asymmetric-crypto.mjs",
-      "require": "./dist/asymmetric-crypto.js"
-    },
-    "./symmetric-crypto": {
-      "types": "./dist/symmetric-crypto.d.ts",
-      "import": "./dist/symmetric-crypto.mjs",
-      "require": "./dist/symmetric-crypto.js"
-    },
-    "./post-quantum-crypto": {
-      "types": "./dist/post-quantum-crypto.d.ts",
-      "import": "./dist/post-quantum-crypto.mjs",
-      "require": "./dist/post-quantum-crypto.js"
-    },
-    "./hash": {
-      "types": "./dist/hash.d.ts",
-      "import": "./dist/hash.mjs",
-      "require": "./dist/hash.js"
-    },
-    "./derive-key": {
-      "types": "./dist/derive-key.d.ts",
-      "import": "./dist/derive-key.mjs",
-      "require": "./dist/derive-key.js"
-    },
-    "./email-crypto": {
-      "types": "./dist/email-crypto.d.ts",
-      "import": "./dist/email-crypto.mjs",
-      "require": "./dist/email-crypto.js"
-    },
-    "./keystore-crypto": {
-      "types": "./dist/keystore-crypto.d.ts",
-      "import": "./dist/keystore-crypto.mjs",
-      "require": "./dist/keystore-crypto.js"
-    },
-    "./email-search": {
-      "types": "./dist/email-search.d.ts",
-      "import": "./dist/email-search.mjs",
-      "require": "./dist/email-search.js"
-    },
-    "./email-service": {
-      "types": "./dist/email-service.d.ts",
-      "import": "./dist/email-service.mjs",
-      "require": "./dist/email-service.js"
-    },
-    "./storage-service": {
-      "types": "./dist/storage-service.d.ts",
-      "import": "./dist/storage-service.mjs",
-      "require": "./dist/storage-service.js"
-    },
-    "./utils": {
-      "types": "./dist/utils.d.ts",
-      "import": "./dist/utils.mjs",
-      "require": "./dist/utils.js"
-    },
-    "./types": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/types.mjs",
-      "require": "./dist/types.js"
-    },
-    "./constants": {
-      "types": "./dist/constants.d.ts",
-      "import": "./dist/constants.mjs",
-      "require": "./dist/constants.js"
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.mjs",
+      "require": "./dist/*.js"
     }
   },
   "sideEffects": false,
