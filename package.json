@@ -1,6 +1,6 @@
 {
   "name": "internxt-crypto",
-  "version": "0.0.9-alpha",
+  "version": "0.0.12",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
@@ -9,10 +9,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "dev": "vite",
-    "build": "vite build",
-    "start": "vite preview",
-    "build:staging": "vite build --mode staging",
+    "build": "tsdown",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "format": "prettier \"{src,tests}/**/*.{ts,tsx}\" --write",
@@ -23,6 +20,7 @@
   "devDependencies": {
     "@internxt/eslint-config-internxt": "2.0.1",
     "@internxt/prettier-config": "https://github.com/internxt/prettier-config.git#v1.0.2",
+    "@playwright/test": "^1.54.2",
     "@vitest/browser-playwright": "^4.0.10",
     "@vitest/coverage-istanbul": "^4.0.10",
     "eslint": "^9.34.0",
@@ -30,8 +28,8 @@
     "lint-staged": "^16.1.4",
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
+    "tsdown": "^0.20.1",
     "typescript": "^5.9.3",
-    "vite": "^7.0.6",
     "vitest": "^4.0.0"
   },
   "dependencies": {
@@ -44,6 +42,19 @@
     "idb": "^8.0.3",
     "uuid": "^13.0.0"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.mjs",
+      "require": "./dist/*.js"
+    }
+  },
+  "sideEffects": false,
   "lint-staged": {
     "*.{js,jsx,tsx,ts}": [
       "prettier --write"
