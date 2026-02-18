@@ -23,6 +23,7 @@ export default defineConfig({
   treeshake: true,
   outDir: 'dist',
   dts: true,
+  inlineOnly: false,
   noExternal: ['hash-wasm'],
   target: false,
 });
