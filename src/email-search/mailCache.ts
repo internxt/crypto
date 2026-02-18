@@ -67,7 +67,7 @@ export const createCacheFromDB = async (indexKey: CryptoKey, esDB: MailDB): Prom
     }
     return esCache;
   } catch (error) {
-    throw new Error(`Email caching failed: ${error}`);
+    throw new Error(`Email caching failed: ${error}`, { cause: error });
   }
 };
 
