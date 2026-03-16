@@ -8,9 +8,9 @@ import {
   Email,
   EmailPublicParameters,
 } from '../types';
-import { genSymmetricCryptoKey, encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
+import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
 import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
-import { deriveWrappingKey, wrapKey, unwrapKey, importWrappingKey } from '../key-wrapper';
+import { deriveWrappingKey, wrapKey, unwrapKey } from '../key-wrapper';
 import { deriveSecretKey } from '../asymmetric-crypto';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
@@ -22,13 +22,13 @@ export async function encryptEmailBody(
 ): Promise<{
   enc: EmailBodyEncrypted;
   params: EmailPublicParameters;
-  encryptionKey: CryptoKey;
+  encryptionKey: Uint8Array;
 }> {
   try {
     const aux = getAux(email.params, isSubjectEncrypted);
 
     let enc: EmailBodyEncrypted;
-    let encryptionKey: CryptoKey;
+    let encryptionKey: Uint8Array;
     let params = email.params;
 
     if (isSubjectEncrypted) {
@@ -51,7 +51,7 @@ export async function encryptEmailBody(
 export async function decryptEmailBody(
   enc: EmailBodyEncrypted,
   encParams: EmailPublicParameters,
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   isSubjectEncrypted: boolean,
 ): Promise<{
   params: EmailPublicParameters;
@@ -87,12 +87,12 @@ export async function encryptEmailContentSymmetrically(
   email: EmailBody,
   aux: Uint8Array,
   emailID: string,
-): Promise<{ enc: EmailBodyEncrypted; encryptionKey: CryptoKey }> {
+): Promise<{ enc: EmailBodyEncrypted; encryptionKey: Uint8Array }> {
   try {
     if (!email.text) {
       throw new Error('Invalid input');
     }
-    const encryptionKey = await genSymmetricCryptoKey();
+    const encryptionKey = await genSymmetricKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     return { enc, encryptionKey };
   } catch (error) {
@@ -114,12 +114,12 @@ export async function encryptEmailContentAndSubjectSymmetrically(
   subject: string,
   aux: Uint8Array,
   emailID: string,
-): Promise<{ enc: EmailBodyEncrypted; encSubject: string; encryptionKey: CryptoKey }> {
+): Promise<{ enc: EmailBodyEncrypted; encSubject: string; encryptionKey: Uint8Array }> {
   try {
     if (!subject || !email.text) {
       throw new Error('Invalid input');
     }
-    const encryptionKey = await genSymmetricCryptoKey();
+    const encryptionKey = await genSymmetricKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     const subjectBuff = UTF8ToUint8(subject);
     const subjectEnc = await encryptSymmetrically(encryptionKey, subjectBuff, aux);
@@ -134,11 +134,11 @@ export async function encryptEmailContentAndSubjectSymmetrically(
  * Decrypts symmetrically encrypted email.
  *
  * @param encryptedEmail - The email to decrypt.
- * @param encryptionKey - The symmetric CryptoKey.
+ * @param encryptionKey - The symmetric key.
  * @returns The decrypted email
  */
 export async function decryptEmailAndSubjectSymmetrically(
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   aux: Uint8Array,
   encSubject: string,
   enc: EmailBodyEncrypted,
@@ -162,7 +162,7 @@ export async function decryptEmailAndSubjectSymmetrically(
  */
 export async function encryptEmailContentSymmetricallyWithKey(
   emailBody: EmailBody,
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   aux: Uint8Array,
   emailID: string,
 ): Promise<EmailBodyEncrypted> {
@@ -185,7 +185,7 @@ export async function encryptEmailContentSymmetricallyWithKey(
 
 async function encryptEmailAttachements(
   attachments: string[],
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   aux: Uint8Array,
   emailID: string,
 ): Promise<Uint8Array[]> {
@@ -205,7 +205,7 @@ async function encryptEmailAttachements(
 
 async function decryptEmailAttachements(
   encryptedAttachments: Uint8Array[],
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   aux: Uint8Array,
 ): Promise<Uint8Array[]> {
   try {
@@ -224,11 +224,11 @@ async function decryptEmailAttachements(
  * Decrypts symmetrically encrypted email.
  *
  * @param encryptedEmail - The email to decrypt.
- * @param encryptionKey - The symmetric CryptoKey.
+ * @param encryptionKey - The symmetric key.
  * @returns The decrypted email
  */
 export async function decryptEmailSymmetrically(
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   aux: Uint8Array,
   enc: EmailBodyEncrypted,
 ): Promise<EmailBody> {
@@ -252,13 +252,13 @@ export async function decryptEmailSymmetrically(
 /**
  * Encrypts the email symmetric key using hybrid encryption.
  *
- * @param emailEncryptionKey - The symmetric CryptoKey used for email encryption.
+ * @param emailEncryptionKey - The symmetric key used for email encryption.
  * @param recipientPublicKey - The public key of the recipient.
  * @param senderPrivateKey - The private key of the sender.
  * @returns The encrypted email symmetric key
  */
 export async function encryptKeysHybrid(
-  emailEncryptionKey: CryptoKey,
+  emailEncryptionKey: Uint8Array,
   recipientPublicKey: PublicKeys,
   senderPrivateKey: PrivateKeys,
 ): Promise<HybridEncKey> {
@@ -284,13 +284,13 @@ export async function encryptKeysHybrid(
  * @param encryptedKey - The encrypted email key.
  * @param senderPublicKey - The public key of the sender.
  * @param recipientPrivateKey - The private key of the recipient.
- * @returns The email encryption CryptoKey
+ * @returns The email encryption key
  */
 export async function decryptKeysHybrid(
   encryptedKey: HybridEncKey,
   senderPublicKey: PublicKeys,
   recipientPrivateKey: PrivateKeys,
-): Promise<CryptoKey> {
+): Promise<Uint8Array> {
   try {
     const kyberCiphertext = base64ToUint8Array(encryptedKey.kyberCiphertext);
     const encKey = base64ToUint8Array(encryptedKey.encryptedKey);
@@ -307,15 +307,14 @@ export async function decryptKeysHybrid(
 /**
  * Password-protects the email symmetric key.
  *
- * @param emailEncryptionKey - The symmetric CryptoKey used for email encryption.
+ * @param emailEncryptionKey - The symmetric key used for email encryption.
  * @param password - The secret password for key protection.
  * @returns The password-protected email symmetric key
  */
-export async function passwordProtectKey(emailEncryptionKey: CryptoKey, password: string): Promise<PwdProtectedKey> {
+export async function passwordProtectKey(emailEncryptionKey: Uint8Array, password: string): Promise<PwdProtectedKey> {
   try {
     const { key, salt } = await getKeyFromPassword(password);
-    const wrappingKey = await importWrappingKey(key);
-    const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
+    const encryptedKey = await wrapKey(emailEncryptionKey, key);
     const saltStr = uint8ArrayToBase64(salt);
     const encryptedKeyStr = uint8ArrayToBase64(encryptedKey);
     return { encryptedKey: encryptedKeyStr, salt: saltStr };
@@ -329,18 +328,17 @@ export async function passwordProtectKey(emailEncryptionKey: CryptoKey, password
  *
  * @param emailEncryptionKey -  The password-protected email key.
  * @param password - The secret password for key protection.
- * @returns The email encryption CryptoKey
+ * @returns The email encryption key
  */
 export async function removePasswordProtection(
   emailEncryptionKey: PwdProtectedKey,
   password: string,
-): Promise<CryptoKey> {
+): Promise<Uint8Array> {
   try {
     const salt = base64ToUint8Array(emailEncryptionKey.salt);
     const encryptedKey = base64ToUint8Array(emailEncryptionKey.encryptedKey);
     const key = await getKeyFromPasswordAndSalt(password, salt);
-    const wrappingKey = await importWrappingKey(key);
-    const encryptionKey = await unwrapKey(encryptedKey, wrappingKey);
+    const encryptionKey = await unwrapKey(encryptedKey, key);
     return encryptionKey;
   } catch (error) {
     throw new Error('Failed to remove password-protection from email key', { cause: error });

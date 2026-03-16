@@ -18,14 +18,14 @@ import {
   deriveIndexKey,
 } from '../../src/email-search';
 import { Email } from '../../src/types';
-import { genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto';
+import { genSymmetricKey } from '../../src/symmetric-crypto';
 import { generateTestEmails, generateTestEmail } from './helper';
 
 describe('Test searchable database functions', async () => {
   const emailNumber = 5;
   const emails: Email[] = generateTestEmails(emailNumber);
   const userID = 'mock ID';
-  const key = await genSymmetricCryptoKey();
+  const key = await genSymmetricKey();
 
   beforeAll(async () => {
     await deleteDatabase(userID);
@@ -158,6 +158,6 @@ describe('Test searchable database functions', async () => {
     const baseKey = await genSymmetricKey();
     const new_key = await deriveIndexKey(baseKey);
 
-    expect(new_key).toBeInstanceOf(CryptoKey);
+    expect(new_key).toBeInstanceOf(Uint8Array);
   });
 });

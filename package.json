@@ -36,6 +36,7 @@
     "vitest": "^4.0.0"
   },
   "dependencies": {
+    "@noble/ciphers": "^2.1.1",
     "@noble/hashes": "^2.0.1",
     "@noble/post-quantum": "^0.5.2",
     "@scure/bip39": "^2.0.1",

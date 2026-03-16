@@ -30,11 +30,11 @@ function createEmptyCache(): MailCache<Email> {
 /**
  * Fetches all emails from the database in batches and cahces them
  *
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key for protecting database
  * @param esCache - The cache to add emails too
  * @param esDB - The database
  */
-export const createCacheFromDB = async (indexKey: CryptoKey, esDB: MailDB): Promise<MailCache<Email>> => {
+export const createCacheFromDB = async (indexKey: Uint8Array, esDB: MailDB): Promise<MailCache<Email>> => {
   const esCache = createEmptyCache();
   esCache.isCacheReady = false;
   try {

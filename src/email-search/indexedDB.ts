@@ -1,7 +1,7 @@
 import { DBSchema, openDB, deleteDB, IDBPDatabase } from 'idb';
 import { StoredEmail, Email } from '../types';
 import { decryptEmailSymmetrically, encryptEmailContentSymmetricallyWithKey } from '../email-crypto/core';
-import { deriveSymmetricCryptoKeyFromContext } from '../derive-key';
+import { deriveSymmetricKeyFromContext } from '../derive-key';
 import { CONTEXT_INDEX, DB_LABEL, DB_VERSION } from '../constants';
 import { getAux } from '../email-crypto';
 
@@ -71,22 +71,22 @@ export const deleteDatabase = async (userID: string): Promise<void> => {
  * Derives database encryption key for the given user
  *
  * @param userID - The user ID
- * @returns The symmetric CryptoKey for protecting database
+ * @returns The symmetric key for protecting database
  */
-export const deriveIndexKey = async (baseKey: Uint8Array): Promise<CryptoKey> => {
-  return deriveSymmetricCryptoKeyFromContext(CONTEXT_INDEX, baseKey);
+export const deriveIndexKey = async (baseKey: Uint8Array): Promise<Uint8Array> => {
+  return deriveSymmetricKeyFromContext(CONTEXT_INDEX, baseKey);
 };
 
 /**
  * Encrypts the given email and stores it in the IndexedDB database
  *
  * @param newEmailToStore - The email for storing
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key for protecting database
  * @param esDB - The database
  */
 export const encryptAndStoreEmail = async (
   newEmailToStore: Email,
-  indexKey: CryptoKey,
+  indexKey: Uint8Array,
   esDB: MailDB,
 ): Promise<void> => {
   try {
@@ -103,12 +103,12 @@ export const encryptAndStoreEmail = async (
  * Encrypts the given set of emails and stores it in the IndexedDB database
  *
  * @param newEmailsToStore - The set of emails for storing
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key key for protecting database
  * @param esDB - The database
  */
 export const encryptAndStoreManyEmail = async (
   newEmailsToStore: Email[],
-  indexKey: CryptoKey,
+  indexKey: Uint8Array,
   esDB: MailDB,
 ): Promise<void> => {
   try {
@@ -131,11 +131,11 @@ export const encryptAndStoreManyEmail = async (
 /**
  * Decrypts the given email
  *
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key key for protecting database
  * @param encryptedEmail - The encrypted email
  * @returns The decrypted email
  */
-const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): Promise<Email> => {
+const decryptEmail = async (indexKey: Uint8Array, encryptedEmail: StoredEmail): Promise<Email> => {
   try {
     const aux = getAux(encryptedEmail.params, false);
     const email = await decryptEmailSymmetrically(indexKey, aux, encryptedEmail.enc);
@@ -149,11 +149,11 @@ const decryptEmail = async (indexKey: CryptoKey, encryptedEmail: StoredEmail): P
  * Fetches the email from the database and decrypts it
  *
  * @param emailID - The email identifier
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key key for protecting database
  * @param encryptedEmail - The encrypted email
  * @returns The decrypted email
  */
-export const getAndDecryptEmail = async (emailID: string, indexKey: CryptoKey, esDB: MailDB): Promise<Email> => {
+export const getAndDecryptEmail = async (emailID: string, indexKey: Uint8Array, esDB: MailDB): Promise<Email> => {
   try {
     const encryptedEmail = await esDB.get(DB_LABEL, emailID);
     if (!encryptedEmail) {
@@ -168,11 +168,11 @@ export const getAndDecryptEmail = async (emailID: string, indexKey: CryptoKey, e
 /**
  * Fetches all email from the database and decrypts them
  *
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key key for protecting database
  * @param esDB - The database
  * @returns The decrypted emails
  */
-export const getAndDecryptAllEmails = async (indexKey: CryptoKey, esDB: MailDB): Promise<Email[]> => {
+export const getAndDecryptAllEmails = async (indexKey: Uint8Array, esDB: MailDB): Promise<Email[]> => {
   try {
     const encryptedEmails = await esDB.getAll(DB_LABEL);
 
@@ -258,11 +258,11 @@ export const enforceMaxEmailNumber = async (esDB: MailDB, max: number): Promise<
  * Fetches all emails from the database, decrypts them and sortes the results in the specified order
  *
  * @param esDB - The database
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key key for protecting database
  * @param direction - The order of sorting. If 'next' - oldest first, if 'prev' - newest first
  * @returns Decryped emails in the specified order
  */
-const fetchEmails = async (esDB: MailDB, indexKey: CryptoKey, direction: 'next' | 'prev'): Promise<Email[]> => {
+const fetchEmails = async (esDB: MailDB, indexKey: Uint8Array, direction: 'next' | 'prev'): Promise<Email[]> => {
   try {
     const tx = esDB.transaction(DB_LABEL, 'readonly');
     const index = tx.store.index('byTime');
@@ -287,10 +287,10 @@ const fetchEmails = async (esDB: MailDB, indexKey: CryptoKey, direction: 'next' 
  * Fetches all emails from the database, decrypts them and sortes the results based on the creation time (newest first)
  *
  * @param esDB - The database
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric Uint8Array key for protecting database
  * @returns The number of stored emails
  */
-export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
+export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Uint8Array): Promise<Email[]> => {
   return fetchEmails(esDB, indexKey, 'prev');
 };
 
@@ -298,10 +298,10 @@ export const getAllEmailsSortedNewestFirst = async (esDB: MailDB, indexKey: Cryp
  * Fetches all emails from the database, decrypts them and sortes the results based on the creation time (oldest first)
  *
  * @param esDB - The database
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key for protecting database
  * @returns The number of stored emails
  */
-export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: CryptoKey): Promise<Email[]> => {
+export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: Uint8Array): Promise<Email[]> => {
   return fetchEmails(esDB, indexKey, 'next');
 };
 
@@ -309,14 +309,14 @@ export const getAllEmailsSortedOldestFirst = async (esDB: MailDB, indexKey: Cryp
  * Fetches a batch of emails from the database, decrypts them and sortes the results based on the creation time (newest first)
  *
  * @param esDB - The database
- * @param indexKey - The symmetric CryptoKey key for protecting database
+ * @param indexKey - The symmetric key for protecting database
  * @param batchSize - The size of the batch
  * @param startCursor - The starting point (optional). If not given, starts from the beginning
  * @returns The number of stored emails
  */
 export const getEmailBatch = async (
   esDB: MailDB,
-  indexKey: CryptoKey,
+  indexKey: Uint8Array,
   batchSize: number,
   startCursor?: IDBValidKey,
 ): Promise<{ emails: Email[]; nextCursor?: IDBValidKey }> => {
