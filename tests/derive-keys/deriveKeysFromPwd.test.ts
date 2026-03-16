@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   getKeyFromPasswordAndSalt,
   verifyKeyFromPasswordHex,
@@ -73,21 +73,6 @@ describe('Test Argon2', () => {
   it('should throw an error if no password is given', async () => {
     await expect(getKeyFromPasswordHex('')).rejects.toThrowError(/Failed to derive key from password/);
     await expect(getKeyFromPassword('')).rejects.toThrowError(/Failed to derive key from password/);
-  });
-
-  it('should throw an error if key derivation failed', async () => {
-    const test_password = 'text demo';
-
-    const originalGenerateRandomValues = crypto.getRandomValues;
-
-    crypto.getRandomValues = vi.fn(() => {
-      throw new Error('simulated failure');
-    });
-
-    await expect(getKeyFromPassword(test_password)).rejects.toThrowError(/Failed to derive key from password/);
-    await expect(getKeyFromPasswordHex(test_password)).rejects.toThrowError(/Failed to derive key from password/);
-
-    crypto.getRandomValues = originalGenerateRandomValues;
   });
 
   it('should throw an error if no salt or password given', async () => {

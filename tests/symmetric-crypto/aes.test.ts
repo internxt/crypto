@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { encryptSymmetrically, decryptSymmetrically, genSymmetricCryptoKey } from '../../src/symmetric-crypto';
+import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test symmetric functions', () => {
   it('should sucessfully encrypt and decrypt', async () => {
-    const key = await genSymmetricCryptoKey();
+    const key = genSymmetricKey();
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
     const aux = new TextEncoder().encode('additional data');
     const freeField = new Uint8Array([1, 2, 3]);

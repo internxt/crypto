@@ -5,14 +5,14 @@ import { IV_LEN_BYTES } from '../constants';
 /**
  * Symmetrically encrypts the message
  *
- * @param encryptionKey - The symmetric CryptoKey used for message encryption
+ * @param encryptionKey - The symmetric key used for message encryption
  * @param message - The message to encrypt
  * @param freeField - The context of the message (required for IV generation)
  * @param aux - The auxilary string
  * @returns The resulting ciphertext.
  */
 export async function encryptSymmetrically(
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   message: Uint8Array,
   aux: Uint8Array,
   freeField?: Uint8Array,
@@ -30,13 +30,13 @@ export async function encryptSymmetrically(
 /**
  * Decryps symmetrically encrypted message
  *
- * @param encryptionKey - The symmetric CryptoKey used for message encryption
+ * @param encryptionKey - The symmetric key used for message encryption
  * @param encryptedMessage - The ciphertext
  * @param aux - The auxilary string
  * @returns The resulting ciphertext.
  */
 export async function decryptSymmetrically(
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   encryptedMessage: Uint8Array,
   aux: Uint8Array,
 ): Promise<Uint8Array> {

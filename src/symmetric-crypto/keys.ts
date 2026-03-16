@@ -1,4 +1,5 @@
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../constants';
+import { randomBytes } from '@noble/post-quantum/utils.js';
 import { getBytesFromData } from '../hash';
 
 /**
@@ -57,13 +58,7 @@ export async function genSymmetricCryptoKey(): Promise<CryptoKey> {
  * @returns The generated Uint8Array.
  */
 export function genSymmetricKey(): Uint8Array {
-  try {
-    const key = new Uint8Array(AES_KEY_BIT_LENGTH / 8);
-    crypto.getRandomValues(key);
-    return key;
-  } catch (error) {
-    throw new Error('Failed to generate symmetric key', { cause: error });
-  }
+  return randomBytes(AES_KEY_BIT_LENGTH / 8);
 }
 
 /**

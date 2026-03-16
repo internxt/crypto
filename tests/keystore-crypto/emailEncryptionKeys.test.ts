@@ -9,7 +9,7 @@ import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH } from '../../sr
 
 describe('Test keystore create/open functions', async () => {
   const mockUserEmail = 'mock user email';
-  const secretKey = await genSymmetricKey();
+  const secretKey = genSymmetricKey();
 
   beforeEach(() => {
     vi.clearAllMocks();

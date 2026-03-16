@@ -73,7 +73,7 @@ describe('Test ecc functions', () => {
   });
 
   it('should throw an error if given array is not a key', async () => {
-    const badKey = await genSymmetricKey();
+    const badKey = genSymmetricKey();
     await expect(importPublicKey(badKey)).rejects.toThrowError(/Failed to import public key/);
     await expect(importPrivateKey(badKey)).rejects.toThrowError(/Failed to import private key/);
   });

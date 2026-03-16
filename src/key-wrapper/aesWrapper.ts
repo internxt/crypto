@@ -1,37 +1,20 @@
-import { KEY_WRAPPING_ALGORITHM, KEY_FORMAT, CONTEXT_WRAPPING, AES_ALGORITHM } from '../constants';
+import { CONTEXT_WRAPPING } from '../constants';
 import { deriveSymmetricKeyFromTwoKeysAndContext } from '../derive-key';
-
-/**
- * Converts wrapping key in Uint8Array into CryptoKey
- *
- * @param key - The wrapping key in Uint8Array representation
- * @returns The resulting CryptoKey
- */
-export async function importWrappingKey(key: Uint8Array): Promise<CryptoKey> {
-  try {
-    return await crypto.subtle.importKey(KEY_FORMAT, key as BufferSource, KEY_WRAPPING_ALGORITHM, false, [
-      'wrapKey',
-      'unwrapKey',
-    ]);
-  } catch (error) {
-    throw new Error('Failed to import wrapping key', { cause: error });
-  }
-}
+import { aeskw } from '@noble/ciphers/aes.js';
 
 /**
  * Derives wrapping key from two secrets
  *
  * @param eccSecret - The secret exchanged via elliptic curves
  * @param kyberSecret - The secret exchanged via Kyber KEM
- * @returns The resulting wrapping CryptoKey
+ * @returns The resulting wrapping key
  */
-export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint8Array): Promise<CryptoKey> {
+export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint8Array): Promise<Uint8Array> {
   try {
     if (eccSecret.length !== kyberSecret.length) {
       throw new Error('secrets must have equal length');
     }
-    const key = await deriveSymmetricKeyFromTwoKeysAndContext(eccSecret, kyberSecret, CONTEXT_WRAPPING);
-    return await importWrappingKey(key);
+    return deriveSymmetricKeyFromTwoKeysAndContext(eccSecret, kyberSecret, CONTEXT_WRAPPING);
   } catch (error) {
     throw new Error('Failed to derive wrapping key', { cause: error });
   }
@@ -40,38 +23,21 @@ export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint
 /**
  * Unwraps the given wrapped key
  *
- * @param encryptedKey - The encrypted key
- * @param wrappingKey - The secret key used for decryption
- * @returns The resulting wrapping CryptoKey
+ * @param encryptedKey - The wrapped key
+ * @param wrappingKey - The secret key used for unwrapping
+ * @returns The resulting key
  */
-export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: CryptoKey): Promise<CryptoKey> {
-  try {
-    return await crypto.subtle.unwrapKey(
-      KEY_FORMAT,
-      encryptedKey as BufferSource,
-      wrappingKey,
-      KEY_WRAPPING_ALGORITHM,
-      AES_ALGORITHM,
-      false,
-      ['encrypt', 'decrypt'],
-    );
-  } catch (error) {
-    throw new Error('Failed to unwrap key', { cause: error });
-  }
+export async function unwrapKey(encryptedKey: Uint8Array, wrappingKey: Uint8Array): Promise<Uint8Array> {
+  return aeskw(wrappingKey).decrypt(encryptedKey);
 }
 
 /**
- * Wraps the given CryptoKey
+ * Wraps the given key
  *
- * @param encryptionKey - The CryptoKey to be wrapped
+ * @param key - The key to be wrapped
  * @param wrappingKey - The secret key used for wrapping
  * @returns The resulting ciphertext
  */
-export async function wrapKey(encryptionKey: CryptoKey, wrappingKey: CryptoKey): Promise<Uint8Array> {
-  try {
-    const result = await crypto.subtle.wrapKey(KEY_FORMAT, encryptionKey, wrappingKey, KEY_WRAPPING_ALGORITHM);
-    return new Uint8Array(result);
-  } catch (error) {
-    throw new Error('Failed to wrap key', { cause: error });
-  }
+export async function wrapKey(key: Uint8Array, wrappingKey: Uint8Array): Promise<Uint8Array> {
+  return aeskw(wrappingKey).encrypt(key);
 }

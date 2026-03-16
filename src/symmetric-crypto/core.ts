@@ -1,6 +1,7 @@
+import { gcm as aeadCipher } from '@noble/ciphers/webcrypto.js';
 import { randomBytes } from '@noble/post-quantum/utils.js';
 import { getBytesFromData } from '../hash';
-import { AUX_BYTE_LEN, AES_ALGORITHM, IV_LEN_BYTES } from '../constants';
+import { AUX_BYTE_LEN, IV_LEN_BYTES } from '../constants';
 
 /**
  * Creates an initialization vector (IV) using RGB-based construction (8.2.2 NIST Special Publication 800-38D)
@@ -51,20 +52,11 @@ export async function makeAuxFixedLength(aux: Uint8Array): Promise<Uint8Array> {
  */
 export async function encryptMessage(
   message: Uint8Array,
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   iv: Uint8Array,
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
-  try {
-    const encrypted = await crypto.subtle.encrypt(
-      { name: AES_ALGORITHM, iv: iv as BufferSource, additionalData: additionalData as BufferSource },
-      encryptionKey,
-      message as BufferSource,
-    );
-    return new Uint8Array(encrypted);
-  } catch (error) {
-    throw new Error('Failed to encrypt symmetrically', { cause: error });
-  }
+  return aeadCipher(encryptionKey, iv, additionalData).encrypt(message);
 }
 
 /**
@@ -79,17 +71,8 @@ export async function encryptMessage(
 export async function decryptMessage(
   ciphertext: Uint8Array,
   iv: Uint8Array,
-  encryptionKey: CryptoKey,
+  encryptionKey: Uint8Array,
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
-  try {
-    const decrypted = await crypto.subtle.decrypt(
-      { name: AES_ALGORITHM, iv: iv as BufferSource, additionalData: additionalData as BufferSource },
-      encryptionKey,
-      ciphertext as BufferSource,
-    );
-    return new Uint8Array(decrypted);
-  } catch (error) {
-    throw new Error('Failed to decrypt symmetrically', { cause: error });
-  }
+  return aeadCipher(encryptionKey, iv, additionalData).decrypt(ciphertext);
 }
