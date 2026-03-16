@@ -1,4 +1,4 @@
-import { gcm } from '@noble/ciphers/webcrypto.js';
+import { gcm as aeadCipher } from '@noble/ciphers/webcrypto.js';
 import { randomBytes } from '@noble/post-quantum/utils.js';
 import { getBytesFromData } from '../hash';
 import { AUX_BYTE_LEN, IV_LEN_BYTES } from '../constants';
@@ -56,7 +56,7 @@ export async function encryptMessage(
   iv: Uint8Array,
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
-  return gcm(encryptionKey, iv, additionalData).encrypt(message);
+  return aeadCipher(encryptionKey, iv, additionalData).encrypt(message);
 }
 
 /**
@@ -74,5 +74,5 @@ export async function decryptMessage(
   encryptionKey: Uint8Array,
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
-  return gcm(encryptionKey, iv, additionalData).decrypt(ciphertext);
+  return aeadCipher(encryptionKey, iv, additionalData).decrypt(ciphertext);
 }
