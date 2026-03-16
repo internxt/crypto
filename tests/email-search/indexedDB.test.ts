@@ -25,7 +25,7 @@ describe('Test searchable database functions', async () => {
   const emailNumber = 5;
   const emails: Email[] = generateTestEmails(emailNumber);
   const userID = 'mock ID';
-  const key = await genSymmetricKey();
+  const key = genSymmetricKey();
 
   beforeAll(async () => {
     await deleteDatabase(userID);
@@ -155,7 +155,7 @@ describe('Test searchable database functions', async () => {
   });
 
   it('derive index key should work', async () => {
-    const baseKey = await genSymmetricKey();
+    const baseKey = genSymmetricKey();
     const new_key = await deriveIndexKey(baseKey);
 
     expect(new_key).toBeInstanceOf(Uint8Array);

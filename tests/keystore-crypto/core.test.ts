@@ -6,7 +6,7 @@ import { generateEmailKeys } from '../../src/email-crypto';
 
 describe('Test keystore keys functions', () => {
   it('should sucessfully create and open a keystore', async () => {
-    const key = await genSymmetricKey();
+    const key = genSymmetricKey();
     const mockKeys = await generateEmailKeys();
     const mockUserEmail = 'mock user email';
     const mockTag = KeystoreType.ENCRYPTION;

@@ -19,7 +19,7 @@ import { generateTestEmails, generateTestEmail, getAllEmailSize, getEmailSize } 
 describe('Test mail cache functions', () => {
   beforeAll(async () => {
     await deleteDatabase(userID);
-    key = await genSymmetricKey();
+    key = genSymmetricKey();
     db = await openDatabase(userID);
     await encryptAndStoreManyEmail(emails, key, db);
   });

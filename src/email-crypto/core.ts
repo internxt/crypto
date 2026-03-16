@@ -92,7 +92,7 @@ export async function encryptEmailContentSymmetrically(
     if (!email.text) {
       throw new Error('Invalid input');
     }
-    const encryptionKey = await genSymmetricKey();
+    const encryptionKey = genSymmetricKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     return { enc, encryptionKey };
   } catch (error) {
@@ -119,7 +119,7 @@ export async function encryptEmailContentAndSubjectSymmetrically(
     if (!subject || !email.text) {
       throw new Error('Invalid input');
     }
-    const encryptionKey = await genSymmetricKey();
+    const encryptionKey = genSymmetricKey();
     const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
     const subjectBuff = UTF8ToUint8(subject);
     const subjectEnc = await encryptSymmetrically(encryptionKey, subjectBuff, aux);

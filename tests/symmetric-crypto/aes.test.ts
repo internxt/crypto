@@ -3,7 +3,7 @@ import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../
 
 describe('Test symmetric functions', () => {
   it('should sucessfully encrypt and decrypt', async () => {
-    const key = await genSymmetricKey();
+    const key = genSymmetricKey();
     const message = new Uint8Array([12, 42, 32, 44, 88, 89, 99, 100]);
     const aux = new TextEncoder().encode('additional data');
     const freeField = new Uint8Array([1, 2, 3]);

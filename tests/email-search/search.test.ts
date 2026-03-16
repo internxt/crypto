@@ -16,7 +16,7 @@ import { generateTestEmails, getSearchTestEmails } from './helper';
 describe('Email Search', () => {
   beforeAll(async () => {
     await deleteDatabase(userID);
-    key = await genSymmetricKey();
+    key = genSymmetricKey();
     db = await openDatabase(userID);
     await encryptAndStoreManyEmail(emails, key, db);
   });
@@ -42,7 +42,7 @@ describe('Email Search', () => {
 
   it('should search sucessfully', async () => {
     const id = 'test user id';
-    const indexKey = await genSymmetricKey();
+    const indexKey = genSymmetricKey();
     const database = await openDatabase(id);
     const data = [
       'cats abcd efgh ijkl mnop qrst uvwx',

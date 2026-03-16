@@ -19,7 +19,7 @@ describe('Test key wrapping functions', () => {
     const secret2 = genSymmetricKey();
 
     const wrappingKey = await deriveWrappingKey(secret1, secret2);
-    const encryptionKey = await genSymmetricKey();
+    const encryptionKey = genSymmetricKey();
 
     const ciphertext = await wrapKey(encryptionKey, wrappingKey);
     const result = await unwrapKey(ciphertext, wrappingKey);

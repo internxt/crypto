@@ -6,6 +6,7 @@ import {
   ARGON2ID_SALT_BYTE_LENGTH,
   ARGON2ID_OUTPUT_BYTE_LENGTH,
 } from '../constants';
+import { randomBytes } from '@noble/post-quantum/utils.js';
 
 /**
  * Calculates hash using the argon2id password-hashing function
@@ -43,11 +44,5 @@ export async function argon2(
  * @returns The salt
  */
 export function sampleSalt(): Uint8Array {
-  try {
-    const salt = new Uint8Array(ARGON2ID_SALT_BYTE_LENGTH);
-    crypto.getRandomValues(salt);
-    return salt;
-  } catch (error) {
-    throw new Error('Failed to sample salt', { cause: error });
-  }
+  return randomBytes(ARGON2ID_SALT_BYTE_LENGTH);
 }
