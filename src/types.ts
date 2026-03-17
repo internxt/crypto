@@ -23,6 +23,11 @@ export type PublicKeysBase64 = {
   kyberPublicKeyBase64: string;
 };
 
+export type HybridKeyPair = {
+  publicKey: Uint8Array;
+  secretKey: Uint8Array;
+};
+
 export type PrivateKeys = {
   eccPrivateKey: CryptoKey;
   kyberPrivateKey: Uint8Array;
