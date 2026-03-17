@@ -9,8 +9,8 @@ export type User = {
   name: string;
 };
 
-export type UserWithPublicKeys = User & {
-  publicKeys: PublicKeys;
+export type UserWithPublicKey = User & {
+  publicHybridKey: Uint8Array;
 };
 
 export type PublicKeys = {

@@ -1,17 +1,7 @@
-import {
-  HybridEncKey,
-  PwdProtectedKey,
-  PublicKeys,
-  PrivateKeys,
-  EmailBody,
-  EmailBodyEncrypted,
-  Email,
-  EmailPublicParameters,
-} from '../types';
+import { HybridEncKey, PwdProtectedKey, EmailBody, EmailBodyEncrypted, Email, EmailPublicParameters } from '../types';
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
-import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
-import { deriveWrappingKey, wrapKey, unwrapKey } from '../key-wrapper';
-import { deriveSecretKey } from '../asymmetric-crypto';
+import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
+import { wrapKey, unwrapKey } from '../key-wrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
 import { getAux } from './utils';
@@ -253,24 +243,18 @@ export async function decryptEmailSymmetrically(
  * Encrypts the email symmetric key using hybrid encryption.
  *
  * @param emailEncryptionKey - The symmetric key used for email encryption.
- * @param recipientPublicKey - The public key of the recipient.
- * @param senderPrivateKey - The private key of the sender.
+ * @param recipientPublicHybridKey - The public key of the recipient.
  * @returns The encrypted email symmetric key
  */
 export async function encryptKeysHybrid(
   emailEncryptionKey: Uint8Array,
-  recipientPublicKey: PublicKeys,
-  senderPrivateKey: PrivateKeys,
+  recipientPublicHybridKey: Uint8Array,
 ): Promise<HybridEncKey> {
   try {
-    const eccSecret = await deriveSecretKey(recipientPublicKey.eccPublicKey, senderPrivateKey.eccPrivateKey);
-    const { cipherText: kyberCiphertext, sharedSecret: kyberSecret } = encapsulateKyber(
-      recipientPublicKey.kyberPublicKey,
-    );
-    const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-    const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
+    const { cipherText, sharedSecret } = encapsulateHybrid(recipientPublicHybridKey);
+    const encryptedKey = await wrapKey(emailEncryptionKey, sharedSecret);
     const encryptedKeyBase64 = uint8ArrayToBase64(encryptedKey);
-    const kyberCiphertextBase64 = uint8ArrayToBase64(kyberCiphertext);
+    const kyberCiphertextBase64 = uint8ArrayToBase64(cipherText);
 
     return { encryptedKey: encryptedKeyBase64, kyberCiphertext: kyberCiphertextBase64 };
   } catch (error) {
@@ -288,16 +272,13 @@ export async function encryptKeysHybrid(
  */
 export async function decryptKeysHybrid(
   encryptedKey: HybridEncKey,
-  senderPublicKey: PublicKeys,
-  recipientPrivateKey: PrivateKeys,
+  recipientPrivateKey: Uint8Array,
 ): Promise<Uint8Array> {
   try {
     const kyberCiphertext = base64ToUint8Array(encryptedKey.kyberCiphertext);
     const encKey = base64ToUint8Array(encryptedKey.encryptedKey);
-    const eccSecret = await deriveSecretKey(senderPublicKey.eccPublicKey, recipientPrivateKey.eccPrivateKey);
-    const kyberSecret = decapsulateKyber(kyberCiphertext, recipientPrivateKey.kyberPrivateKey);
-    const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-    const encryptionKey = await unwrapKey(encKey, wrappingKey);
+    const sharedSecret = decapsulateHybrid(kyberCiphertext, recipientPrivateKey);
+    const encryptionKey = await unwrapKey(encKey, sharedSecret);
     return encryptionKey;
   } catch (error) {
     throw new Error('Failed to decrypt email key encrypted via hybrid encryption', { cause: error });

@@ -1,4 +1,4 @@
-import { PublicKeys, PrivateKeys, HybridEncryptedEmail, Email, UserWithPublicKeys } from '../types';
+import { HybridEncryptedEmail, Email, UserWithPublicKey } from '../types';
 import { decryptEmailBody, encryptKeysHybrid, decryptKeysHybrid, encryptEmailBody } from './core';
 
 /**
@@ -12,13 +12,12 @@ import { decryptEmailBody, encryptKeysHybrid, decryptKeysHybrid, encryptEmailBod
  */
 export async function encryptEmailHybrid(
   email: Email,
-  recipient: UserWithPublicKeys,
-  senderPrivateKey: PrivateKeys,
+  recipient: UserWithPublicKey,
   isSubjectEncrypted: boolean = false,
 ): Promise<HybridEncryptedEmail> {
   try {
     const { encryptionKey, params, enc } = await encryptEmailBody(email, isSubjectEncrypted);
-    const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
+    const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicHybridKey);
     return { enc, encryptedKey, recipientEmail: recipient.email, params, isSubjectEncrypted, id: email.id };
   } catch (error) {
     throw new Error('Failed to encrypt email with hybrid encryption', { cause: error });
@@ -36,8 +35,7 @@ export async function encryptEmailHybrid(
  */
 export async function encryptEmailHybridForMultipleRecipients(
   email: Email,
-  recipients: UserWithPublicKeys[],
-  senderPrivateKey: PrivateKeys,
+  recipients: UserWithPublicKey[],
   isSubjectEncrypted: boolean = false,
 ): Promise<HybridEncryptedEmail[]> {
   try {
@@ -45,7 +43,7 @@ export async function encryptEmailHybridForMultipleRecipients(
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
     for (const recipient of recipients) {
-      const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicKeys, senderPrivateKey);
+      const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient.publicHybridKey);
       encryptedEmails.push({
         enc,
         encryptedKey,
@@ -66,17 +64,16 @@ export async function encryptEmailHybridForMultipleRecipients(
  *
  * @param encryptedEmail - The encrypted email.
  * @param senderPublicKeys - The public key of the sender.
- * @param recipientPrivateKeys - The private key of the recipient.
+ * @param recipientPrivateHybridKeys - The private key of the recipient.
  * @returns The decrypted email
  */
 export async function decryptEmailHybrid(
   encryptedEmail: HybridEncryptedEmail,
-  senderPublicKeys: PublicKeys,
-  recipientPrivateKeys: PrivateKeys,
+  recipientPrivateHybridKeys: Uint8Array,
 ): Promise<Email> {
   try {
     const { isSubjectEncrypted, params: encParams, enc, encryptedKey, id } = encryptedEmail;
-    const encryptionKey = await decryptKeysHybrid(encryptedKey, senderPublicKeys, recipientPrivateKeys);
+    const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
     const { body, params } = await decryptEmailBody(enc, encParams, encryptionKey, isSubjectEncrypted);
     return { body, params, id };
   } catch (error) {
