@@ -63,7 +63,7 @@ export {
 } from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
 export { createEncryptionAndRecoveryKeystores, openEncryptionKeystore, openRecoveryKeystore } from './keystore-crypto';
-export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto/kyber768';
+export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto';
 export {
   encryptSymmetrically,
   decryptSymmetrically,

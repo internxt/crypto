@@ -31,3 +31,8 @@ export const MAX_CACHE_SIZE = 600000000; // 600 MB
 export const MAX_EMAIL_PER_BATCH = 100;
 export const DB_LABEL = 'email';
 export const DB_VERSION = 1;
+
+export const XWING_PUBLIC_KEY_LENGTH = 1216;
+export const XWING_SECRET_KEY_LENGTH = 32;
+export const XWING_SEED_BYTE_LENGTH = 32;
+export const XWING_CIPHERTEXT_BYTE_LENGTH = 1120;
