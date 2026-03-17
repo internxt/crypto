@@ -1,4 +1,4 @@
-import { XWing as hybridCipher } from '@noble/post-quantum/hybrid.js';
+import { ml_kem768_x25519 as hybridCipher } from '@noble/post-quantum/hybrid.js';
 import { HybridKeyPair } from '../types';
 
 export function genHybridKeys(seed?: Uint8Array): HybridKeyPair {
