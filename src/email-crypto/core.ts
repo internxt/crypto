@@ -1,21 +1,18 @@
-import {
-  HybridEncKey,
-  PwdProtectedKey,
-  PublicKeys,
-  PrivateKeys,
-  EmailBody,
-  EmailBodyEncrypted,
-  Email,
-  EmailPublicParameters,
-} from '../types';
+import { HybridEncKey, PwdProtectedKey, EmailBody, EmailBodyEncrypted, Email, EmailPublicParameters } from '../types';
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
-import { encapsulateKyber, decapsulateKyber } from '../post-quantum-crypto';
-import { deriveWrappingKey, wrapKey, unwrapKey } from '../key-wrapper';
-import { deriveSecretKey } from '../asymmetric-crypto';
+import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
+import { wrapKey, unwrapKey } from '../key-wrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
 import { getAux } from './utils';
 
+/**
+ * Symmetrically encrypts email body.
+ *
+ * @param email - The email to encrypt.
+ * @param isSubjectEncrypted -  Indicates if the email subject field was encrypted
+ * @returns The resulting encrypted email body, updated public parameters (with encrypted subject if it was encrypted) and symmetric key used for encryption
+ */
 export async function encryptEmailBody(
   email: Email,
   isSubjectEncrypted: boolean,
@@ -48,6 +45,15 @@ export async function encryptEmailBody(
   }
 }
 
+/**
+ * Decrypts symmetrically encrypted email body.
+ *
+ * @param enc - The email body to decrypt.
+ * @param encParams - The email paramaters.
+ * @param encryptionKey - The symmetric key to decrypt the email.
+ * @param isSubjectEncrypted -  Indicates if the email subject field was encrypted
+ * @returns The resulting decrypted email body and updated public parameters (with decrypted subject if it was encrypted)
+ */
 export async function decryptEmailBody(
   enc: EmailBodyEncrypted,
   encParams: EmailPublicParameters,
@@ -131,11 +137,13 @@ export async function encryptEmailContentAndSubjectSymmetrically(
 }
 
 /**
- * Decrypts symmetrically encrypted email.
+ * Decrypts symmetrically encrypted email and its subject.
  *
- * @param encryptedEmail - The email to decrypt.
- * @param encryptionKey - The symmetric key.
- * @returns The decrypted email
+ * @param encryptionKey - The symmetric key for encryption.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param encSubject - The encrypted email subject.
+ * @param enc - The encrypted email body.
+ * @returns The resulting encrypted emailBody
  */
 export async function decryptEmailAndSubjectSymmetrically(
   encryptionKey: Uint8Array,
@@ -157,8 +165,11 @@ export async function decryptEmailAndSubjectSymmetrically(
 /**
  * Symmetrically encrypts an email with a randomly sampled key.
  *
- * @param email - The email to encrypt.
- * @returns The resulting ciphertext and the used symmetric key
+ * @param emailBody - The email body to encrypt.
+ * @param encryptionKey - The symmetric key for encryption.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param emailID - The unique identifier of the email.
+ * @returns The resulting encrypted emailBody
  */
 export async function encryptEmailContentSymmetricallyWithKey(
   emailBody: EmailBody,
@@ -183,6 +194,15 @@ export async function encryptEmailContentSymmetricallyWithKey(
   }
 }
 
+/**
+ * Symmetrically encrypts email attachements.
+ *
+ * @param attachments - The attachments.
+ * @param encryptionKey - The symmetric key.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param emailID - The unique identifier of the email.
+ * @returns The decrypted email attackements
+ */
 async function encryptEmailAttachements(
   attachments: string[],
   encryptionKey: Uint8Array,
@@ -203,6 +223,14 @@ async function encryptEmailAttachements(
   }
 }
 
+/**
+ * Decrypts symmetrically encrypted email attachements.
+ *
+ * @param encryptedAttachments - The encrypted attachments.
+ * @param encryptionKey - The symmetric key.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @returns The decrypted email attackements
+ */
 async function decryptEmailAttachements(
   encryptedAttachments: Uint8Array[],
   encryptionKey: Uint8Array,
@@ -223,8 +251,9 @@ async function decryptEmailAttachements(
 /**
  * Decrypts symmetrically encrypted email.
  *
- * @param encryptedEmail - The email to decrypt.
  * @param encryptionKey - The symmetric key.
+ * @param aux -  The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param enc - The email body to decrypt.
  * @returns The decrypted email
  */
 export async function decryptEmailSymmetrically(
@@ -253,24 +282,18 @@ export async function decryptEmailSymmetrically(
  * Encrypts the email symmetric key using hybrid encryption.
  *
  * @param emailEncryptionKey - The symmetric key used for email encryption.
- * @param recipientPublicKey - The public key of the recipient.
- * @param senderPrivateKey - The private key of the sender.
+ * @param recipientPublicHybridKey - The public key of the recipient.
  * @returns The encrypted email symmetric key
  */
 export async function encryptKeysHybrid(
   emailEncryptionKey: Uint8Array,
-  recipientPublicKey: PublicKeys,
-  senderPrivateKey: PrivateKeys,
+  recipientPublicHybridKey: Uint8Array,
 ): Promise<HybridEncKey> {
   try {
-    const eccSecret = await deriveSecretKey(recipientPublicKey.eccPublicKey, senderPrivateKey.eccPrivateKey);
-    const { cipherText: kyberCiphertext, sharedSecret: kyberSecret } = encapsulateKyber(
-      recipientPublicKey.kyberPublicKey,
-    );
-    const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-    const encryptedKey = await wrapKey(emailEncryptionKey, wrappingKey);
+    const { cipherText, sharedSecret } = encapsulateHybrid(recipientPublicHybridKey);
+    const encryptedKey = await wrapKey(emailEncryptionKey, sharedSecret);
     const encryptedKeyBase64 = uint8ArrayToBase64(encryptedKey);
-    const kyberCiphertextBase64 = uint8ArrayToBase64(kyberCiphertext);
+    const kyberCiphertextBase64 = uint8ArrayToBase64(cipherText);
 
     return { encryptedKey: encryptedKeyBase64, kyberCiphertext: kyberCiphertextBase64 };
   } catch (error) {
@@ -282,22 +305,18 @@ export async function encryptKeysHybrid(
  * Decrypts the email symmetric key encrypted via hybrid encryption.
  *
  * @param encryptedKey - The encrypted email key.
- * @param senderPublicKey - The public key of the sender.
  * @param recipientPrivateKey - The private key of the recipient.
  * @returns The email encryption key
  */
 export async function decryptKeysHybrid(
   encryptedKey: HybridEncKey,
-  senderPublicKey: PublicKeys,
-  recipientPrivateKey: PrivateKeys,
+  recipientPrivateKey: Uint8Array,
 ): Promise<Uint8Array> {
   try {
     const kyberCiphertext = base64ToUint8Array(encryptedKey.kyberCiphertext);
     const encKey = base64ToUint8Array(encryptedKey.encryptedKey);
-    const eccSecret = await deriveSecretKey(senderPublicKey.eccPublicKey, recipientPrivateKey.eccPrivateKey);
-    const kyberSecret = decapsulateKyber(kyberCiphertext, recipientPrivateKey.kyberPrivateKey);
-    const wrappingKey = await deriveWrappingKey(eccSecret, kyberSecret);
-    const encryptionKey = await unwrapKey(encKey, wrappingKey);
+    const sharedSecret = decapsulateHybrid(kyberCiphertext, recipientPrivateKey);
+    const encryptionKey = await unwrapKey(encKey, sharedSecret);
     return encryptionKey;
   } catch (error) {
     throw new Error('Failed to decrypt email key encrypted via hybrid encryption', { cause: error });

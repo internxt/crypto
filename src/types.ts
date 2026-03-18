@@ -1,7 +1,8 @@
 export type EncryptedKeystore = {
   userEmail: string;
   type: KeystoreType;
-  encryptedKeys: EmailKeysEncrypted;
+  publicKey: string;
+  privateKeyEncrypted: string;
 };
 
 export type User = {
@@ -9,8 +10,8 @@ export type User = {
   name: string;
 };
 
-export type UserWithPublicKeys = User & {
-  publicKeys: PublicKeys;
+export type UserWithPublicKey = User & {
+  publicHybridKey: Uint8Array;
 };
 
 export type PublicKeys = {
@@ -26,26 +27,6 @@ export type PublicKeysBase64 = {
 export type HybridKeyPair = {
   publicKey: Uint8Array;
   secretKey: Uint8Array;
-};
-
-export type PrivateKeys = {
-  eccPrivateKey: CryptoKey;
-  kyberPrivateKey: Uint8Array;
-};
-
-export type PrivateKeysEncrypted = {
-  eccPrivateKeyBase64: string;
-  kyberPrivateKeyBase64: string;
-};
-
-export type EmailKeys = {
-  publicKeys: PublicKeys;
-  privateKeys: PrivateKeys;
-};
-
-export type EmailKeysEncrypted = {
-  publicKeys: PublicKeysBase64;
-  privateKeys: PrivateKeysEncrypted;
 };
 
 export type HybridEncryptedEmail = {

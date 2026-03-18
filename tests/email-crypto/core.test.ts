@@ -8,7 +8,7 @@ import {
 } from '../../src/email-crypto/core';
 import { generateUuid } from '../../src/utils';
 import { getAux } from '../../src/email-crypto';
-import { genSymmetricCryptoKey } from '../../src/symmetric-crypto';
+import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test email crypto functions', () => {
   const emailBody: EmailBody = {
@@ -53,7 +53,7 @@ describe('Test email crypto functions', () => {
 
   it('should throw an error if decryption fails', async () => {
     const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, id);
-    const bad_encryptionKey = await genSymmetricCryptoKey();
+    const bad_encryptionKey = await genSymmetricKey();
     await expect(decryptEmailSymmetrically(bad_encryptionKey, aux, enc)).rejects.toThrowError(
       /Failed to symmetrically decrypt email/,
     );
@@ -64,7 +64,7 @@ describe('Test email crypto functions', () => {
     );
   });
   it('should throw an error if decryption fails', async () => {
-    const bad_encryptionKey = await genSymmetricCryptoKey();
+    const bad_encryptionKey = await genSymmetricKey();
     const { enc, encryptionKey, encSubject } = await encryptEmailContentAndSubjectSymmetrically(
       emailBody,
       emailParams.subject,

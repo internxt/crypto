@@ -119,18 +119,11 @@ const emailBody: EmailBody = {
     createdAt: '2025-06-14T08:11:22.000Z',
     labels: ['label 1', 'label2'],
 };
-
-const userAlice = {
-    email: 'alice email',
-    name: 'alice',
-};
-
 const userBob = {
     email: 'bob email',
     name: 'bob',
 };
-const { privateKeys: alicePrivateKeys, publicKeys: alicePublicKeys } = await emailCrypto.generateEmailKeys();
-const { privateKeys: bobPrivateKeys, publicKeys: bobPublicKeys } = await emailCrypto.generateEmailKeys();
+const { secretKey: bobPrivateKeys, publicKey: bobPublicKeys } = await generateEmailKeys();
 
 const emailBody: EmailBody = {
   text: 'email body',
@@ -150,8 +143,8 @@ const email: Email = {
   params: emailParams,
   body: emailBody,
 };
-const encryptedEmail = await emailCrypto.encryptEmailHybrid(email, bobPublicKeys, alicePrivateKeys);
-const decryptedEmail = await emailCrypto.decryptEmailHybrid(encryptedEmail, alicePublicKeys, bobPrivateKeys);
+const encryptedEmail = await emailCrypto.encryptEmailHybrid(email, bobPublicKeys);
+const decryptedEmail = await emailCrypto.decryptEmailHybrid(encryptedEmail, bobPrivateKeys);
 expect(decryptedEmail).toStrictEqual(email);
 
 

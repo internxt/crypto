@@ -1,14 +1,14 @@
-import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
+import { EncryptedKeystore, KeystoreType, HybridKeyPair } from '../types';
 import { genMnemonic } from '../utils';
 import { encryptKeystoreContent, decryptKeystoreContent, deriveEncryptionKeystoreKey, deriveRecoveryKey } from './core';
-import { generateEmailKeys } from '../email-crypto';
+import { genHybridKeys } from '../hybrid-crypto';
 
 /**
- * Generates email keys and creates encrypted main and recovery keystores
+ * Generates hybrid keys and creates encrypted main and recovery keystores
  * The main keystore encryption key is derived from the base key (stored in session storage)
  * The recovery keystore encryption key is derived from the recovery codes
  *
- * @returns The encryption and recovery keystores, recovery codes and email keys
+ * @returns The encryption and recovery keystores, recovery codes and hybrid keys
  */
 export async function createEncryptionAndRecoveryKeystores(
   userEmail: string,
@@ -17,10 +17,10 @@ export async function createEncryptionAndRecoveryKeystores(
   encryptionKeystore: EncryptedKeystore;
   recoveryKeystore: EncryptedKeystore;
   recoveryCodes: string;
-  keys: EmailKeys;
+  keys: HybridKeyPair;
 }> {
   try {
-    const keys = await generateEmailKeys();
+    const keys = genHybridKeys();
 
     const secretKey = await deriveEncryptionKeystoreKey(baseKey);
     const encryptionKeystore = await encryptKeystoreContent(secretKey, keys, userEmail, KeystoreType.ENCRYPTION);
@@ -46,7 +46,7 @@ export async function createEncryptionAndRecoveryKeystores(
 export async function openEncryptionKeystore(
   encryptedKeystore: EncryptedKeystore,
   baseKey: Uint8Array,
-): Promise<EmailKeys> {
+): Promise<HybridKeyPair> {
   try {
     if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
       throw new Error('Input is invalid');
@@ -70,7 +70,7 @@ export async function openEncryptionKeystore(
 export async function openRecoveryKeystore(
   recoveryCodes: string,
   encryptedKeystore: EncryptedKeystore,
-): Promise<EmailKeys> {
+): Promise<HybridKeyPair> {
   try {
     if (encryptedKeystore.type != KeystoreType.RECOVERY) {
       throw new Error('Input is invalid');

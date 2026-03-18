@@ -5,7 +5,7 @@ import {
   openRecoveryKeystore,
 } from '../../src/keystore-crypto';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
-import { KYBER768_PUBLIC_KEY_LENGTH, KYBER768_SECRET_KEY_LENGTH } from '../../src/constants';
+import { XWING_PUBLIC_KEY_LENGTH, XWING_SECRET_KEY_LENGTH } from '../../src/constants';
 
 describe('Test keystore create/open functions', async () => {
   const mockUserEmail = 'mock user email';
@@ -25,10 +25,10 @@ describe('Test keystore create/open functions', async () => {
     const result_rec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(result_enc).toStrictEqual(result_rec);
-    expect(result_enc.privateKeys.eccPrivateKey).instanceOf(CryptoKey);
-    expect(result_enc.publicKeys.eccPublicKey).instanceOf(CryptoKey);
-    expect(result_enc.privateKeys.kyberPrivateKey.length).toBe(KYBER768_SECRET_KEY_LENGTH);
-    expect(result_enc.publicKeys.kyberPublicKey.length).toBe(KYBER768_PUBLIC_KEY_LENGTH);
+    expect(result_enc.publicKey).instanceOf(Uint8Array);
+    expect(result_enc.secretKey).instanceOf(Uint8Array);
+    expect(result_enc.publicKey.length).toBe(XWING_PUBLIC_KEY_LENGTH);
+    expect(result_enc.secretKey.length).toBe(XWING_SECRET_KEY_LENGTH);
   });
 
   it('should throw an error if no base key for keystore opening', async () => {
