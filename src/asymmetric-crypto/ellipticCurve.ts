@@ -1,4 +1,4 @@
-import { x25519 } from '@noble/curves/ed25519.js';
+import { x25519 } from '@noble/curves/webcrypto.js';
 
 /**
  * Derives secret key from the other user's public key and own private key
@@ -9,7 +9,7 @@ import { x25519 } from '@noble/curves/ed25519.js';
  */
 export async function deriveSecretKey(aliceSecX: Uint8Array, bobPubX: Uint8Array): Promise<Uint8Array> {
   try {
-    return x25519.getSharedSecret(aliceSecX, bobPubX);
+    return await x25519.getSharedSecret(aliceSecX, bobPubX);
   } catch (error) {
     throw new Error('Failed to derive elliptic curve secret key', { cause: error });
   }
