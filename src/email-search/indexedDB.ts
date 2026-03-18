@@ -91,7 +91,7 @@ export const encryptAndStoreEmail = async (
 ): Promise<void> => {
   try {
     const aux = getAux(newEmailToStore.params, false);
-    const enc = await encryptEmailContentSymmetricallyWithKey(newEmailToStore.body, indexKey, aux, newEmailToStore.id);
+    const enc = await encryptEmailContentSymmetricallyWithKey(newEmailToStore.body, indexKey, aux);
     const encryptedEmail: StoredEmail = { enc, params: newEmailToStore.params, id: newEmailToStore.id };
     await esDB.put(DB_LABEL, encryptedEmail);
   } catch (error) {
@@ -115,7 +115,7 @@ export const encryptAndStoreManyEmail = async (
     const encryptedEmails = await Promise.all(
       newEmailsToStore.map(async (email: Email) => {
         const aux = getAux(email.params, false);
-        const enc = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux, email.id);
+        const enc = await encryptEmailContentSymmetricallyWithKey(email.body, indexKey, aux);
 
         return { enc, params: email.params, id: email.id };
       }),
