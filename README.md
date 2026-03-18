@@ -85,7 +85,7 @@ expect(resultAlice).toStrictEqual(resultBob);
 // Symmetric encryption
 const data = utils.UTF8ToUint8('Sensitive information to encrypt'); // convert to Uint8Array 
 const additionalData = 'Additional non-secret data';
-const key = await symmetric.genSymmetricCryptoKey(); // CryptoKey 
+const key = await symmetric.genSymmetricKey(); 
 const ciphertext: Uint8Array = await symmetric.encryptSymmetrically(key, data, additionalData);
 const plainText = await symmetric.decryptSymmetrically(encryptionKey, ciphertext, additionalData);
 expect(data).toStrictEqual(plainText);

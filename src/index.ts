@@ -1,11 +1,4 @@
-export {
-  deriveSecretKey,
-  generateEccKeys,
-  exportPublicKey,
-  importPublicKey,
-  exportPrivateKey,
-  importPrivateKey,
-} from './asymmetric-crypto';
+export { deriveSecretKey, generateEccKeys } from './asymmetric-crypto';
 export {
   deriveSymmetricKeyFromTwoKeys,
   deriveSymmetricCryptoKeyFromTwoKeys,
