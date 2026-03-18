@@ -1,10 +1,9 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
-import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes, publicKeyToBase64 } from '../utils';
+import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes } from '../utils';
 import { deriveSymmetricKeyFromContext } from '../derive-key';
 import { CONTEXT_ENC_KEYSTORE, AES_KEY_BIT_LENGTH, CONTEXT_RECOVERY } from '../constants';
 import { getBytesFromData } from '../hash';
-import { EmailKeys, EncryptedKeystore, KeystoreType } from '../types';
-import { exportPrivateKey, importPrivateKey, importPublicKey } from '../asymmetric-crypto';
+import { EncryptedKeystore, HybridKeyPair, KeystoreType } from '../types';
 
 /**
  * Encrypts the keystore content using symmetric encryption
@@ -17,28 +16,20 @@ import { exportPrivateKey, importPrivateKey, importPublicKey } from '../asymmetr
  */
 export async function encryptKeystoreContent(
   secretKey: Uint8Array,
-  keys: EmailKeys,
+  keys: HybridKeyPair,
   userEmail: string,
   type: KeystoreType,
 ): Promise<EncryptedKeystore> {
   try {
     const aux = UTF8ToUint8(userEmail + type);
-    const publicKeys = await publicKeyToBase64(keys.publicKeys);
-    const kyberPrivateKeyEnc = await encryptSymmetrically(secretKey, keys.privateKeys.kyberPrivateKey, aux);
-    const eccPrivateKey = await exportPrivateKey(keys.privateKeys.eccPrivateKey);
-    const eccPrivateKeyEnc = await encryptSymmetrically(secretKey, eccPrivateKey, aux);
-    const encryptedKeys = {
-      publicKeys,
-      privateKeys: {
-        kyberPrivateKeyBase64: uint8ArrayToBase64(kyberPrivateKeyEnc),
-        eccPrivateKeyBase64: uint8ArrayToBase64(eccPrivateKeyEnc),
-      },
-    };
+    const publicKey = uint8ArrayToBase64(keys.publicKey);
+    const secretKeyEncrypted = await encryptSymmetrically(secretKey, keys.secretKey, aux);
 
     const keystore: EncryptedKeystore = {
       userEmail,
       type,
-      encryptedKeys,
+      publicKey,
+      privateKeyEncrypted: uint8ArrayToBase64(secretKeyEncrypted),
     };
     return keystore;
   } catch (error) {
@@ -49,37 +40,25 @@ export async function encryptKeystoreContent(
 /**
  * Decrypts the keystore content using symmetric encryption
  *
- * @param secretKey - The symmetric key to decrypt the keystore content
+ * @param kesytoreOpeningKey - The symmetric key to decrypt the keystore content
  * @param encryptedKeys - The encrypted keystore content
  * @param userEmail - The ID of the user
  * @param tag - The keystore type-specific tag string
  * @returns The decrypted keystore content
  */
 export async function decryptKeystoreContent(
-  secretKey: Uint8Array,
+  kesytoreOpeningKey: Uint8Array,
   encryptedKeystore: EncryptedKeystore,
-): Promise<EmailKeys> {
+): Promise<HybridKeyPair> {
   try {
     const aux = UTF8ToUint8(encryptedKeystore.userEmail + encryptedKeystore.type);
-    const kyberPublicKey = base64ToUint8Array(encryptedKeystore.encryptedKeys.publicKeys.kyberPublicKeyBase64);
-    const eccPublicArray = base64ToUint8Array(encryptedKeystore.encryptedKeys.publicKeys.eccPublicKeyBase64);
-    const eccPublicKey = await importPublicKey(eccPublicArray);
-    const encKyberPrivateKey = base64ToUint8Array(encryptedKeystore.encryptedKeys.privateKeys.kyberPrivateKeyBase64);
-    const kyberPrivateKey = await decryptSymmetrically(secretKey, encKyberPrivateKey, aux);
-    const eccEncArray = base64ToUint8Array(encryptedKeystore.encryptedKeys.privateKeys.eccPrivateKeyBase64);
-    const eccKey = await decryptSymmetrically(secretKey, eccEncArray, aux);
-    const eccPrivateKey = await importPrivateKey(eccKey);
-    const keys = {
-      publicKeys: {
-        kyberPublicKey,
-        eccPublicKey,
-      },
-      privateKeys: {
-        kyberPrivateKey,
-        eccPrivateKey,
-      },
+    const publicKey = base64ToUint8Array(encryptedKeystore.publicKey);
+    const ciphertext = base64ToUint8Array(encryptedKeystore.privateKeyEncrypted);
+    const secretKey = await decryptSymmetrically(kesytoreOpeningKey, ciphertext, aux);
+    return {
+      publicKey,
+      secretKey,
     };
-    return keys;
   } catch (error) {
     throw new Error('Failed to decrypt keystore content', { cause: error });
   }

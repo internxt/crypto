@@ -1,7 +1,8 @@
 export type EncryptedKeystore = {
   userEmail: string;
   type: KeystoreType;
-  encryptedKeys: EmailKeysEncrypted;
+  publicKey: string;
+  privateKeyEncrypted: string;
 };
 
 export type User = {
@@ -41,11 +42,6 @@ export type PrivateKeysEncrypted = {
 export type EmailKeys = {
   publicKeys: PublicKeys;
   privateKeys: PrivateKeys;
-};
-
-export type EmailKeysEncrypted = {
-  publicKeys: PublicKeysBase64;
-  privateKeys: PrivateKeysEncrypted;
 };
 
 export type HybridEncryptedEmail = {

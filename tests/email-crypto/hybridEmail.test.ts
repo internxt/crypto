@@ -39,12 +39,16 @@ describe('Test email crypto functions', async () => {
     params: emailParams,
   };
 
-  const { secretKey: alicePrivateKeys } = await generateEmailKeys();
+  const { secretKey: alicePrivateKeys, publicKey: alicePublicKeys } = await generateEmailKeys();
   const { secretKey: bobPrivateKeys, publicKey: bobPublicKeys } = await generateEmailKeys();
 
   const bobWithPublicKeys = {
     ...userBob,
     publicHybridKey: bobPublicKeys,
+  };
+  const aliceWithPublicKeys = {
+    ...userAlice,
+    publicHybridKey: alicePublicKeys,
   };
 
   it('should encrypt and decrypt email sucessfully', async () => {
@@ -68,7 +72,7 @@ describe('Test email crypto functions', async () => {
   it('should throw an error if not intended recipient', async () => {
     const encryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys);
 
-    await expect(await decryptEmailHybrid(encryptedEmail, alicePrivateKeys)).rejects.toThrowError(
+    await expect(decryptEmailHybrid(encryptedEmail, alicePrivateKeys)).rejects.toThrowError(
       /Failed to decrypt email with hybrid encryption/,
     );
   });
@@ -95,13 +99,10 @@ describe('Test email crypto functions', async () => {
   });
 
   it('should encrypt email to multiple senders sucessfully', async () => {
-    const eveWithPublicKeys = {
-      email: 'eve email',
-      name: 'eve',
-      publicHybridKey: alicePrivateKeys,
-    };
-
-    const encryptedEmail = await encryptEmailHybridForMultipleRecipients(email, [bobWithPublicKeys, eveWithPublicKeys]);
+    const encryptedEmail = await encryptEmailHybridForMultipleRecipients(email, [
+      bobWithPublicKeys,
+      aliceWithPublicKeys,
+    ]);
 
     expect(encryptedEmail.length).toBe(2);
     expect(encryptedEmail[0].enc).toBe(encryptedEmail[1].enc);
