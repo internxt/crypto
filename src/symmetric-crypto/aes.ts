@@ -1,4 +1,4 @@
-import { createNISTbasedIV, makeAuxFixedLength, encryptMessage, decryptMessage } from './core';
+import { createNISTbasedIV, encryptMessage, decryptMessage } from './core';
 import { concatBytes } from '@noble/hashes/utils.js';
 import { IV_LEN_BYTES } from '../constants';
 
@@ -19,8 +19,7 @@ export async function encryptSymmetrically(
 ): Promise<Uint8Array> {
   try {
     const iv = createNISTbasedIV(freeField);
-    const additionalData = await makeAuxFixedLength(aux);
-    const ciphertext = await encryptMessage(message, encryptionKey, iv, additionalData);
+    const ciphertext = await encryptMessage(message, encryptionKey, iv, aux);
     return concatBytes(ciphertext, iv);
   } catch (error) {
     throw new Error('Failed to encrypt symmetrically', { cause: error });
@@ -41,10 +40,9 @@ export async function decryptSymmetrically(
   aux: Uint8Array,
 ): Promise<Uint8Array> {
   try {
-    const additionalData = await makeAuxFixedLength(aux);
     const ciphertext = encryptedMessage.slice(0, encryptedMessage.length - IV_LEN_BYTES);
     const iv = encryptedMessage.slice(encryptedMessage.length - IV_LEN_BYTES);
-    const result = await decryptMessage(ciphertext, iv, encryptionKey, additionalData);
+    const result = await decryptMessage(ciphertext, iv, encryptionKey, aux);
     return result;
   } catch (error) {
     throw new Error('Failed to decrypt symmetrically', { cause: error });
