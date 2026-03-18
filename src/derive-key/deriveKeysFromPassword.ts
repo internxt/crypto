@@ -9,9 +9,6 @@ import { argon2, sampleSalt } from './core';
  */
 export async function getKeyFromPassword(password: string): Promise<{ key: Uint8Array; salt: Uint8Array }> {
   try {
-    if (!password) {
-      throw new Error('No password given');
-    }
     const salt = sampleSalt();
     const key = await argon2(password, salt);
     return { key, salt };
@@ -29,12 +26,6 @@ export async function getKeyFromPassword(password: string): Promise<{ key: Uint8
  */
 export async function getKeyFromPasswordAndSalt(password: string, salt: Uint8Array): Promise<Uint8Array> {
   try {
-    if (!salt.length) {
-      throw new Error('No salt given');
-    }
-    if (!password) {
-      throw new Error('No password given');
-    }
     return await argon2(password, salt);
   } catch (error) {
     throw new Error('Failed to derive key from password and salt', { cause: error });
