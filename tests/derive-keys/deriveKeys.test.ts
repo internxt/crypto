@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricCryptoKeyFromContext,
-  deriveSymmetricCryptoKeyFromTwoKeys,
+  deriveSymmetricKeyFromContext
 } from '../../src/derive-key';
-import { AES_KEY_BIT_LENGTH, AES_ALGORITHM } from '../../src/constants';
+import { uint8ArrayToHex } from '../../src/utils';
+import { AES_KEY_BIT_LENGTH } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test derive key', () => {
@@ -15,38 +15,13 @@ describe('Test derive key', () => {
     }
     return result;
   }
-
-  it('should derive symmetric key', async () => {
-    const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-    const baseKey = createTestInput(32);
-    const key = await deriveSymmetricCryptoKeyFromContext(context, baseKey);
-    expect(key).instanceOf(CryptoKey);
-  });
-
-  it('derive symmetric key should throw an error if context is an empty string', async () => {
-    const context = '';
-    const baseKey = createTestInput(32);
-    await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
-      /Failed to derive CryptoKey from base key and context/,
-    );
-  });
-
-  it('derive symmetric key should throw an error if base key is too short', async () => {
-    const context = 'test context';
-    const baseKey = createTestInput(2);
-    await expect(deriveSymmetricCryptoKeyFromContext(context, baseKey)).rejects.toThrowError(
-      /Failed to derive CryptoKey from base key and context/,
-    );
-  });
-
-  it('should derive symmetric crypto key', async () => {
-    const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-    const baseKey = createTestInput(32);
-    const key = await deriveSymmetricCryptoKeyFromContext(context, baseKey);
-    expect(key).toBeInstanceOf(CryptoKey);
-    const alg = key.algorithm as AesKeyAlgorithm;
-    expect(alg.name).toBe(AES_ALGORITHM);
-    expect(alg.length).toBe(AES_KEY_BIT_LENGTH);
+  it('should derive symmetric key from two keys', async () => {
+    const context =  'BLAKE3 2019-12-27 16:29:52 test vectors context';
+    const input = createTestInput(63);
+    const blake3TestResult = 'b6451e30b953c206e34644c6803724e9d2725e0893039cfc49584f991f451af3';
+    const result = deriveSymmetricKeyFromContext(context, input);
+    const resultHex = uint8ArrayToHex(result);
+    expect(resultHex).toBe(blake3TestResult);
   });
 
   it('should derive symmetric key from two keys', async () => {
@@ -54,9 +29,6 @@ describe('Test derive key', () => {
     const key2 = genSymmetricKey();
     const key = await deriveSymmetricKeyFromTwoKeys(key1, key2);
     expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
-
-    const cryptoKey = await deriveSymmetricCryptoKeyFromTwoKeys(key1, key2);
-    expect(cryptoKey).instanceOf(CryptoKey);
   });
 
   it('derive symmetric key from two keys should fail for small key', async () => {
@@ -67,13 +39,6 @@ describe('Test derive key', () => {
     );
     expect(() => deriveSymmetricKeyFromTwoKeys(key2, short_key)).toThrowError(
       /Failed to derive symmetric key from two keys/,
-    );
-
-    await expect(deriveSymmetricCryptoKeyFromTwoKeys(short_key, key2)).rejects.toThrowError(
-      /Failed to derive symmetric CryptoKey from two keys/,
-    );
-    await expect(deriveSymmetricCryptoKeyFromTwoKeys(key2, short_key)).rejects.toThrowError(
-      /Failed to derive symmetric CryptoKey from two keys/,
     );
   });
 });

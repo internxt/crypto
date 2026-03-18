@@ -1,6 +1,5 @@
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH, KEY_FORMAT } from '../constants';
 import { randomBytes } from '@noble/post-quantum/utils.js';
-import { getBytesFromData } from '../hash';
 
 /**
  * Converts Uint8Array into CryptoKey
@@ -59,18 +58,4 @@ export async function genSymmetricCryptoKey(): Promise<CryptoKey> {
  */
 export function genSymmetricKey(): Uint8Array {
   return randomBytes(AES_KEY_BIT_LENGTH / 8);
-}
-
-/**
- * Derives CryptoKey from the given key material
- *
- * @returns The derived CryptoKey.
- */
-export async function deriveSymmetricCryptoKey(keyMaterial: Uint8Array): Promise<CryptoKey> {
-  try {
-    const hashBuffer = getBytesFromData(AES_KEY_BIT_LENGTH / 8, keyMaterial);
-    return importSymmetricCryptoKey(hashBuffer);
-  } catch (error) {
-    throw new Error('Failed to derive CryptoKey from the given key material', { cause: error });
-  }
 }

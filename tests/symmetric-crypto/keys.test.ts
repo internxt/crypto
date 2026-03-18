@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  exportSymmetricCryptoKey,
-  genSymmetricCryptoKey,
-  genSymmetricKey,
-  deriveSymmetricCryptoKey,
-} from '../../src/symmetric-crypto';
+import { exportSymmetricCryptoKey, genSymmetricCryptoKey, genSymmetricKey } from '../../src/symmetric-crypto';
 import { AES_ALGORITHM, AES_KEY_BIT_LENGTH } from '../../src/constants';
 
 describe('Test symmetric key functions', () => {
@@ -41,13 +36,5 @@ describe('Test symmetric key functions', () => {
     await expect(exportSymmetricCryptoKey(non_exportable_key)).rejects.toThrowError(
       /Failed to export symmetric CryptoKey/,
     );
-  });
-
-  it('should sucessfully derive CryptoKey', async () => {
-    const keyMaterial = new TextEncoder().encode(
-      'Srp6AzybbyludWuaVwGoHa1C2H0Qtv7JR0sKGLSWe8Ho8_q9hezfYD2RYb9IUrW999pH4VlABgDLse484zAapg',
-    );
-    const key = await deriveSymmetricCryptoKey(keyMaterial);
-    expect(key).toBeInstanceOf(CryptoKey);
   });
 });
