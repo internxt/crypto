@@ -2,6 +2,12 @@ import { UTF8ToUint8 } from '../utils';
 import { User, Email } from '../types';
 import { concatBytes } from '@noble/hashes/utils.js';
 
+/**
+ * Converts a Users into a Uint8Array.
+ *
+ * @param user - The user.
+ * @returns The Uint8Array representation of the user.
+ */
 export function userToBytes(user: User): Uint8Array {
   try {
     const json = JSON.stringify(user);
@@ -11,6 +17,12 @@ export function userToBytes(user: User): Uint8Array {
   }
 }
 
+/**
+ * Converts an array of Users into a Uint8Array.
+ *
+ * @param recipients - The array of Users.
+ * @returns The Uint8Array representation of the array of Users.
+ */
 export function recipientsToBytes(recipients: User[]): Uint8Array {
   try {
     const array = recipients.map((user) => userToBytes(user));

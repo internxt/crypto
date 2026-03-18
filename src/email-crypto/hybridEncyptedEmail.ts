@@ -6,7 +6,6 @@ import { decryptEmailBody, encryptKeysHybrid, decryptKeysHybrid, encryptEmailBod
  *
  * @param email - The email to encrypt.
  * @param recipientPublicKeys - The public keys of the recipient.
- * @param senderPrivateKey - The private key of the sender.
  * @param isSubjectEncrypted -  Indicates if the email subject field should be encrypted
  * @returns The encrypted email
  */
@@ -29,7 +28,6 @@ export async function encryptEmailHybrid(
  *
  * @param email - The email to encrypt.
  * @param recipients - The recipients with corresponding public keys.
- * @param senderPrivateKey - The private key of the sender.
  * @param isSubjectEncrypted -  Indicates if the email subject field should be encrypted
  * @returns The set of encrypted email
  */
@@ -63,7 +61,6 @@ export async function encryptEmailHybridForMultipleRecipients(
  * Decrypts the email using hybrid encryption.
  *
  * @param encryptedEmail - The encrypted email.
- * @param senderPublicKeys - The public key of the sender.
  * @param recipientPrivateHybridKeys - The private key of the recipient.
  * @returns The decrypted email
  */

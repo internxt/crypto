@@ -6,6 +6,13 @@ import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
 import { getAux } from './utils';
 
+/**
+ * Symmetrically encrypts email body.
+ *
+ * @param email - The email to encrypt.
+ * @param isSubjectEncrypted -  Indicates if the email subject field was encrypted
+ * @returns The resulting encrypted email body, updated public parameters (with encrypted subject if it was encrypted) and symmetric key used for encryption
+ */
 export async function encryptEmailBody(
   email: Email,
   isSubjectEncrypted: boolean,
@@ -38,6 +45,15 @@ export async function encryptEmailBody(
   }
 }
 
+/**
+ * Decrypts symmetrically encrypted email body.
+ *
+ * @param enc - The email body to decrypt.
+ * @param encParams - The email paramaters.
+ * @param encryptionKey - The symmetric key to decrypt the email.
+ * @param isSubjectEncrypted -  Indicates if the email subject field was encrypted
+ * @returns The resulting decrypted email body and updated public parameters (with decrypted subject if it was encrypted)
+ */
 export async function decryptEmailBody(
   enc: EmailBodyEncrypted,
   encParams: EmailPublicParameters,
@@ -121,11 +137,13 @@ export async function encryptEmailContentAndSubjectSymmetrically(
 }
 
 /**
- * Decrypts symmetrically encrypted email.
+ * Decrypts symmetrically encrypted email and its subject.
  *
- * @param encryptedEmail - The email to decrypt.
- * @param encryptionKey - The symmetric key.
- * @returns The decrypted email
+ * @param encryptionKey - The symmetric key for encryption.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param encSubject - The encrypted email subject.
+ * @param enc - The encrypted email body.
+ * @returns The resulting encrypted emailBody
  */
 export async function decryptEmailAndSubjectSymmetrically(
   encryptionKey: Uint8Array,
@@ -147,8 +165,11 @@ export async function decryptEmailAndSubjectSymmetrically(
 /**
  * Symmetrically encrypts an email with a randomly sampled key.
  *
- * @param email - The email to encrypt.
- * @returns The resulting ciphertext and the used symmetric key
+ * @param emailBody - The email body to encrypt.
+ * @param encryptionKey - The symmetric key for encryption.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param emailID - The unique identifier of the email.
+ * @returns The resulting encrypted emailBody
  */
 export async function encryptEmailContentSymmetricallyWithKey(
   emailBody: EmailBody,
@@ -173,6 +194,15 @@ export async function encryptEmailContentSymmetricallyWithKey(
   }
 }
 
+/**
+ * Symmetrically encrypts email attachements.
+ *
+ * @param attachments - The attachments.
+ * @param encryptionKey - The symmetric key.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param emailID - The unique identifier of the email.
+ * @returns The decrypted email attackements
+ */
 async function encryptEmailAttachements(
   attachments: string[],
   encryptionKey: Uint8Array,
@@ -193,6 +223,14 @@ async function encryptEmailAttachements(
   }
 }
 
+/**
+ * Decrypts symmetrically encrypted email attachements.
+ *
+ * @param encryptedAttachments - The encrypted attachments.
+ * @param encryptionKey - The symmetric key.
+ * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @returns The decrypted email attackements
+ */
 async function decryptEmailAttachements(
   encryptedAttachments: Uint8Array[],
   encryptionKey: Uint8Array,
@@ -213,8 +251,9 @@ async function decryptEmailAttachements(
 /**
  * Decrypts symmetrically encrypted email.
  *
- * @param encryptedEmail - The email to decrypt.
  * @param encryptionKey - The symmetric key.
+ * @param aux -  The auxiliary data (e.g., email ID or timestamp) for AEAD.
+ * @param enc - The email body to decrypt.
  * @returns The decrypted email
  */
 export async function decryptEmailSymmetrically(
@@ -266,7 +305,6 @@ export async function encryptKeysHybrid(
  * Decrypts the email symmetric key encrypted via hybrid encryption.
  *
  * @param encryptedKey - The encrypted email key.
- * @param senderPublicKey - The public key of the sender.
  * @param recipientPrivateKey - The private key of the recipient.
  * @returns The email encryption key
  */
