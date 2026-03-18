@@ -6,13 +6,13 @@ import { getBytesFromData } from '../hash';
 import { EncryptedKeystore, HybridKeyPair, KeystoreType } from '../types';
 
 /**
- * Encrypts the keystore content using symmetric encryption
+ * Encrypts the user's hybrid key using symmetric encryption to get a keystore
  *
  * @param secretKey - The symmetric key to encrypt the keystore content
- * @param content - The content of the keystore
- * @param userID - The ID of the user
- * @param tag - The keystore type-specific tag string
- * @returns The encrypted keystore content
+ * @param key - The hybrid key pair
+ * @param userEmail - The email of the user
+ * @param type - The keystore type
+ * @returns The encrypted keystore
  */
 export async function encryptKeystoreContent(
   secretKey: Uint8Array,
@@ -42,9 +42,7 @@ export async function encryptKeystoreContent(
  *
  * @param kesytoreOpeningKey - The symmetric key to decrypt the keystore content
  * @param encryptedKeys - The encrypted keystore content
- * @param userEmail - The ID of the user
- * @param tag - The keystore type-specific tag string
- * @returns The decrypted keystore content
+ * @returns The decrypted hybrid key pair contained in the keystore
  */
 export async function decryptKeystoreContent(
   kesytoreOpeningKey: Uint8Array,
