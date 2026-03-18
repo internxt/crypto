@@ -29,21 +29,6 @@ export type HybridKeyPair = {
   secretKey: Uint8Array;
 };
 
-export type PrivateKeys = {
-  eccPrivateKey: CryptoKey;
-  kyberPrivateKey: Uint8Array;
-};
-
-export type PrivateKeysEncrypted = {
-  eccPrivateKeyBase64: string;
-  kyberPrivateKeyBase64: string;
-};
-
-export type EmailKeys = {
-  publicKeys: PublicKeys;
-  privateKeys: PrivateKeys;
-};
-
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
   enc: EmailBodyEncrypted;

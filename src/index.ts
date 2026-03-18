@@ -81,8 +81,6 @@ export {
   uint8ArrayToBase64,
   base64ToUint8Array,
   genMnemonic,
-  base64ToPublicKey,
-  publicKeyToBase64,
   generateUuid,
   uuidToBytes,
   bytesToUuid,
