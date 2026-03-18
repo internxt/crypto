@@ -8,10 +8,8 @@ export {
 } from './asymmetric-crypto';
 export {
   deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricCryptoKeyFromTwoKeys,
   deriveSymmetricKeyFromTwoKeysAndContext,
   deriveSymmetricKeyFromContext,
-  deriveSymmetricCryptoKeyFromContext,
   getKeyFromPassword,
   getKeyFromPasswordAndSalt,
   getKeyFromPasswordHex,
@@ -71,7 +69,6 @@ export {
   exportSymmetricCryptoKey,
   genSymmetricCryptoKey,
   genSymmetricKey,
-  deriveSymmetricCryptoKey,
 } from './symmetric-crypto';
 export {
   uint8ArrayToHex,

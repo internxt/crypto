@@ -104,8 +104,7 @@ expect(result).toStrictEqual(expectedResult);
 // Key derivation
 const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
 const baseKey = symmetric.genSymmetricKey();  // Uint8Array 
-const key = await deriveKey.deriveSymmetricCryptoKeyFromContext(context, baseKey);
-expect(key).instanceOf(CryptoKey);
+const key = await deriveKey.deriveSymmetricKeyFromContext(context, baseKey);
 
 const password = 'your password';
 const { keyHex, saltHex } = await deriveKey.getKeyFromPasswordHex(password);
