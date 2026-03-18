@@ -14,16 +14,6 @@ export type UserWithPublicKey = User & {
   publicHybridKey: Uint8Array;
 };
 
-export type PublicKeys = {
-  eccPublicKey: CryptoKey;
-  kyberPublicKey: Uint8Array;
-};
-
-export type PublicKeysBase64 = {
-  eccPublicKeyBase64: string;
-  kyberPublicKeyBase64: string;
-};
-
 export type HybridKeyPair = {
   publicKey: Uint8Array;
   secretKey: Uint8Array;
