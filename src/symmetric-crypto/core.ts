@@ -1,7 +1,7 @@
 import { gcm as aeadCipher } from '@noble/ciphers/webcrypto.js';
 import { randomBytes } from '@noble/post-quantum/utils.js';
 import { getBytesFromData } from '../hash';
-import { AUX_BYTE_LEN, IV_LEN_BYTES } from '../constants';
+import { IV_LEN_BYTES } from '../constants';
 
 /**
  * Creates an initialization vector (IV) using RGB-based construction (8.2.2 NIST Special Publication 800-38D)
@@ -29,16 +29,6 @@ export function createNISTbasedIV(freeField?: Uint8Array): Uint8Array {
   } catch (error) {
     throw new Error('Failed to create IV', { cause: error });
   }
-}
-
-/**
- * Hashes aux string to make it fixed-length
- *
- * @param aux - The auxilay string of arbitrary length
- * @returns The resulting fixed-length auxilary string.
- */
-export async function makeAuxFixedLength(aux: Uint8Array): Promise<Uint8Array> {
-  return getBytesFromData(AUX_BYTE_LEN, aux);
 }
 
 /**
