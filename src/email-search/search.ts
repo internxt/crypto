@@ -68,8 +68,8 @@ export const addEmailToSearchIndex = (email: Email, searchIndex: EmailSearchInde
   try {
     const emailId = email.id;
 
-    if (email.params.subject) {
-      searchIndex.subjectIndex.add(emailId, email.params.subject);
+    if (email.body.subject) {
+      searchIndex.subjectIndex.add(emailId, email.body.subject);
     }
 
     if (email.body?.text) {
@@ -81,7 +81,7 @@ export const addEmailToSearchIndex = (email: Email, searchIndex: EmailSearchInde
       searchIndex.fromIndex.add(emailId, senderText);
     }
 
-    const recipientsList = email.params.recipients?.length ? email.params.recipients : [email.params.recipient];
+    const recipientsList = email.params.ccs?.length ? email.params.ccs : [email.params.recipient];
 
     const recipientsText = recipientsList
       .map((recipient) => `${recipient.name || ''} ${recipient.email || ''}`.trim())

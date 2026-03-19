@@ -1,7 +1,7 @@
 import { MAX_CACHE_SIZE, MAX_EMAIL_PER_BATCH } from '../constants';
 import { getEmailBatch, getAllEmailsSortedNewestFirst, getEmailCount, MailDB } from './indexedDB';
 import { Email, MailCache } from '../types';
-import { emailToBinary } from '../email-crypto';
+import { emailToBinary } from './utils';
 
 /**
  * Estimates the email size in the memory

@@ -1,5 +1,5 @@
 import { Email, User } from '../../src/types';
-import { emailToBinary } from '../../src/email-crypto';
+import { emailToBinary } from '../../src/email-search/utils';
 import { generateUuid } from '../../src/utils';
 
 const randomString = (length: number = 8): string =>
@@ -14,22 +14,22 @@ const randomUser = (): User => ({
   email: `${randomString(6)}@example.com`,
 });
 
-export const generateTestEmail = (): Email => {
+export const generateTestEmail = (data?: string): Email => {
   const sender = randomUser();
   const recipient = randomUser();
 
   return {
     id: generateUuid(),
     body: {
-      text: `This is a test email body: ${randomString(20)}`,
+      text: data ? data : `This is a test email body: ${randomString(20)}`,
+      subject: `Test Subject ${randomString(6)}`,
       ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
     },
     params: {
-      subject: `Test Subject ${randomString(6)}`,
       createdAt: randomDate(),
       sender,
       recipient,
-      recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
+      ccs: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
       replyToEmailID: generateUuid(),
       labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
     },
@@ -50,28 +50,6 @@ export function getEmailSize(email: Email): number {
   return emailToBinary(email).byteLength;
 }
 
-const generateEmailWithGivenText = (data: string): Email => {
-  const sender = randomUser();
-  const recipient = randomUser();
-
-  return {
-    id: generateUuid(),
-    body: {
-      text: data,
-      ...(Math.random() > 0.5 ? { attachments: [`file_${randomString(4)}.txt`] } : {}),
-    },
-    params: {
-      subject: `Test Subject ${randomString(6)}`,
-      createdAt: randomDate(),
-      sender,
-      recipient,
-      recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
-      replyToEmailID: generateUuid(),
-      labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
-    },
-  };
-};
-
 export const getSearchTestEmails = (content: string[]): Email[] => {
-  return content.map((text) => generateEmailWithGivenText(text));
+  return content.map((text) => generateTestEmail(text));
 };
