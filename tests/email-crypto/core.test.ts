@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { EmailBody } from '../../src/types';
 import { decryptEmailBody, encryptEmailBody } from '../../src/email-crypto/core';
 import { generateUuid } from '../../src/utils';
-import { getAux } from '../../src/email-crypto';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test email crypto functions', () => {
@@ -11,7 +10,7 @@ describe('Test email crypto functions', () => {
     subject: 'test subject',
   };
 
-  const aux = getAux('sender email', 'recipient email');
+  const aux = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
 
   it('should generate email id', async () => {
     const result1 = generateUuid();
@@ -33,7 +32,7 @@ describe('Test email crypto functions', () => {
       /Failed to symmetrically decrypt email body/,
     );
 
-    const bad_aux = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+    const bad_aux = new Uint8Array([4, 5, 6, 7, 8]);
     await expect(decryptEmailBody(encEmailBody, encryptionKey, bad_aux)).rejects.toThrowError(
       /Failed to symmetrically decrypt email body/,
     );
