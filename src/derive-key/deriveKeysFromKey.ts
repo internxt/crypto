@@ -27,7 +27,7 @@ export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array
       throw new Error(`Input key length must be exactly ${AES_KEY_BYTE_LENGTH} bytes`);
     }
     const key = blake3(key1, { key: key2 });
-    return blake3(key, { context: UTF8ToUint8(CONTEXT_DERIVE) });
+    return deriveSymmetricKeyFromContext(CONTEXT_DERIVE, key);
   } catch (error) {
     throw new Error('Failed to derive symmetric key from two keys and context', { cause: error });
   }

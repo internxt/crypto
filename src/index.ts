@@ -41,12 +41,10 @@ export {
 export {
   hashDataArray,
   hashDataArrayWithKey,
-  hashDataArrayHex,
-  hashDataArrayWithKeyHex,
+  getBytesFromDataArray,
+  hashData,
+  hashDataWithKey,
   getBytesFromData,
-  getBytesFromDataHex,
-  getBytesFromDataArrayHex,
-  computeMac,
 } from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
 export { createEncryptionAndRecoveryKeystores, openEncryptionKeystore, openRecoveryKeystore } from './keystore-crypto';
