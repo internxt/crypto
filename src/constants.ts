@@ -1,10 +1,7 @@
 export const AES_KEY_BYTE_LENGTH = 32;
 export const IV_LEN_BYTES = 12;
 
-export const KEY_WRAPPING_ALGORITHM = 'AES-KW';
-export const KEY_FORMAT = 'raw';
 export const CONTEXT_WRAPPING = 'CRYPTO library 2025-08-22 18:10:00 key derived from ecc and kyber secrets';
-
 export const CONTEXT_ENC_KEYSTORE = 'CRYPTO library 2025-07-30 16:18:03 key for opening encryption keys keystore';
 export const CONTEXT_RECOVERY = 'CRYPTO library 2025-07-30 16:20:00 key for account recovery';
 export const CONTEXT_INDEX = 'CRYPTO library 2025-07-30 17:20:00 key for protecting current search indices';
@@ -20,8 +17,6 @@ export const ARGON2ID_OUTPUT_BYTE_LENGTH = 32;
 export const KYBER768_PUBLIC_KEY_LENGTH = 1184;
 export const KYBER768_SECRET_KEY_LENGTH = 2400;
 export const KYBER_SEED_LENGTH = 64;
-
-export const HASH_BIT_LEN = 256;
 
 export const MAX_CACHE_SIZE = 600000000; // 600 MB
 export const MAX_EMAIL_PER_BATCH = 100;
