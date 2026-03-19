@@ -6,7 +6,7 @@ import {
   ARGON2ID_SALT_BYTE_LENGTH,
   ARGON2ID_OUTPUT_BYTE_LENGTH,
 } from '../constants';
-import { randomBytes } from '@noble/post-quantum/utils.js';
+import { randomBytes } from '@noble/hashes/utils.js';
 
 /**
  * Calculates hash using the argon2id password-hashing function
@@ -35,6 +35,36 @@ export async function argon2(
     memorySize,
     hashLength,
     outputType: 'binary',
+  });
+}
+
+/**
+ * Calculates hash using the argon2id password-hashing function
+ *
+ * @param password - The user's password
+ * @param salt - The given salt
+ * @param parallelism - The degree of parallelism
+ * @param iterations - The number of iterations
+ * @param memorySize - The memory size in KB
+ * @param hashLength - The desired hash byte length
+ * @returns The resulting hash
+ */
+export async function argon2Hex(
+  password: string,
+  salt: Uint8Array,
+  parallelism: number = ARGON2ID_PARALLELISM,
+  iterations: number = ARGON2ID_ITERATIONS,
+  memorySize: number = ARGON2ID_MEMORY_SIZE,
+  hashLength: number = ARGON2ID_OUTPUT_BYTE_LENGTH,
+): Promise<string> {
+  return argon2id({
+    password,
+    salt,
+    parallelism,
+    iterations,
+    memorySize,
+    hashLength,
+    outputType: 'hex',
   });
 }
 

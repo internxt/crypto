@@ -1,4 +1,3 @@
-import { hexToUint8Array, uint8ArrayToHex } from '../utils';
 import { argon2, sampleSalt } from './core';
 
 /**
@@ -30,49 +29,4 @@ export async function getKeyFromPasswordAndSalt(password: string, salt: Uint8Arr
   } catch (error) {
     throw new Error('Failed to derive key from password and salt', { cause: error });
   }
-}
-
-/**
- * Derives a HEX symmetric key from a user's password with a randomly sampled salt
- *
- * @param password - The user's password
- * @returns The derived HEX secret key and randomly sampled HEX salt
- */
-export async function getKeyFromPasswordHex(password: string): Promise<{ keyHex: string; saltHex: string }> {
-  try {
-    const { key, salt } = await getKeyFromPassword(password);
-    return { keyHex: uint8ArrayToHex(key), saltHex: uint8ArrayToHex(salt) };
-  } catch (error) {
-    throw new Error('Failed to derive key from password', { cause: error });
-  }
-}
-
-/**
- * Derives a HEX symmetric key from a user's password and salt
- *
- * @param password - The user's password
- * @param saltHex - The given HEX salt
- * @returns The derived HEX secret key
- */
-export async function getKeyFromPasswordAndSaltHex(password: string, saltHex: string): Promise<string> {
-  try {
-    const salt = hexToUint8Array(saltHex);
-    const key = await getKeyFromPasswordAndSalt(password, salt);
-    return uint8ArrayToHex(key);
-  } catch (error) {
-    throw new Error('Failed to derive key from password and salt', { cause: error });
-  }
-}
-
-/**
- * Verifies the derived key
- *
- * @param password - The user's password
- * @param saltHex - The given HEX salt
- * @param keyHex - The derived HEX key
- * @returns The result of the key verification
- */
-export async function verifyKeyFromPasswordHex(password: string, saltHex: string, keyHex: string): Promise<boolean> {
-  const result = await getKeyFromPasswordAndSaltHex(password, saltHex);
-  return keyHex === result;
 }
