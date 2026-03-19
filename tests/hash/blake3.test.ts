@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { getBytesFromData, hashDataArray, getBytesFromDataArray } from '../../src/hash';
-import { uint8ArrayToHex } from '../../src/utils';
+import {
+  getBytesFromData,
+  hashDataArray,
+  hashData,
+  getBytesFromDataArray,
+  hashDataWithKey,
+  hashDataArrayWithKey,
+} from '../../src/hash';
+import { uint8ArrayToHex, UTF8ToUint8 } from '../../src/utils';
 
 describe('Test hash module with blake3 test vectors', () => {
   function getBuffer(length: number) {
@@ -19,10 +26,13 @@ describe('Test hash module with blake3 test vectors', () => {
 
   it('should compute correct hash value', () => {
     const message = new Uint8Array();
-    const result = hashDataArray([message]);
+    const resultArray = hashDataArray([message]);
+    const result = hashData(message);
     const resultHex = uint8ArrayToHex(result);
+    const resultArrayHex = uint8ArrayToHex(resultArray);
     const testResult = 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262';
     expect(resultHex).toStrictEqual(testResult);
+    expect(resultHex).toStrictEqual(resultArrayHex);
   });
 
   it('should pass test with input length 0 from blake3 team', () => {
@@ -60,7 +70,7 @@ describe('Test hash module with blake3 test vectors', () => {
 
   it('should pass test with input length 7 from blake3 team', async () => {
     const message = getBuffer(7);
-    const result = await getBytesFromDataArray([message], expectedLen);
+    const result = getBytesFromDataArray([message], expectedLen);
     const resultHex = uint8ArrayToHex(result);
 
     const testResult =
@@ -70,17 +80,28 @@ describe('Test hash module with blake3 test vectors', () => {
 
   it('should pass test with input length 63 from blake3 team', async () => {
     const message = getBuffer(63);
-    const result = await getBytesFromDataArray([message], expectedLen);
+    const result = getBytesFromDataArray([message], expectedLen);
     const resultHex = uint8ArrayToHex(result);
 
     const testResult =
       'e9bc37a594daad83be9470df7f7b3798297c3d834ce80ba85d6e207627b7db7b1197012b1e7d9af4d7cb7bdd1f3bb49a90a9b5dec3ea2bbc6eaebce77f4e470cbf4687093b5352f04e4a4570fba233164e6acc36900e35d185886a827f7ea9bdc1e5c3ce88b095a200e62c10c043b3e9bc6cb9b6ac4dfa51794b02ace9f98779040755';
     expect(resultHex).toStrictEqual(testResult);
+
+    const keyStr = 'whats the Elvish word for friend';
+    const key = UTF8ToUint8(keyStr);
+    const keyedHash = hashDataWithKey(key, message);
+    const keyedHashHex = uint8ArrayToHex(keyedHash);
+
+    const keyedHashArray = hashDataArrayWithKey(key, [message]);
+    const keyedHashArrayHex = uint8ArrayToHex(keyedHashArray);
+    const testKeyedHash = 'bb1eb5d4afa793c1ebdd9fb08def6c36d10096986ae0cfe148cd101170ce37ae';
+    expect(keyedHashHex).toStrictEqual(testKeyedHash);
+    expect(keyedHashHex).toStrictEqual(keyedHashArrayHex);
   });
 
   it('should pass test with input length 1023 from blake3 team', async () => {
     const message = getBuffer(1023);
-    const result = await getBytesFromDataArray([message], expectedLen);
+    const result = getBytesFromDataArray([message], expectedLen);
     const resultHex = uint8ArrayToHex(result);
 
     const testResult =
@@ -90,7 +111,7 @@ describe('Test hash module with blake3 test vectors', () => {
 
   it('should pass test with input length 102400 from blake3 team', async () => {
     const message = getBuffer(102400);
-    const result = await getBytesFromDataArray([message], expectedLen);
+    const result = getBytesFromDataArray([message], expectedLen);
     const resultHex = uint8ArrayToHex(result);
 
     const testResult =
