@@ -29,7 +29,7 @@ export const generateTestEmail = (data?: string): Email => {
       createdAt: randomDate(),
       sender,
       recipient,
-      ccs: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
+      recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
       replyToEmailID: generateUuid(),
       labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
     },

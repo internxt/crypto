@@ -67,21 +67,12 @@ const createSearchIndex = (): EmailSearchIndex => ({
 export const addEmailToSearchIndex = (email: Email, searchIndex: EmailSearchIndex): void => {
   try {
     const emailId = email.id;
+    searchIndex.subjectIndex.add(emailId, email.body.subject);
+    searchIndex.bodyIndex.add(emailId, email.body.text);
+    const senderText = `${email.params.sender.name || ''} ${email.params.sender.email || ''}`.trim();
+    searchIndex.fromIndex.add(emailId, senderText);
 
-    if (email.body.subject) {
-      searchIndex.subjectIndex.add(emailId, email.body.subject);
-    }
-
-    if (email.body?.text) {
-      searchIndex.bodyIndex.add(emailId, email.body.text);
-    }
-
-    if (email.params.sender) {
-      const senderText = `${email.params.sender.name || ''} ${email.params.sender.email || ''}`.trim();
-      searchIndex.fromIndex.add(emailId, senderText);
-    }
-
-    const recipientsList = email.params.ccs?.length ? email.params.ccs : [email.params.recipient];
+    const recipientsList = email.params.recipients?.length ? email.params.recipients : [email.params.recipient];
 
     const recipientsText = recipientsList
       .map((recipient) => `${recipient.name || ''} ${recipient.email || ''}`.trim())
