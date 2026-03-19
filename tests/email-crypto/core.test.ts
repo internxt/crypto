@@ -34,8 +34,6 @@ describe('Test email crypto functions', () => {
     replyToEmailID: generateUuid(),
   };
 
-  const id = generateUuid();
-
   const aux = getAux(emailParams, false);
 
   it('should generate email id', async () => {
@@ -46,13 +44,13 @@ describe('Test email crypto functions', () => {
   });
 
   it('should encrypt and decrypt email', async () => {
-    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, id);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux);
     const result = await decryptEmailSymmetrically(encryptionKey, aux, enc);
     expect(result).toEqual(emailBody);
   });
 
   it('should throw an error if decryption fails', async () => {
-    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux, id);
+    const { enc, encryptionKey } = await encryptEmailContentSymmetrically(emailBody, aux);
     const bad_encryptionKey = await genSymmetricKey();
     await expect(decryptEmailSymmetrically(bad_encryptionKey, aux, enc)).rejects.toThrowError(
       /Failed to symmetrically decrypt email/,
@@ -69,7 +67,6 @@ describe('Test email crypto functions', () => {
       emailBody,
       emailParams.subject,
       aux,
-      id,
     );
     await expect(decryptEmailAndSubjectSymmetrically(bad_encryptionKey, aux, encSubject, enc)).rejects.toThrowError(
       /Failed to symmetrically decrypt email and subject/,
@@ -94,12 +91,12 @@ describe('Test email crypto functions', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const bad_email: any = {};
     bad_email.self = bad_email;
-    await expect(encryptEmailContentSymmetrically(bad_email, aux, id)).rejects.toThrowError(
+    await expect(encryptEmailContentSymmetrically(bad_email, aux)).rejects.toThrowError(
       /Failed to symmetrically encrypt email/,
     );
 
-    await expect(
-      encryptEmailContentAndSubjectSymmetrically(bad_email, emailParams.subject, aux, id),
-    ).rejects.toThrowError(/Failed to symmetrically encrypt email and subject/);
+    await expect(encryptEmailContentAndSubjectSymmetrically(bad_email, emailParams.subject, aux)).rejects.toThrowError(
+      /Failed to symmetrically encrypt email and subject/,
+    );
   });
 });

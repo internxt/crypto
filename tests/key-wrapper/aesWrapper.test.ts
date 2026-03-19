@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { wrapKey, unwrapKey, deriveWrappingKey } from '../../src/key-wrapper';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
-import { AES_KEY_BIT_LENGTH } from '../../src/constants';
+import { AES_KEY_BYTE_LENGTH } from '../../src/constants';
 
 describe('Test key wrapping functions', () => {
   it('should scuessfully derive wrapping key', async () => {
@@ -11,7 +11,7 @@ describe('Test key wrapping functions', () => {
     const result = await deriveWrappingKey(secret1, secret2);
 
     expect(result).toBeInstanceOf(Uint8Array);
-    expect(result.length).toBe(AES_KEY_BIT_LENGTH / 8);
+    expect(result.length).toBe(AES_KEY_BYTE_LENGTH);
   });
 
   it('should scuessfully wrap and unwrap key', async () => {

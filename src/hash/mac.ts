@@ -1,5 +1,5 @@
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { AES_KEY_BIT_LENGTH } from '../constants';
+import { AES_KEY_BYTE_LENGTH } from '../constants';
 import { getBytesFromData, hashDataArrayWithKey } from './blake3';
 
 /**
@@ -11,7 +11,7 @@ import { getBytesFromData, hashDataArrayWithKey } from './blake3';
  */
 export function computeMac(keyMaterial: Uint8Array, data: Uint8Array[]): string {
   try {
-    const key = getBytesFromData(AES_KEY_BIT_LENGTH / 8, keyMaterial);
+    const key = getBytesFromData(AES_KEY_BYTE_LENGTH, keyMaterial);
     const hash = hashDataArrayWithKey(key, data);
     return bytesToHex(hash);
   } catch (error) {

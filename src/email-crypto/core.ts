@@ -3,7 +3,7 @@ import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../
 import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
 import { wrapKey, unwrapKey } from '../key-wrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
-import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8, uuidToBytes } from '../utils';
+import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8 } from '../utils';
 import { getAux } from './utils';
 
 /**
@@ -29,12 +29,12 @@ export async function encryptEmailBody(
     let params = email.params;
 
     if (isSubjectEncrypted) {
-      const result = await encryptEmailContentAndSubjectSymmetrically(email.body, email.params.subject, aux, email.id);
+      const result = await encryptEmailContentAndSubjectSymmetrically(email.body, email.params.subject, aux);
       enc = result.enc;
       encryptionKey = result.encryptionKey;
       params = { ...email.params, subject: result.encSubject };
     } else {
-      const result = await encryptEmailContentSymmetrically(email.body, aux, email.id);
+      const result = await encryptEmailContentSymmetrically(email.body, aux);
       enc = result.enc;
       encryptionKey = result.encryptionKey;
     }
@@ -86,20 +86,18 @@ export async function decryptEmailBody(
  *
  * @param email - The email to encrypt.
  * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
- * @param emailID - The unique identifier of the email.
  * @returns The resulting ciphertext and the used symmetric key
  */
 export async function encryptEmailContentSymmetrically(
   email: EmailBody,
   aux: Uint8Array,
-  emailID: string,
 ): Promise<{ enc: EmailBodyEncrypted; encryptionKey: Uint8Array }> {
   try {
     if (!email.text) {
       throw new Error('Invalid input');
     }
     const encryptionKey = genSymmetricKey();
-    const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
+    const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux);
     return { enc, encryptionKey };
   } catch (error) {
     throw new Error('Failed to symmetrically encrypt email', { cause: error });
@@ -112,21 +110,19 @@ export async function encryptEmailContentSymmetrically(
  * @param email - The email to encrypt.
  * @param subject - The email subject to encrypt.
  * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
- * @param emailID - The unique identifier of the email.
  * @returns The resulting ciphertext and the used symmetric key
  */
 export async function encryptEmailContentAndSubjectSymmetrically(
   email: EmailBody,
   subject: string,
   aux: Uint8Array,
-  emailID: string,
 ): Promise<{ enc: EmailBodyEncrypted; encSubject: string; encryptionKey: Uint8Array }> {
   try {
     if (!subject || !email.text) {
       throw new Error('Invalid input');
     }
     const encryptionKey = genSymmetricKey();
-    const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux, emailID);
+    const enc = await encryptEmailContentSymmetricallyWithKey(email, encryptionKey, aux);
     const subjectBuff = UTF8ToUint8(subject);
     const subjectEnc = await encryptSymmetrically(encryptionKey, subjectBuff, aux);
     const encSubject = uint8ArrayToBase64(subjectEnc);
@@ -168,24 +164,21 @@ export async function decryptEmailAndSubjectSymmetrically(
  * @param emailBody - The email body to encrypt.
  * @param encryptionKey - The symmetric key for encryption.
  * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
- * @param emailID - The unique identifier of the email.
  * @returns The resulting encrypted emailBody
  */
 export async function encryptEmailContentSymmetricallyWithKey(
   emailBody: EmailBody,
   encryptionKey: Uint8Array,
   aux: Uint8Array,
-  emailID: string,
 ): Promise<EmailBodyEncrypted> {
   try {
-    const freeField = uuidToBytes(emailID);
     const text = UTF8ToUint8(emailBody.text);
-    const encryptedText = await encryptSymmetrically(encryptionKey, text, aux, freeField);
+    const encryptedText = await encryptSymmetrically(encryptionKey, text, aux);
     const encText = uint8ArrayToBase64(encryptedText);
     const result: EmailBodyEncrypted = { encText };
 
     if (emailBody.attachments) {
-      const encryptedAttachements = await encryptEmailAttachements(emailBody.attachments, encryptionKey, aux, emailID);
+      const encryptedAttachements = await encryptEmailAttachements(emailBody.attachments, encryptionKey, aux);
       result.encAttachments = encryptedAttachements?.map(uint8ArrayToBase64);
     }
     return result;
@@ -200,21 +193,18 @@ export async function encryptEmailContentSymmetricallyWithKey(
  * @param attachments - The attachments.
  * @param encryptionKey - The symmetric key.
  * @param aux - The auxiliary data (e.g., email ID or timestamp) for AEAD.
- * @param emailID - The unique identifier of the email.
  * @returns The decrypted email attackements
  */
 async function encryptEmailAttachements(
   attachments: string[],
   encryptionKey: Uint8Array,
   aux: Uint8Array,
-  emailID: string,
 ): Promise<Uint8Array[]> {
   try {
-    const freeField = uuidToBytes(emailID);
     const encryptedAttachments = await Promise.all(
       attachments.map((attachment) => {
         const binaryAttachment = UTF8ToUint8(attachment);
-        return encryptSymmetrically(encryptionKey, binaryAttachment, aux, freeField);
+        return encryptSymmetrically(encryptionKey, binaryAttachment, aux);
       }),
     );
     return encryptedAttachments;

@@ -1,13 +1,13 @@
 import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
-import { AES_KEY_BIT_LENGTH } from '../constants';
+import { AES_KEY_BYTE_LENGTH } from '../constants';
 /**
  * Generates a mnemonic
  *
  * @returns The generated mnemonic.
  */
 export function genMnemonic(): string {
-  return bip39.generateMnemonic(wordlist, AES_KEY_BIT_LENGTH);
+  return bip39.generateMnemonic(wordlist, AES_KEY_BYTE_LENGTH * 8);
 }
 
 /**
