@@ -1,5 +1,5 @@
 import { blake3 } from '@noble/hashes/blake3.js';
-import { AES_KEY_BIT_LENGTH, CONTEXT_DERIVE } from '../constants';
+import { AES_KEY_BYTE_LENGTH, CONTEXT_DERIVE } from '../constants';
 import { UTF8ToUint8 } from '../utils';
 
 /**
@@ -39,8 +39,8 @@ export function deriveSymmetricKeyFromTwoKeysAndContext(
   context: string,
 ): Uint8Array {
   try {
-    if (key2.length != AES_KEY_BIT_LENGTH / 8 || key1.length != AES_KEY_BIT_LENGTH / 8) {
-      throw new Error(`Input key length must be exactly ${AES_KEY_BIT_LENGTH / 8} bytes`);
+    if (key2.length != AES_KEY_BYTE_LENGTH || key1.length != AES_KEY_BYTE_LENGTH) {
+      throw new Error(`Input key length must be exactly ${AES_KEY_BYTE_LENGTH} bytes`);
     }
     const key = blake3(key1, { key: key2 });
     return blake3(key, { context: UTF8ToUint8(context) });

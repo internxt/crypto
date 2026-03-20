@@ -55,14 +55,7 @@ export {
 export { unwrapKey, wrapKey } from './key-wrapper';
 export { createEncryptionAndRecoveryKeystores, openEncryptionKeystore, openRecoveryKeystore } from './keystore-crypto';
 export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto';
-export {
-  encryptSymmetrically,
-  decryptSymmetrically,
-  importSymmetricCryptoKey,
-  exportSymmetricCryptoKey,
-  genSymmetricCryptoKey,
-  genSymmetricKey,
-} from './symmetric-crypto';
+export { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from './symmetric-crypto';
 export {
   uint8ArrayToHex,
   UTF8ToUint8,

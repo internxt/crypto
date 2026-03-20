@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricKeyFromContext
-} from '../../src/derive-key';
+import { deriveSymmetricKeyFromTwoKeys, deriveSymmetricKeyFromContext } from '../../src/derive-key';
 import { uint8ArrayToHex } from '../../src/utils';
-import { AES_KEY_BIT_LENGTH } from '../../src/constants';
+import { AES_KEY_BYTE_LENGTH } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
 describe('Test derive key', () => {
@@ -16,7 +13,7 @@ describe('Test derive key', () => {
     return result;
   }
   it('should derive symmetric key from two keys', async () => {
-    const context =  'BLAKE3 2019-12-27 16:29:52 test vectors context';
+    const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
     const input = createTestInput(63);
     const blake3TestResult = 'b6451e30b953c206e34644c6803724e9d2725e0893039cfc49584f991f451af3';
     const result = deriveSymmetricKeyFromContext(context, input);
@@ -28,7 +25,7 @@ describe('Test derive key', () => {
     const key1 = genSymmetricKey();
     const key2 = genSymmetricKey();
     const key = await deriveSymmetricKeyFromTwoKeys(key1, key2);
-    expect(key.length).toBe(AES_KEY_BIT_LENGTH / 8);
+    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
   });
 
   it('derive symmetric key from two keys should fail for small key', async () => {
