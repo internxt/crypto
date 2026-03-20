@@ -55,12 +55,11 @@ export async function encryptEmailBodyWithKey(
     const enc: EmailBodyEncrypted = { encText, encSubject };
 
     if (body.attachments) {
-      const encryptedAttachments = await Promise.all(
-        body.attachments.map((attachment) => {
-          const binaryAttachment = UTF8ToUint8(attachment);
-          return encryptSymmetrically(encryptionKey, binaryAttachment, aux);
-        }),
-      );
+      const promises = body.attachments.map((attachment) => {
+        const binaryAttachment = UTF8ToUint8(attachment);
+        return encryptSymmetrically(encryptionKey, binaryAttachment, aux);
+      });
+      const encryptedAttachments = await Promise.all(promises);
       enc.encAttachments = encryptedAttachments?.map(uint8ArrayToBase64);
     }
 
@@ -94,11 +93,8 @@ export async function decryptEmailBody(
 
     if (encEmailBody.encAttachments) {
       const encAttachments = encEmailBody.encAttachments?.map(base64ToUint8Array);
-      const decryptedAttachments = await Promise.all(
-        encAttachments.map((attachment) => {
-          return decryptSymmetrically(encryptionKey, attachment, aux);
-        }),
-      );
+      const promises = encAttachments?.map((encAtt) => decryptSymmetrically(encryptionKey, encAtt, aux));
+      const decryptedAttachments = await Promise.all(promises);
       body.attachments = decryptedAttachments?.map((att) => uint8ToUTF8(att));
     }
 
