@@ -1,7 +1,6 @@
 export const AES_KEY_BYTE_LENGTH = 32;
 export const IV_LEN_BYTES = 12;
 
-export const CONTEXT_WRAPPING = 'CRYPTO library 2025-08-22 18:10:00 key derived from ecc and kyber secrets';
 export const CONTEXT_ENC_KEYSTORE = 'CRYPTO library 2025-07-30 16:18:03 key for opening encryption keys keystore';
 export const CONTEXT_RECOVERY = 'CRYPTO library 2025-07-30 16:20:00 key for account recovery';
 export const CONTEXT_INDEX = 'CRYPTO library 2025-07-30 17:20:00 key for protecting current search indices';

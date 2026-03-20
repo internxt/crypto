@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  getKeyFromPasswordAndSalt,
-  verifyKeyFromPasswordHex,
-  getKeyFromPasswordAndSaltHex,
-  getKeyFromPasswordHex,
-  getKeyFromPassword,
-} from '../../src/derive-key';
+import { getKeyFromPasswordAndSalt, getKeyFromPassword } from '../../src/derive-key';
 
 import { argon2, sampleSalt } from '../../src/derive-key/core';
 import { uint8ArrayToHex } from '../../src/utils';
@@ -38,14 +32,6 @@ describe('Test Argon2', () => {
     expect(test_salt_1).not.toBe(test_salt_2);
   });
 
-  it('should sucessfully verify generated from the password and salt key', async () => {
-    const test_password = 'text demo';
-    const test_salt = uint8ArrayToHex(sampleSalt());
-    const test_key = await getKeyFromPasswordAndSaltHex(test_password, test_salt);
-    const result = await verifyKeyFromPasswordHex(test_password, test_salt, test_key);
-    expect(result).toBe(true);
-  });
-
   it('should give the same result for the same password and salt', async () => {
     const test_password = 'text demo';
     const test_salt = sampleSalt();
@@ -54,24 +40,7 @@ describe('Test Argon2', () => {
     expect(result1).toStrictEqual(result2);
   });
 
-  it('should give different result for the same password but different salt', async () => {
-    const test_password = 'text demo';
-    const test_salt_1 = uint8ArrayToHex(sampleSalt());
-    const test_salt_2 = uint8ArrayToHex(sampleSalt());
-    const result1 = await getKeyFromPasswordAndSaltHex(test_password, test_salt_1);
-    const result2 = await getKeyFromPasswordAndSaltHex(test_password, test_salt_2);
-    expect(result1).not.toBe(result2);
-  });
-
-  it('should sucessfully verify generated from the password key', async () => {
-    const test_password = 'text demo';
-    const { keyHex: hash, saltHex: salt } = await getKeyFromPasswordHex(test_password);
-    const result = await verifyKeyFromPasswordHex(test_password, salt, hash);
-    expect(result).toBe(true);
-  });
-
   it('should throw an error if no password is given', async () => {
-    await expect(getKeyFromPasswordHex('')).rejects.toThrowError(/Failed to derive key from password/);
     await expect(getKeyFromPassword('')).rejects.toThrowError(/Failed to derive key from password/);
   });
 
@@ -82,13 +51,6 @@ describe('Test Argon2', () => {
       /Failed to derive key from password and salt/,
     );
     await expect(getKeyFromPasswordAndSalt('', test_salt)).rejects.toThrowError(
-      /Failed to derive key from password and salt/,
-    );
-
-    await expect(getKeyFromPasswordAndSaltHex(test_password, '')).rejects.toThrowError(
-      /Failed to derive key from password and salt/,
-    );
-    await expect(getKeyFromPasswordAndSaltHex('', uint8ArrayToHex(test_salt))).rejects.toThrowError(
       /Failed to derive key from password and salt/,
     );
   });

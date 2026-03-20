@@ -1,8 +1,7 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes } from '../utils';
 import { deriveSymmetricKeyFromContext } from '../derive-key';
-import { CONTEXT_ENC_KEYSTORE, AES_KEY_BYTE_LENGTH, CONTEXT_RECOVERY } from '../constants';
-import { getBytesFromData } from '../hash';
+import { CONTEXT_ENC_KEYSTORE, CONTEXT_RECOVERY } from '../constants';
 import { EncryptedKeystore, HybridKeyPair, KeystoreType } from '../types';
 
 /**
@@ -70,8 +69,7 @@ export async function decryptKeystoreContent(
  */
 export async function deriveRecoveryKey(recoveryCodes: string): Promise<Uint8Array> {
   const recoverCodesArray = mnemonicToBytes(recoveryCodes);
-  const recoveryCodesBuffer = getBytesFromData(AES_KEY_BYTE_LENGTH, recoverCodesArray);
-  return deriveSymmetricKeyFromContext(CONTEXT_RECOVERY, recoveryCodesBuffer);
+  return deriveSymmetricKeyFromContext(CONTEXT_RECOVERY, recoverCodesArray);
 }
 
 /**

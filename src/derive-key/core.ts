@@ -6,7 +6,7 @@ import {
   ARGON2ID_SALT_BYTE_LENGTH,
   ARGON2ID_OUTPUT_BYTE_LENGTH,
 } from '../constants';
-import { randomBytes } from '@noble/post-quantum/utils.js';
+import { randomBytes } from '@noble/hashes/utils.js';
 
 /**
  * Calculates hash using the argon2id password-hashing function

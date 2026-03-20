@@ -1,24 +1,4 @@
-import { CONTEXT_WRAPPING } from '../constants';
-import { deriveSymmetricKeyFromTwoKeysAndContext } from '../derive-key';
 import { aeskw } from '@noble/ciphers/aes.js';
-
-/**
- * Derives wrapping key from two secrets
- *
- * @param eccSecret - The secret exchanged via elliptic curves
- * @param kyberSecret - The secret exchanged via Kyber KEM
- * @returns The resulting wrapping key
- */
-export async function deriveWrappingKey(eccSecret: Uint8Array, kyberSecret: Uint8Array): Promise<Uint8Array> {
-  try {
-    if (eccSecret.length !== kyberSecret.length) {
-      throw new Error('secrets must have equal length');
-    }
-    return deriveSymmetricKeyFromTwoKeysAndContext(eccSecret, kyberSecret, CONTEXT_WRAPPING);
-  } catch (error) {
-    throw new Error('Failed to derive wrapping key', { cause: error });
-  }
-}
 
 /**
  * Unwraps the given wrapped key

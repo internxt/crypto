@@ -1,13 +1,9 @@
 export { deriveSecretKey, generateEccKeys } from './asymmetric-crypto';
 export {
   deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricKeyFromTwoKeysAndContext,
   deriveSymmetricKeyFromContext,
   getKeyFromPassword,
   getKeyFromPasswordAndSalt,
-  getKeyFromPasswordHex,
-  getKeyFromPasswordAndSaltHex,
-  verifyKeyFromPasswordHex,
 } from './derive-key';
 export {
   encryptEmailHybrid,
@@ -45,12 +41,10 @@ export {
 export {
   hashDataArray,
   hashDataArrayWithKey,
-  hashDataArrayHex,
-  hashDataArrayWithKeyHex,
+  getBytesFromDataArray,
+  hashData,
+  hashDataWithKey,
   getBytesFromData,
-  getBytesFromDataHex,
-  getBytesFromDataArrayHex,
-  computeMac,
 } from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
 export { createEncryptionAndRecoveryKeystores, openEncryptionKeystore, openRecoveryKeystore } from './keystore-crypto';
