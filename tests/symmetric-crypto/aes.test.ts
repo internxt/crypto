@@ -13,10 +13,10 @@ describe('Test symmetric functions', () => {
 
     expect(result).toStrictEqual(message);
 
-    const enc_2 = await encryptSymmetrically(key, message, aux);
-    const result_2 = await decryptSymmetrically(key, enc_2, aux);
-    expect(result_2).toStrictEqual(message);
-    expect(enc_2).not.toBe(enc);
+    const enc2 = await encryptSymmetrically(key, message, aux);
+    const result2 = await decryptSymmetrically(key, enc2, aux);
+    expect(result2).toStrictEqual(message);
+    expect(enc2).not.toBe(enc);
   });
 
   it('should sucessfully encrypt and decrypt without additional data', async () => {
@@ -28,10 +28,10 @@ describe('Test symmetric functions', () => {
 
     expect(result).toStrictEqual(message);
 
-    const enc_2 = await encryptSymmetrically(key, message);
-    const result_2 = await decryptSymmetrically(key, enc_2);
-    expect(result_2).toStrictEqual(message);
-    expect(enc_2).not.toBe(enc);
+    const enc2 = await encryptSymmetrically(key, message);
+    const result2 = await decryptSymmetrically(key, enc2);
+    expect(result2).toStrictEqual(message);
+    expect(enc2).not.toBe(enc);
   });
 
   it('should sucessfully generate key', async () => {

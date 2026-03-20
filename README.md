@@ -43,16 +43,15 @@ Builds the app for production to the `build` folder.
 
 ### Key Management
 
-- **`derive-key`** - Key derivation functions for deriving cryptographic keys from passwords (ARGON2) and base key (BLAKE3 in KDF mode)
+- **`derive-key`** - Key derivation functions for deriving cryptographic keys from base key (BLAKE3 in KDF mode)
+- **`derive-password`** - Key derivation functions for deriving cryptographic keys from passwords (ARGON2)
 - **`key-wrapper`** - Key wrapping and unwrapping functions for secure symmetric key storage and transport
 - **`keystore-crypto`** - Keystore cryptographic operations for securing user's keys
-- **`keystore-service`** - Keystore management service for communicating with the server
 
 ### Email Security
 
 - **`email-crypto`** - End-to-end email encryption and decryption using hybrid cryptography and password-protection
 - **`email-search`** - Email indexing on the client side to enable search while preserving privacy
-- **`email-service`** - Email management service for communicating with the server
 
 ### Infrastructure
 
@@ -65,101 +64,82 @@ Builds the app for production to the `build` folder.
 
 ```typescript
 import {
-  asymmetric,
-  symmetric,
-  utils,
-  emailCrypto,
-  pq,
-  keystoreService,
-  deriveKey,
-  hash,
+  generateEccKeys,
+  deriveSecretKey,
+  UTF8ToUint8,
+  genSymmetricKey,
+  encryptSymmetrically,
 } from 'internxt-crypto';
 
 // Asymmetric encryption
-const keysAlice = await asymmetric.generateEccKeys();
-const keysBob = await asymmetric.generateEccKeys();
-const resultAlice = await asymmetric.deriveSecretKey(keysBob.publicKey, keysAlice.privateKey);
-const resultBob = await asymmetric.deriveSecretKey(keysAlice.publicKey, keysBob.privateKey);
+const keysAlice = await generateEccKeys();
+const keysBob = await generateEccKeys();
+const resultAlice = await deriveSecretKey(keysBob.publicKey, keysAlice.privateKey);
+const resultBob = await deriveSecretKey(keysAlice.publicKey, keysBob.privateKey);
 expect(resultAlice).toStrictEqual(resultBob);
 
 // Symmetric encryption
-const data = utils.UTF8ToUint8('Sensitive information to encrypt'); // convert to Uint8Array 
+const data = UTF8ToUint8('Sensitive information to encrypt'); // convert to Uint8Array 
 const additionalData = 'Additional non-secret data';
-const key = await symmetric.genSymmetricKey(); 
-const ciphertext: Uint8Array = await symmetric.encryptSymmetrically(key, data, additionalData);
-const plainText = await symmetric.decryptSymmetrically(encryptionKey, ciphertext, additionalData);
+const key = genSymmetricKey(); 
+const ciphertext: Uint8Array = await encryptSymmetrically(key, data, additionalData);
+const plainText = await decryptSymmetrically(encryptionKey, ciphertext, additionalData);
 expect(data).toStrictEqual(plainText);
 
 // Post qunatum cryptography
-const keys = pq.generateKyberKeys();
-const { cipherText, sharedSecret } = pq.encapsulateKyber(keys.publicKey);
-const result = pq.decapsulateKyber(cipherText, keys.secretKey);
+const keys = generateKyberKeys();
+const { cipherText, sharedSecret } = encapsulateKyber(keys.publicKey);
+const result = decapsulateKyber(cipherText, keys.secretKey);
 expect(result).toStrictEqual(sharedSecret);
 
 // Hash
-const result = await hash.hashData(['']);
+const result = hashData(['']);
 const expectedResult = 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262';
 expect(result).toStrictEqual(expectedResult);
 
 // Key derivation
 const context = 'BLAKE3 2019-12-27 16:29:52 test vectors context';
-const baseKey = symmetric.genSymmetricKey();  // Uint8Array 
-const key = await deriveKey.deriveSymmetricKeyFromContext(context, baseKey);
+const baseKey = genSymmetricKey(); 
+const key = deriveSymmetricKeyFromContext(context, baseKey);
 
+// Key derivation from password
 const password = 'your password';
-const { keyHex, saltHex } = await deriveKey.getKeyFromPasswordHex(password);
-const result = await deriveKey.verifyKeyFromPasswordHex(password, saltHex, keyHex);
-expect(result).toBe(true);
+const { key, salt } = await getKeyFromPassword(password);
 
 // Hybrid email encryption
-
-const emailBody: EmailBody = {
+const email: EmailBody = {
     text: 'email text',
-    createdAt: '2025-06-14T08:11:22.000Z',
-    labels: ['label 1', 'label2'],
-};
-const userBob = {
-    email: 'bob email',
-    name: 'bob',
+    subject: 'email subject',
 };
 const { secretKey: bobPrivateKeys, publicKey: bobPublicKeys } = await generateEmailKeys();
-
-const emailBody: EmailBody = {
-  text: 'email body',
+const bobWithPublicKeys = {
+    email: 'bob email',
+    publicHybridKey: bobPublicKeys,
 };
+const encryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys);
+const decryptedEmail = await decryptEmailHybrid(encryptedEmail, bobPrivateKeys);
 
-const emailParams: EmailPublicParameters = {
-  labels: ['label 1', 'label2'],
-  createdAt: '2025-06-14T08:11:22.000Z',
-  subject: 'email subject',
-  sender: userAlice,
-  recipient: userBob,
-  replyToEmailID: generateUuid(),
-};
-
-const email: Email = {
-  id:  generateUuid(),
-  params: emailParams,
-  body: emailBody,
-};
-const encryptedEmail = await emailCrypto.encryptEmailHybrid(email, bobPublicKeys);
-const decryptedEmail = await emailCrypto.decryptEmailHybrid(encryptedEmail, bobPrivateKeys);
-expect(decryptedEmail).toStrictEqual(email);
+expect(encryptedEmail.encEmailBody.encSubject).not.toBe(email.subject);
+expect(decryptedEmailBody).toStrictEqual(email);
 
 
 // password-protected email
 const sharedSecret = 'secret shared between Alice and Bob';
-const encryptedEmail = await emailCrypto.createPwdProtectedEmail(email, sharedSecret);
-const decryptedEmail = await emailCrypto.decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
+const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
+const decryptedEmail = await decryptPwdProtectedEmail(encryptedEmail, sharedSecret);
 expect(decryptedEmail).toStrictEqual(email);
 
 // keystore
+const userEmail = 'user email';
+const secretKey = genSymmetricKey();
+const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
+      userEmail,
+      secretKey,
+    );
+const resultEnc = await openEncryptionKeystore(encryptionKeystore, secretKey);
+const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
-// For this to work, session storage must have UserID and baseKey
-const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores();
-const result_enc = await keystoreService.openEncryptionKeystore(encryptionKeystore);
-const result_rec = await keystoreService.openRecoveryKeystore(recoveryCodes, recoveryKeystore); 
-expect(result_enc).toStrictEqual(result_rec);
+expect(resultEnc).toStrictEqual(resultRec);
 
 // Email storage and search
 

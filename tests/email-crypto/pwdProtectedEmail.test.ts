@@ -17,8 +17,8 @@ describe('Test email crypto functions', () => {
   });
 
   it('should throw an error if encryption fails', async () => {
-    const bad_email = {} as unknown as EmailBody;
-    await expect(createPwdProtectedEmail(bad_email, sharedSecret)).rejects.toThrowError(
+    const badEmail = {} as unknown as EmailBody;
+    await expect(createPwdProtectedEmail(badEmail, sharedSecret)).rejects.toThrowError(
       /Failed to password-protect email/,
     );
   });

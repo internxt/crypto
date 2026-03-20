@@ -94,8 +94,8 @@ describe('Test searchable database functions', async () => {
     const count = await getEmailCount(db);
     expect(count).toBe(emailNumber + 1);
     await encryptAndStoreEmail(email, key, db);
-    const new_count = await getEmailCount(db);
-    expect(new_count).toBe(emailNumber + 1);
+    const newCount = await getEmailCount(db);
+    expect(newCount).toBe(emailNumber + 1);
     closeDatabase(db);
   });
 
@@ -104,9 +104,9 @@ describe('Test searchable database functions', async () => {
     const db = await openDatabase(userID);
     const emails = await getAllEmailsSortedOldestFirst(db, key);
     await deleteOldestEmails(number, db);
-    const all_emails = await getAndDecryptAllEmails(key, db);
+    const allEmails = await getAndDecryptAllEmails(key, db);
     for (let i = 0; i < number; i++) {
-      expect(all_emails).not.toContainEqual(emails[i]);
+      expect(allEmails).not.toContainEqual(emails[i]);
     }
 
     closeDatabase(db);
@@ -140,8 +140,8 @@ describe('Test searchable database functions', async () => {
     const count = await getEmailCount(db);
     expect(count).not.toBe(number);
     await enforceMaxEmailNumber(db, number);
-    const new_count = await getEmailCount(db);
-    expect(new_count).toBe(number);
+    const newCount = await getEmailCount(db);
+    expect(newCount).toBe(number);
 
     closeDatabase(db);
   });
@@ -156,8 +156,8 @@ describe('Test searchable database functions', async () => {
 
   it('derive index key should work', async () => {
     const baseKey = genSymmetricKey();
-    const new_key = await deriveIndexKey(baseKey);
+    const newKey = await deriveIndexKey(baseKey);
 
-    expect(new_key).toBeInstanceOf(Uint8Array);
+    expect(newKey).toBeInstanceOf(Uint8Array);
   });
 });

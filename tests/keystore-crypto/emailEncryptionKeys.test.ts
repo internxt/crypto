@@ -21,14 +21,14 @@ describe('Test keystore create/open functions', async () => {
       mockUserEmail,
       secretKey,
     );
-    const result_enc = await openEncryptionKeystore(encryptionKeystore, secretKey);
-    const result_rec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, secretKey);
+    const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
-    expect(result_enc).toStrictEqual(result_rec);
-    expect(result_enc.publicKey).instanceOf(Uint8Array);
-    expect(result_enc.secretKey).instanceOf(Uint8Array);
-    expect(result_enc.publicKey.length).toBe(XWING_PUBLIC_KEY_LENGTH);
-    expect(result_enc.secretKey.length).toBe(XWING_SECRET_KEY_LENGTH);
+    expect(resultEnc).toStrictEqual(resultRec);
+    expect(resultEnc.publicKey).instanceOf(Uint8Array);
+    expect(resultEnc.secretKey).instanceOf(Uint8Array);
+    expect(resultEnc.publicKey.length).toBe(XWING_PUBLIC_KEY_LENGTH);
+    expect(resultEnc.secretKey.length).toBe(XWING_SECRET_KEY_LENGTH);
   });
 
   it('should throw an error if no base key for keystore opening', async () => {

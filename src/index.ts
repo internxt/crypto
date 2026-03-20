@@ -1,10 +1,6 @@
 export { deriveSecretKey, generateEccKeys } from './asymmetric-crypto';
-export {
-  deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricKeyFromContext,
-  getKeyFromPassword,
-  getKeyFromPasswordAndSalt,
-} from './derive-key';
+export { deriveSymmetricKeyFromTwoKeys, deriveSymmetricKeyFromContext } from './derive-key';
+export { getKeyFromPassword, getKeyFromPasswordAndSalt } from './derive-password';
 export {
   encryptEmailHybrid,
   encryptEmailHybridForMultipleRecipients,

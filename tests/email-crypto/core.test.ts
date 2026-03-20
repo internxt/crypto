@@ -27,21 +27,21 @@ describe('Test email crypto functions', () => {
 
   it('should throw an error if decryption fails', async () => {
     const { encEmailBody, encryptionKey } = await encryptEmailBody(emailBody, aux);
-    const bad_encryptionKey = await genSymmetricKey();
-    await expect(decryptEmailBody(encEmailBody, bad_encryptionKey, aux)).rejects.toThrowError(
+    const badEncryptionKey = await genSymmetricKey();
+    await expect(decryptEmailBody(encEmailBody, badEncryptionKey, aux)).rejects.toThrowError(
       /Failed to symmetrically decrypt email body/,
     );
 
-    const bad_aux = new Uint8Array([4, 5, 6, 7, 8]);
-    await expect(decryptEmailBody(encEmailBody, encryptionKey, bad_aux)).rejects.toThrowError(
+    const badAux = new Uint8Array([4, 5, 6, 7, 8]);
+    await expect(decryptEmailBody(encEmailBody, encryptionKey, badAux)).rejects.toThrowError(
       /Failed to symmetrically decrypt email body/,
     );
   });
 
   it('should throw an error if cannot encrypt', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bad_email: any = {};
-    bad_email.self = bad_email;
-    await expect(encryptEmailBody(bad_email, aux)).rejects.toThrowError(/Failed to symmetrically encrypt email body/);
+    const badEmail: any = {};
+    badEmail.self = badEmail;
+    await expect(encryptEmailBody(badEmail, aux)).rejects.toThrowError(/Failed to symmetrically encrypt email body/);
   });
 });
