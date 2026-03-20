@@ -2,7 +2,7 @@ import { HybridEncKey, PwdProtectedKey, EmailBody, EmailBodyEncrypted, Recipient
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
 import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
 import { wrapKey, unwrapKey } from '../key-wrapper';
-import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-key';
+import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-password';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8 } from '../utils';
 
 /**

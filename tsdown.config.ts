@@ -8,6 +8,7 @@ export default defineConfig({
     'post-quantum-crypto': 'src/post-quantum-crypto/index.ts',
     hash: 'src/hash/index.ts',
     'derive-key': 'src/derive-key/index.ts',
+    'derive-password': 'src/derive-password/index.ts',
     'email-crypto': 'src/email-crypto/index.ts',
     'keystore-crypto': 'src/keystore-crypto/index.ts',
     'email-search': 'src/email-search/index.ts',

@@ -36,12 +36,12 @@ describe('Test email crypto functions', async () => {
   });
 
   it('should throw an error if public key is given instead of the secret one', async () => {
-    const bad_recipient = {
+    const badRecipient = {
       email: 'alice email',
       publicHybridKey: alicePrivateKeys,
     };
 
-    await expect(encryptEmailHybrid(email, bad_recipient)).rejects.toThrowError(
+    await expect(encryptEmailHybrid(email, badRecipient)).rejects.toThrowError(
       /Failed to encrypt email body with hybrid encryption/,
     );
   });
@@ -60,7 +60,7 @@ describe('Test email crypto functions', async () => {
       encryptedKey: 'mock encrypted key',
       encryptedForEmail: 'mock recipient email',
     };
-    const bad_encrypted_email: HybridEncryptedEmail = {
+    const badEncryptedEmail: HybridEncryptedEmail = {
       encryptedKey: encKey,
       encEmailBody: {
         encText: 'mock encrypted text',
@@ -68,7 +68,7 @@ describe('Test email crypto functions', async () => {
       },
     };
 
-    await expect(decryptEmailHybrid(bad_encrypted_email, bobPrivateKeys)).rejects.toThrowError(
+    await expect(decryptEmailHybrid(badEncryptedEmail, bobPrivateKeys)).rejects.toThrowError(
       /Failed to decrypt email with hybrid encryption/,
     );
   });
@@ -84,15 +84,15 @@ describe('Test email crypto functions', async () => {
   });
 
   it('should throw an error if encryption to multiple recipients fails', async () => {
-    const bad_evePublicKeys = new Uint8Array();
+    const badEvePublicKeys = new Uint8Array();
 
-    const bad_eveWithPublicKeys = {
+    const badEveWithPublicKeys = {
       email: 'eve email',
       name: 'eve',
-      publicHybridKey: bad_evePublicKeys,
+      publicHybridKey: badEvePublicKeys,
     };
     await expect(
-      encryptEmailHybridForMultipleRecipients(email, [bobWithPublicKeys, bad_eveWithPublicKeys]),
+      encryptEmailHybridForMultipleRecipients(email, [bobWithPublicKeys, badEveWithPublicKeys]),
     ).rejects.toThrowError(/Failed to encrypt email to multiple recipients with hybrid encryption/);
   });
 });
