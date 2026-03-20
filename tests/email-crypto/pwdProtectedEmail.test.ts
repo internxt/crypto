@@ -1,37 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { createPwdProtectedEmail, decryptPwdProtectedEmail } from '../../src/email-crypto';
-import { EmailBody, User, EmailPublicParameters, Email } from '../../src/types';
-import { generateUuid } from '../../src/utils';
+import { EmailBody } from '../../src/types';
 
 describe('Test email crypto functions', () => {
-  const emailBody: EmailBody = {
+  const email: EmailBody = {
     text: 'Hi Bob, This is a test message. -Alice.',
+    subject: 'test subject',
   };
 
   const sharedSecret = 'test shared secret';
-  const userAlice: User = {
-    email: 'alice email',
-    name: 'alice',
-  };
-
-  const userBob: User = {
-    email: 'bob email',
-    name: 'bob',
-  };
-  const emailParams: EmailPublicParameters = {
-    labels: ['test label 1', 'test label2'],
-    createdAt: '2023-06-14T08:11:22.000Z',
-    subject: 'test subject',
-    sender: userAlice,
-    recipient: userBob,
-    replyToEmailID: generateUuid(),
-  };
-
-  const email = {
-    body: emailBody,
-    params: emailParams,
-    id: generateUuid(),
-  };
 
   it('should encrypt and decrypt email sucessfully', async () => {
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
@@ -40,9 +17,7 @@ describe('Test email crypto functions', () => {
   });
 
   it('should throw an error if encryption fails', async () => {
-    const bad_email = {
-      params: emailParams,
-    } as unknown as Email;
+    const bad_email = {} as unknown as EmailBody;
     await expect(createPwdProtectedEmail(bad_email, sharedSecret)).rejects.toThrowError(
       /Failed to password-protect email/,
     );

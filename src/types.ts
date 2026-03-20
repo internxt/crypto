@@ -10,7 +10,8 @@ export type User = {
   name: string;
 };
 
-export type UserWithPublicKey = User & {
+export type RecipientWithPublicKey = {
+  email: string;
   publicHybridKey: Uint8Array;
 };
 
@@ -21,30 +22,24 @@ export type HybridKeyPair = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  enc: EmailBodyEncrypted;
-  recipientEmail: string;
-  params: EmailPublicParameters;
-  id: string;
-  isSubjectEncrypted: boolean;
+  encEmailBody: EmailBodyEncrypted;
 };
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  enc: EmailBodyEncrypted;
-  params: EmailPublicParameters;
-  id: string;
-  isSubjectEncrypted: boolean;
+  encEmailBody: EmailBodyEncrypted;
 };
 
 export type StoredEmail = {
   params: EmailPublicParameters;
-  enc: EmailBodyEncrypted;
+  encEmailBody: EmailBodyEncrypted;
   id: string;
 };
 
 export type HybridEncKey = {
-  kyberCiphertext: string;
+  hybridCiphertext: string;
   encryptedKey: string;
+  encryptedForEmail: string;
 };
 
 export type PwdProtectedKey = {
@@ -54,16 +49,17 @@ export type PwdProtectedKey = {
 
 export type EmailBodyEncrypted = {
   encText: string;
+  encSubject: string;
   encAttachments?: string[];
 };
 
 export type EmailBody = {
   text: string;
+  subject: string;
   attachments?: string[];
 };
 
 export type EmailPublicParameters = {
-  subject: string;
   createdAt: string;
   sender: User;
   recipient: User;

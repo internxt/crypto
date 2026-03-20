@@ -2,8 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { addEmailToCache } from '../../src/email-search';
 import { generateTestEmail } from './helper';
 
-vi.mock('../../src/email-crypto', async () => {
-  const actual = await vi.importActual('../../src/email-crypto');
+vi.mock('../../src/email-search/utils', async () => {
+  const actual = await vi.importActual('../../src/email-search/utils');
   return {
     ...actual,
     emailToBinary: () => new Uint8Array(700 * 1024 * 1024),
