@@ -62,8 +62,9 @@ export type EmailBody = {
 export type EmailPublicParameters = {
   createdAt: string;
   sender: User;
-  recipient: User;
-  recipients?: User[];
+  recipients: User[];
+  ccs?: User[];
+  bccs?: User[];
   replyToEmailID?: string;
   labels?: string[];
 };

@@ -16,7 +16,6 @@ const randomUser = (): User => ({
 
 export const generateTestEmail = (data?: string): Email => {
   const sender = randomUser();
-  const recipient = randomUser();
 
   return {
     id: generateUuid(),
@@ -28,8 +27,9 @@ export const generateTestEmail = (data?: string): Email => {
     params: {
       createdAt: randomDate(),
       sender,
-      recipient,
-      recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
+      recipients: Math.random() > 0.5 ? [randomUser(), randomUser()] : [randomUser()],
+      ccs: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
+      bccs: Math.random() > 0.5 ? [randomUser(), randomUser()] : undefined,
       replyToEmailID: generateUuid(),
       labels: Math.random() > 0.5 ? ['inbox', 'test'] : undefined,
     },
