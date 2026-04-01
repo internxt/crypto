@@ -1,5 +1,5 @@
 import { blake3 } from '@noble/hashes/blake3.js';
-import { AES_KEY_BYTE_LENGTH, CONTEXT_DERIVE } from '../constants';
+import { AES_KEY_BYTE_LENGTH, CONTEXT_DERIVE, CONTEXT_INDEX } from '../constants';
 import { UTF8ToUint8 } from '../utils';
 
 /**
@@ -32,3 +32,13 @@ export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array
     throw new Error('Failed to derive symmetric key from two keys and context', { cause: error });
   }
 }
+
+/**
+ * Derives database encryption key for the given user
+ *
+ * @param userID - The user ID
+ * @returns The symmetric key for protecting database
+ */
+export const deriveDatabaseKey = async (baseKey: Uint8Array): Promise<Uint8Array> => {
+  return deriveSymmetricKeyFromContext(CONTEXT_INDEX, baseKey);
+};
