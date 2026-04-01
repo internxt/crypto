@@ -5,11 +5,6 @@ export type EncryptedKeystore = {
   privateKeyEncrypted: string;
 };
 
-export type User = {
-  email: string;
-  name: string;
-};
-
 export type RecipientWithPublicKey = {
   email: string;
   publicHybridKey: Uint8Array;
