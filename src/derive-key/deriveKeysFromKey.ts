@@ -36,7 +36,7 @@ export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array
 /**
  * Derives database encryption key for the given user
  *
- * @param userID - The user ID
+ * @param baseKey - The base key (NOT PASSWORD!)
  * @returns The symmetric key for protecting database
  */
 export const deriveDatabaseKey = async (baseKey: Uint8Array): Promise<Uint8Array> => {
