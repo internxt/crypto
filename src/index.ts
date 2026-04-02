@@ -8,6 +8,9 @@ export {
   createPwdProtectedEmail,
   decryptPwdProtectedEmail,
   generateEmailKeys,
+  decryptEmailBody,
+  encryptEmailBody,
+  encryptEmailBodyWithKey,
 } from './email-crypto';
 export {
   hashDataArray,
