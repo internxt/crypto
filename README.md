@@ -153,7 +153,7 @@ const userID = 'user ID';
 const db = await openDatabase(userID);
 
 // Derive database key
-const key = await deriveIndexKey(baseKey);
+const key = await deriveDatabaseKey(baseKey);
 
 // Encrypt and store one or several emails
 await encryptAndStoreEmail(email, key, db);
