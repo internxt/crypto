@@ -30,7 +30,7 @@ describe('Test keystore create/open functions', async () => {
     expect(resultEnc.secretKey.length).toBe(XWING_SECRET_KEY_LENGTH);
   });
 
-  it('should throw an error if no base key for keystore opening', async () => {
+  it('should throw an error if no password for keystore opening', async () => {
     const password = 'user password';
     const { encryptionKeystore, recoveryKeystore, salt } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,

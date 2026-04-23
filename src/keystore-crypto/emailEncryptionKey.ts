@@ -74,7 +74,7 @@ export async function openEncryptionKeystore(
 
 /**
  * Opens the recovery keystore and returns the email encryption keys
- * The decryption key is derived from the base key (stored in session storage)
+ * The decryption key is derived from the recovery codes (machine-generated mnemonic)
  *
  * @param recoveryCodes - The user's recovery codes
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
