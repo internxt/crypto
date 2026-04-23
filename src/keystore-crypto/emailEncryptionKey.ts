@@ -95,3 +95,39 @@ export async function openRecoveryKeystore(
     throw new Error('Failed to open recovery keystore', { cause: error });
   }
 }
+
+/**
+ * Re-encrypts the encryption keystore with a new password
+ * The decryption key is derived from the user password
+ *
+ * @param encryptedKeystore - The encrypted keystore containing encryption keys
+ * @param oldPassword - The user's old password
+ * @param newPassword - The user's new password
+ * @param oldSalt - The keystore's old salt
+ * @returns The keys, re-encrypted keystore, and new salt
+ */
+export async function changePasswordForEncryptionKeystore(
+  encryptedKeystore: EncryptedKeystore,
+  oldPassword: string,
+  newPassword: string,
+  oldSalt: Uint8Array,
+): Promise<{ keys: HybridKeyPair; newSalt: Uint8Array; newKeystore: EncryptedKeystore }> {
+  try {
+    if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
+      throw new Error('Input is invalid');
+    }
+    const keys = await openEncryptionKeystore(encryptedKeystore, oldPassword, oldSalt);
+
+    const { secretKey, salt } = await deriveNewEncryptionKeystoreKey(newPassword);
+    const newKeystore = await encryptKeystoreContent(
+      secretKey,
+      keys,
+      encryptedKeystore.userEmail,
+      KeystoreType.ENCRYPTION,
+    );
+
+    return { newKeystore, newSalt: salt, keys };
+  } catch (error) {
+    throw new Error('Failed to change password for encryption keystore', { cause: error });
+  }
+}
