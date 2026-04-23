@@ -152,8 +152,11 @@ expect(resultEnc).toStrictEqual(resultRec);
 const userID = 'user ID';
 const db = await openDatabase(userID);
 
-// Derive database key
-const key = await deriveDatabaseKey(baseKey);
+// Derive key for encrypting emails before storing them in a local database
+const key = await deriveDatabaseKey(mnemonic);
+
+// Derive key for encrypting email draft
+const key = await deriveDatabaseKey(mnemonic);
 
 // Encrypt and store one or several emails
 await encryptAndStoreEmail(email, key, db);
