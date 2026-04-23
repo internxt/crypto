@@ -4,12 +4,12 @@ import {
   openEncryptionKeystore,
   openRecoveryKeystore,
 } from '../../src/keystore-crypto';
-import { genSymmetricKey } from '../../src/symmetric-crypto';
 import { XWING_PUBLIC_KEY_LENGTH, XWING_SECRET_KEY_LENGTH } from '../../src/constants';
+import { genMnemonic } from '../../src/utils';
 
 describe('Test keystore create/open functions', async () => {
   const mockUserEmail = 'mock user email';
-  const secretKey = genSymmetricKey();
+  const mnemonic = genMnemonic();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -19,9 +19,9 @@ describe('Test keystore create/open functions', async () => {
   it('should successfully create and open encryption keystore', async () => {
     const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      secretKey,
+      mnemonic,
     );
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, secretKey);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, mnemonic);
     const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(resultEnc).toStrictEqual(resultRec);
@@ -34,10 +34,10 @@ describe('Test keystore create/open functions', async () => {
   it('should throw an error if no base key for keystore opening', async () => {
     const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      secretKey,
+      mnemonic,
     );
 
-    await expect(openEncryptionKeystore(encryptionKeystore, new Uint8Array([]))).rejects.toThrowError(
+    await expect(openEncryptionKeystore(encryptionKeystore, '')).rejects.toThrowError(
       /Failed to open encryption keystore/,
     );
     await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Failed to open recovery keystore/);

@@ -1,6 +1,6 @@
 import { blake3 } from '@noble/hashes/blake3.js';
-import { AES_KEY_BYTE_LENGTH, CONTEXT_DERIVE, CONTEXT_DATABASE, CONTEXT_DRAFT } from '../constants';
-import { UTF8ToUint8, mnemonicToBytes } from '../utils';
+import { AES_KEY_BYTE_LENGTH, CONTEXT_TWO_KEYS } from '../constants';
+import { UTF8ToUint8 } from '../utils';
 
 /**
  * Derives a symmetric key from the base key and context string
@@ -27,32 +27,8 @@ export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array
       throw new Error(`Input key length must be exactly ${AES_KEY_BYTE_LENGTH} bytes`);
     }
     const key = blake3(key1, { key: key2 });
-    return deriveSymmetricKeyFromContext(CONTEXT_DERIVE, key);
+    return deriveSymmetricKeyFromContext(CONTEXT_TWO_KEYS, key);
   } catch (error) {
     throw new Error('Failed to derive symmetric key from two keys and context', { cause: error });
   }
 }
-
-/**
- * Derives database encryption key for the given user
- *
- * @param mnemonic - The user's mnemonic (machine-generated with secure PRNG)
- * @returns The symmetric key for protecting database
- */
-export const deriveDatabaseKey = async (mnemonic: string): Promise<Uint8Array> => {
-  // mnemonic is always machine-generated with secure PRNG, so it is safe to convert it to bytes without additional processing
-  const entropy = mnemonicToBytes(mnemonic);
-  return deriveSymmetricKeyFromContext(CONTEXT_DATABASE, entropy);
-};
-
-/**
- * Derives email draft encryption key for the given user
- *
- * @param mnemonic - The user's mnemonic (machine-generated with secure PRNG)
- * @returns The symmetric key for protecting email drafts
- */
-export const deriveEmailDraftKey = async (mnemonic: string): Promise<Uint8Array> => {
-  // mnemonic is always machine-generated with secure PRNG, so it is safe to convert it to bytes without additional processing
-  const entropy = mnemonicToBytes(mnemonic);
-  return deriveSymmetricKeyFromContext(CONTEXT_DRAFT, entropy);
-};

@@ -131,10 +131,10 @@ expect(decryptedEmail).toStrictEqual(email);
 
 // keystore
 const userEmail = 'user email';
-const secretKey = genSymmetricKey();
+const secretKey = genMnemonic();
 const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
       userEmail,
-      secretKey,
+      mnemonic,
     );
 const resultEnc = await openEncryptionKeystore(encryptionKeystore, secretKey);
 const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
@@ -143,7 +143,7 @@ expect(resultEnc).toStrictEqual(resultRec);
 
 // Email storage and search
 
-// Between sessions emails are stored encrypted in IndexedDB. The encryption key is derived from user's baseKey
+// Between sessions emails are stored encrypted in IndexedDB. The encryption key is derived from user's mnemonic
 // During the session, all emails are decrypted and stored in the cache (up to 600 MB, if excides - we delete oldests emails)
 // For search, we build a search index from cache, then use Flexsearch for the search. 
 // The search is doen separately for email content, subject, sender and recivers. 
@@ -151,6 +151,7 @@ expect(resultEnc).toStrictEqual(resultRec);
 // Open IndexedDB database
 const userID = 'user ID';
 const db = await openDatabase(userID);
+const mnemonic = genMnemonic();
 
 // Derive key for encrypting emails before storing them in a local database
 const key = await deriveDatabaseKey(mnemonic);

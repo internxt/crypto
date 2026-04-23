@@ -1,6 +1,6 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
-import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8, mnemonicToBytes } from '../utils';
-import { deriveSymmetricKeyFromContext } from '../derive-key';
+import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8 } from '../utils';
+import { deriveKeyFromMnemonic } from '../derive-key';
 import { CONTEXT_ENC_KEYSTORE, CONTEXT_RECOVERY } from '../constants';
 import { EncryptedKeystore, HybridKeyPair, KeystoreType } from '../types';
 
@@ -64,20 +64,19 @@ export async function decryptKeystoreContent(
 /**
  * Derives a secret key for protecting the recovery keystore
  *
- * @param recoveryCodes - The recovery codes
+ * @param recoveryCodes - The recovery codes (machine-generated with secure PRNG)
  * @returns The derived secret key for protecting the recovery keystore
  */
 export async function deriveRecoveryKey(recoveryCodes: string): Promise<Uint8Array> {
-  const recoverCodesArray = mnemonicToBytes(recoveryCodes);
-  return deriveSymmetricKeyFromContext(CONTEXT_RECOVERY, recoverCodesArray);
+  return deriveKeyFromMnemonic(recoveryCodes, CONTEXT_RECOVERY);
 }
 
 /**
  * Derives a secret key for protecting the encryption keystore
  *
- * @param baseKey - The base secret key from which a new key secret will be derived
+ * @param mnemonic - The user's mnemonic (machine-generated with secure PRNG)
  * @returns The derived secret key for protecting the encryption keystore
  */
-export async function deriveEncryptionKeystoreKey(baseKey: Uint8Array): Promise<Uint8Array> {
-  return deriveSymmetricKeyFromContext(CONTEXT_ENC_KEYSTORE, baseKey);
+export async function deriveEncryptionKeystoreKey(mnemonic: string): Promise<Uint8Array> {
+  return deriveKeyFromMnemonic(mnemonic, CONTEXT_ENC_KEYSTORE);
 }

@@ -1,10 +1,5 @@
 export { deriveSecretKey, generateEccKeys } from './asymmetric-crypto';
-export {
-  deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricKeyFromContext,
-  deriveDatabaseKey,
-  deriveEmailDraftKey,
-} from './derive-key';
+export { deriveSymmetricKeyFromTwoKeys, deriveSymmetricKeyFromContext, deriveKeyFromMnemonic } from './derive-key';
 export { getKeyFromPassword, getKeyFromPasswordAndSalt } from './derive-password';
 export {
   encryptEmailHybrid,
@@ -16,6 +11,8 @@ export {
   decryptEmailBody,
   encryptEmailBody,
   encryptEmailBodyWithKey,
+  deriveDatabaseKey,
+  deriveEmailDraftKey,
 } from './email-crypto';
 export {
   hashDataArray,

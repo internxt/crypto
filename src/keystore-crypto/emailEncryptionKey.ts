@@ -12,7 +12,7 @@ import { genHybridKeys } from '../hybrid-crypto';
  */
 export async function createEncryptionAndRecoveryKeystores(
   userEmail: string,
-  baseKey: Uint8Array,
+  mnemonic: string,
 ): Promise<{
   encryptionKeystore: EncryptedKeystore;
   recoveryKeystore: EncryptedKeystore;
@@ -22,7 +22,7 @@ export async function createEncryptionAndRecoveryKeystores(
   try {
     const keys = genHybridKeys();
 
-    const secretKey = await deriveEncryptionKeystoreKey(baseKey);
+    const secretKey = await deriveEncryptionKeystoreKey(mnemonic);
     const encryptionKeystore = await encryptKeystoreContent(secretKey, keys, userEmail, KeystoreType.ENCRYPTION);
 
     const recoveryCodes = genMnemonic();
@@ -40,18 +40,18 @@ export async function createEncryptionAndRecoveryKeystores(
  * The decryption key is derived from the base key (stored in session storage)
  *
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
- * @param baseKey - The base key from which the decryption key will be derived
+ * @param mnemonic - The user's mnemonic (machine-generated with secure PRNG)
  * @returns The encryption keys
  */
 export async function openEncryptionKeystore(
   encryptedKeystore: EncryptedKeystore,
-  baseKey: Uint8Array,
+  mnemonic: string,
 ): Promise<HybridKeyPair> {
   try {
     if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
       throw new Error('Input is invalid');
     }
-    const secretKey = await deriveEncryptionKeystoreKey(baseKey);
+    const secretKey = await deriveEncryptionKeystoreKey(mnemonic);
     const keys = await decryptKeystoreContent(secretKey, encryptedKeystore);
     return keys;
   } catch (error) {

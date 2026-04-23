@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  deriveSymmetricKeyFromTwoKeys,
-  deriveSymmetricKeyFromContext,
-  deriveDatabaseKey,
-  deriveEmailDraftKey,
-} from '../../src/derive-key';
-import { uint8ArrayToHex, genMnemonic } from '../../src/utils';
+import { deriveSymmetricKeyFromTwoKeys, deriveSymmetricKeyFromContext } from '../../src/derive-key';
+import { uint8ArrayToHex } from '../../src/utils';
 import { AES_KEY_BYTE_LENGTH } from '../../src/constants';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
 
@@ -42,29 +37,5 @@ describe('Test derive key', () => {
     expect(() => deriveSymmetricKeyFromTwoKeys(key2, shortKey)).toThrowError(
       /Failed to derive symmetric key from two keys/,
     );
-  });
-
-  it('should derive symmetric key for database encryption', async () => {
-    const mnemonic = genMnemonic();
-    const key = await deriveDatabaseKey(mnemonic);
-    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
-    const key2 = await deriveDatabaseKey(mnemonic);
-    expect(key2).toStrictEqual(key);
-  });
-
-  it('should derive symmetric key for email draft encryption', async () => {
-    const mnemonic = genMnemonic();
-    const key = await deriveEmailDraftKey(mnemonic);
-    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
-    const key2 = await deriveEmailDraftKey(mnemonic);
-    expect(key2).toStrictEqual(key);
-  });
-
-  it('should derive symmetric key for email draft encryption', async () => {
-    const mnemonic = genMnemonic();
-    const keyDatabase = await deriveDatabaseKey(mnemonic);
-    const keyDraft = await deriveEmailDraftKey(mnemonic);
-    expect(keyDatabase.length).toBe(keyDraft.length);
-    expect(keyDraft).not.toStrictEqual(keyDatabase);
   });
 });
