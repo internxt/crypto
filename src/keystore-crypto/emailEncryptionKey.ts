@@ -8,6 +8,12 @@ import {
   deriveRecoveryKey,
 } from './core';
 import { genHybridKeys } from '../hybrid-crypto';
+import {
+  FailedToOpenEncryptionKeyStore,
+  FailedToCreateKeyStores,
+  FailedToOpenRecoveryKeyStore,
+  FailedToChangePasswordForKeyStore,
+} from './errors';
 
 /**
  * Generates hybrid keys and creates encrypted main and recovery keystores
@@ -42,7 +48,7 @@ export async function createEncryptionAndRecoveryKeystores(
 
     return { encryptionKeystore, recoveryKeystore, recoveryCodes, keys, salt };
   } catch (error) {
-    throw new Error('Failed to create encryption and recovery keystores', { cause: error });
+    throw new FailedToCreateKeyStores(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -61,14 +67,14 @@ export async function openEncryptionKeystore(
   salt: Uint8Array,
 ): Promise<HybridKeyPair> {
   try {
-    if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
+    if (encryptedKeystore.type !== KeystoreType.ENCRYPTION) {
       throw new Error('Input is invalid');
     }
     const secretKey = await deriveEncryptionKeystoreKey(password, salt);
     const keys = await decryptKeystoreContent(secretKey, encryptedKeystore);
     return keys;
   } catch (error) {
-    throw new Error('Failed to open encryption keystore', { cause: error });
+    throw new FailedToOpenEncryptionKeyStore(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -85,14 +91,14 @@ export async function openRecoveryKeystore(
   encryptedKeystore: EncryptedKeystore,
 ): Promise<HybridKeyPair> {
   try {
-    if (encryptedKeystore.type != KeystoreType.RECOVERY) {
+    if (encryptedKeystore.type !== KeystoreType.RECOVERY) {
       throw new Error('Input is invalid');
     }
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
     const keys = await decryptKeystoreContent(recoveryKey, encryptedKeystore);
     return keys;
   } catch (error) {
-    throw new Error('Failed to open recovery keystore', { cause: error });
+    throw new FailedToOpenRecoveryKeyStore(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -113,7 +119,7 @@ export async function changePasswordForEncryptionKeystore(
   oldSalt: Uint8Array,
 ): Promise<{ keys: HybridKeyPair; newSalt: Uint8Array; newKeystore: EncryptedKeystore }> {
   try {
-    if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
+    if (encryptedKeystore.type !== KeystoreType.ENCRYPTION) {
       throw new Error('Input is invalid');
     }
     const keys = await openEncryptionKeystore(encryptedKeystore, oldPassword, oldSalt);
@@ -128,6 +134,6 @@ export async function changePasswordForEncryptionKeystore(
 
     return { newKeystore, newSalt: salt, keys };
   } catch (error) {
-    throw new Error('Failed to change password for encryption keystore', { cause: error });
+    throw new FailedToChangePasswordForKeyStore(error instanceof Error ? error.message : String(error));
   }
 }

@@ -28,6 +28,10 @@ export {
   openEncryptionKeystore,
   openRecoveryKeystore,
   changePasswordForEncryptionKeystore,
+  FailedToOpenEncryptionKeyStore,
+  FailedToCreateKeyStores,
+  FailedToOpenRecoveryKeyStore,
+  FailedToChangePasswordForKeyStore,
 } from './keystore-crypto';
 export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto';
 export { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from './symmetric-crypto';
