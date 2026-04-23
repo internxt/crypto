@@ -3,10 +3,8 @@ import {
   ARGON2ID_ITERATIONS,
   ARGON2ID_MEMORY_SIZE,
   ARGON2ID_PARALLELISM,
-  ARGON2ID_SALT_BYTE_LENGTH,
   ARGON2ID_OUTPUT_BYTE_LENGTH,
 } from '../constants';
-import { randomBytes } from '@noble/hashes/utils.js';
 
 /**
  * Calculates hash using the argon2id password-hashing function
@@ -36,13 +34,4 @@ export async function argon2(
     hashLength,
     outputType: 'binary',
   });
-}
-
-/**
- * Samples a salt
- *
- * @returns The salt
- */
-export function sampleSalt(): Uint8Array {
-  return randomBytes(ARGON2ID_SALT_BYTE_LENGTH);
 }

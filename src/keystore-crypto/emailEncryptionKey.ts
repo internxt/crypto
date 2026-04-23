@@ -1,35 +1,46 @@
 import { EncryptedKeystore, KeystoreType, HybridKeyPair } from '../types';
 import { genMnemonic } from '../utils';
-import { encryptKeystoreContent, decryptKeystoreContent, deriveEncryptionKeystoreKey, deriveRecoveryKey } from './core';
+import {
+  encryptKeystoreContent,
+  decryptKeystoreContent,
+  deriveEncryptionKeystoreKey,
+  deriveNewEncryptionKeystoreKey,
+  deriveRecoveryKey,
+} from './core';
 import { genHybridKeys } from '../hybrid-crypto';
 
 /**
  * Generates hybrid keys and creates encrypted main and recovery keystores
- * The main keystore encryption key is derived from the base key (stored in session storage)
+ * The main keystore encryption key is derived from the user's password
  * The recovery keystore encryption key is derived from the recovery codes
+ *
+ * @param userEmail - The user's email
+ * @param password - The user's password
+ * @returns The encryption keys
  *
  * @returns The encryption and recovery keystores, recovery codes and hybrid keys
  */
 export async function createEncryptionAndRecoveryKeystores(
   userEmail: string,
-  baseKey: Uint8Array,
+  password: string,
 ): Promise<{
   encryptionKeystore: EncryptedKeystore;
   recoveryKeystore: EncryptedKeystore;
   recoveryCodes: string;
   keys: HybridKeyPair;
+  salt: Uint8Array;
 }> {
   try {
     const keys = genHybridKeys();
 
-    const secretKey = await deriveEncryptionKeystoreKey(baseKey);
+    const { secretKey, salt } = await deriveNewEncryptionKeystoreKey(password);
     const encryptionKeystore = await encryptKeystoreContent(secretKey, keys, userEmail, KeystoreType.ENCRYPTION);
 
     const recoveryCodes = genMnemonic();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
     const recoveryKeystore = await encryptKeystoreContent(recoveryKey, keys, userEmail, KeystoreType.RECOVERY);
 
-    return { encryptionKeystore, recoveryKeystore, recoveryCodes, keys };
+    return { encryptionKeystore, recoveryKeystore, recoveryCodes, keys, salt };
   } catch (error) {
     throw new Error('Failed to create encryption and recovery keystores', { cause: error });
   }
@@ -37,21 +48,23 @@ export async function createEncryptionAndRecoveryKeystores(
 
 /**
  * Opens the encryption keystore and returns the email encryption keys
- * The decryption key is derived from the base key (stored in session storage)
+ * The decryption key is derived from the user password
  *
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
- * @param baseKey - The base key from which the decryption key will be derived
+ * @param password - The user's password
+ * @param salt - The keystore's salt
  * @returns The encryption keys
  */
 export async function openEncryptionKeystore(
   encryptedKeystore: EncryptedKeystore,
-  baseKey: Uint8Array,
+  password: string,
+  salt: Uint8Array,
 ): Promise<HybridKeyPair> {
   try {
     if (encryptedKeystore.type != KeystoreType.ENCRYPTION) {
       throw new Error('Input is invalid');
     }
-    const secretKey = await deriveEncryptionKeystoreKey(baseKey);
+    const secretKey = await deriveEncryptionKeystoreKey(password, salt);
     const keys = await decryptKeystoreContent(secretKey, encryptedKeystore);
     return keys;
   } catch (error) {
@@ -61,7 +74,7 @@ export async function openEncryptionKeystore(
 
 /**
  * Opens the recovery keystore and returns the email encryption keys
- * The decryption key is derived from the base key (stored in session storage)
+ * The decryption key is derived from the recovery codes (machine-generated mnemonic)
  *
  * @param recoveryCodes - The user's recovery codes
  * @param encryptedKeystore - The encrypted keystore containing encryption keys

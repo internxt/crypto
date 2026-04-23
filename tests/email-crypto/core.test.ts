@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { EmailBody } from '../../src/types';
-import { decryptEmailBody, encryptEmailBody } from '../../src/email-crypto/core';
-import { generateUuid } from '../../src/utils';
+import { decryptEmailBody, encryptEmailBody, deriveDatabaseKey, deriveEmailDraftKey } from '../../src/email-crypto';
+import { generateUuid, genMnemonic } from '../../src/utils';
 import { genSymmetricKey } from '../../src/symmetric-crypto';
+import { AES_KEY_BYTE_LENGTH } from '../../src/constants';
 
 describe('Test email crypto functions', () => {
   const emailBody: EmailBody = {
@@ -43,5 +44,29 @@ describe('Test email crypto functions', () => {
     const badEmail: any = {};
     badEmail.self = badEmail;
     await expect(encryptEmailBody(badEmail, aux)).rejects.toThrowError(/Failed to symmetrically encrypt email body/);
+  });
+
+  it('should derive symmetric key for database encryption', async () => {
+    const mnemonic = genMnemonic();
+    const key = await deriveDatabaseKey(mnemonic);
+    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
+    const key2 = await deriveDatabaseKey(mnemonic);
+    expect(key2).toStrictEqual(key);
+  });
+
+  it('should derive symmetric key for email draft encryption', async () => {
+    const mnemonic = genMnemonic();
+    const key = await deriveEmailDraftKey(mnemonic);
+    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
+    const key2 = await deriveEmailDraftKey(mnemonic);
+    expect(key2).toStrictEqual(key);
+  });
+
+  it('should derive symmetric key for email draft encryption', async () => {
+    const mnemonic = genMnemonic();
+    const keyDatabase = await deriveDatabaseKey(mnemonic);
+    const keyDraft = await deriveEmailDraftKey(mnemonic);
+    expect(keyDatabase.length).toBe(keyDraft.length);
+    expect(keyDraft).not.toStrictEqual(keyDatabase);
   });
 });

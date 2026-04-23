@@ -1,5 +1,5 @@
 import { blake3 } from '@noble/hashes/blake3.js';
-import { AES_KEY_BYTE_LENGTH, CONTEXT_DERIVE, CONTEXT_INDEX } from '../constants';
+import { AES_KEY_BYTE_LENGTH, CONTEXT_TWO_KEYS } from '../constants';
 import { UTF8ToUint8 } from '../utils';
 
 /**
@@ -27,18 +27,8 @@ export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array
       throw new Error(`Input key length must be exactly ${AES_KEY_BYTE_LENGTH} bytes`);
     }
     const key = blake3(key1, { key: key2 });
-    return deriveSymmetricKeyFromContext(CONTEXT_DERIVE, key);
+    return deriveSymmetricKeyFromContext(CONTEXT_TWO_KEYS, key);
   } catch (error) {
     throw new Error('Failed to derive symmetric key from two keys and context', { cause: error });
   }
 }
-
-/**
- * Derives database encryption key for the given user
- *
- * @param baseKey - The base key (NOT PASSWORD!)
- * @returns The symmetric key for protecting database
- */
-export const deriveDatabaseKey = async (baseKey: Uint8Array): Promise<Uint8Array> => {
-  return deriveSymmetricKeyFromContext(CONTEXT_INDEX, baseKey);
-};
