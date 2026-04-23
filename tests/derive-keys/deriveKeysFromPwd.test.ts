@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getKeyFromPasswordAndSalt, getKeyFromPassword } from '../../src/derive-password';
+import { getKeyFromPasswordAndSalt, getKeyFromPassword, generateSalt } from '../../src/derive-password';
 
-import { argon2, sampleSalt } from '../../src/derive-password/core';
+import { argon2 } from '../../src/derive-password/core';
 import { uint8ArrayToHex } from '../../src/utils';
 
 describe('Test Argon2', () => {
   const testPassword = 'text demo';
-  const testSalt = sampleSalt();
+  const testSalt = generateSalt();
 
   it('should get correct key from the password', async () => {
     const testParallelism = 7;
@@ -29,8 +29,8 @@ describe('Test Argon2', () => {
   });
 
   it('should generate different salt each time', async () => {
-    const testSalt1 = uint8ArrayToHex(sampleSalt());
-    const testSalt2 = uint8ArrayToHex(sampleSalt());
+    const testSalt1 = uint8ArrayToHex(generateSalt());
+    const testSalt2 = uint8ArrayToHex(generateSalt());
     expect(testSalt1).not.toBe(testSalt2);
   });
 

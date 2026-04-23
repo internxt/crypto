@@ -131,12 +131,12 @@ expect(decryptedEmail).toStrictEqual(email);
 
 // keystore
 const userEmail = 'user email';
-const secretKey = genMnemonic();
-const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
+const password = 'user password';
+const { encryptionKeystore, recoveryKeystore, recoveryCodes, salt } = await createEncryptionAndRecoveryKeystores(
       userEmail,
-      mnemonic,
+      password
     );
-const resultEnc = await openEncryptionKeystore(encryptionKeystore, secretKey);
+const resultEnc = await openEncryptionKeystore(encryptionKeystore, password, salt);
 const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
 expect(resultEnc).toStrictEqual(resultRec);

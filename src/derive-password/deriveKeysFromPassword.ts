@@ -1,4 +1,15 @@
-import { argon2, sampleSalt } from './core';
+import { argon2 } from './core';
+import { ARGON2ID_SALT_BYTE_LENGTH } from '../constants';
+import { randomBytes } from '@noble/hashes/utils.js';
+
+/**
+ * Samples a salt
+ *
+ * @returns The salt
+ */
+export function generateSalt(): Uint8Array {
+  return randomBytes(ARGON2ID_SALT_BYTE_LENGTH);
+}
 
 /**
  * Derives a symmetric key from a user's password with a randomly sampled salt
@@ -8,7 +19,7 @@ import { argon2, sampleSalt } from './core';
  */
 export async function getKeyFromPassword(password: string): Promise<{ key: Uint8Array; salt: Uint8Array }> {
   try {
-    const salt = sampleSalt();
+    const salt = generateSalt();
     const key = await argon2(password, salt);
     return { key, salt };
   } catch (error) {

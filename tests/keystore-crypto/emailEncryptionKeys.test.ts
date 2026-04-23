@@ -5,11 +5,9 @@ import {
   openRecoveryKeystore,
 } from '../../src/keystore-crypto';
 import { XWING_PUBLIC_KEY_LENGTH, XWING_SECRET_KEY_LENGTH } from '../../src/constants';
-import { genMnemonic } from '../../src/utils';
 
 describe('Test keystore create/open functions', async () => {
   const mockUserEmail = 'mock user email';
-  const mnemonic = genMnemonic();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -17,11 +15,12 @@ describe('Test keystore create/open functions', async () => {
   });
 
   it('should successfully create and open encryption keystore', async () => {
-    const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
+    const password = 'user password';
+    const { encryptionKeystore, recoveryKeystore, recoveryCodes, salt } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      mnemonic,
+      password,
     );
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, mnemonic);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password, salt);
     const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(resultEnc).toStrictEqual(resultRec);
@@ -32,12 +31,13 @@ describe('Test keystore create/open functions', async () => {
   });
 
   it('should throw an error if no base key for keystore opening', async () => {
-    const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores(
+    const password = 'user password';
+    const { encryptionKeystore, recoveryKeystore, salt } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      mnemonic,
+      password,
     );
 
-    await expect(openEncryptionKeystore(encryptionKeystore, '')).rejects.toThrowError(
+    await expect(openEncryptionKeystore(encryptionKeystore, '', salt)).rejects.toThrowError(
       /Failed to open encryption keystore/,
     );
     await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrowError(/Failed to open recovery keystore/);
