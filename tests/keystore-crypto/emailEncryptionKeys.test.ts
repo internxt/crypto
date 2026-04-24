@@ -25,11 +25,11 @@ describe('Test keystore create/open functions', async () => {
 
   it('should successfully create and open encryption keystore', async () => {
     const password = 'user password';
-    const { encryptionKeystore, recoveryKeystore, recoveryCodes, salt } = await createEncryptionAndRecoveryKeystores(
+    const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
       password,
     );
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password, salt);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password);
     const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(resultEnc).toStrictEqual(resultRec);
@@ -41,82 +41,64 @@ describe('Test keystore create/open functions', async () => {
 
   it('should throw an error if no password for keystore opening', async () => {
     const password = 'user password';
-    const { encryptionKeystore, recoveryKeystore, salt } = await createEncryptionAndRecoveryKeystores(
+    const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
       password,
     );
 
-    await expect(openEncryptionKeystore(encryptionKeystore, '', salt)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
+    await expect(openEncryptionKeystore(encryptionKeystore, '')).rejects.toThrow(FailedToOpenEncryptionKeyStore);
     await expect(openRecoveryKeystore('', recoveryKeystore)).rejects.toThrow(FailedToOpenRecoveryKeyStore);
   });
 
   it('should throw an error if wrong keystore type', async () => {
     const password = 'user password';
-    const { encryptionKeystore, recoveryKeystore, recoveryCodes, salt } = await createEncryptionAndRecoveryKeystores(
+    const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
       password,
     );
 
-    await expect(openEncryptionKeystore(recoveryKeystore, password, salt)).rejects.toThrow(
-      FailedToOpenEncryptionKeyStore,
-    );
+    await expect(openEncryptionKeystore(recoveryKeystore, password)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
     await expect(openRecoveryKeystore(recoveryCodes, encryptionKeystore)).rejects.toThrow(FailedToOpenRecoveryKeyStore);
   });
 
   it('should successfully re-encrypt and open encryption keystore with a new password', async () => {
     const password = 'user password';
-    const { encryptionKeystore, salt } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password, salt);
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password);
 
     const newPassword = 'a very new user password';
-    const { newKeystore, newSalt, keys } = await changePasswordForEncryptionKeystore(
-      encryptionKeystore,
-      password,
-      newPassword,
-      salt,
-    );
+    const { newKeystore, keys } = await changePasswordForEncryptionKeystore(encryptionKeystore, password, newPassword);
 
-    const resultNew = await openEncryptionKeystore(newKeystore, newPassword, newSalt);
+    const resultNew = await openEncryptionKeystore(newKeystore, newPassword);
 
     expect(resultEnc).toStrictEqual(keys);
     expect(resultEnc).toStrictEqual(resultNew);
+    expect(newKeystore.salt).not.toEqual(encryptionKeystore.salt);
+    expect(newKeystore.salt).toBeDefined();
   });
 
   it('should throw an error if re-encrypted keystore is opened with old password or salt', async () => {
     const password = 'user password';
-    const { encryptionKeystore, salt } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password, salt);
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password);
 
     const newPassword = 'a very new user password';
-    const { newKeystore, newSalt, keys } = await changePasswordForEncryptionKeystore(
-      encryptionKeystore,
-      password,
-      newPassword,
-      salt,
-    );
+    const { newKeystore, keys } = await changePasswordForEncryptionKeystore(encryptionKeystore, password, newPassword);
 
     expect(resultEnc).toStrictEqual(keys);
 
-    await expect(openEncryptionKeystore(newKeystore, password, salt)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
+    await expect(openEncryptionKeystore(newKeystore, password)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
 
-    await expect(openEncryptionKeystore(newKeystore, newPassword, salt)).rejects.toThrow(
-      FailedToOpenEncryptionKeyStore,
-    );
-
-    await expect(openEncryptionKeystore(newKeystore, password, newSalt)).rejects.toThrow(
-      FailedToOpenEncryptionKeyStore,
-    );
-
-    await expect(openEncryptionKeystore(encryptionKeystore, newPassword, newSalt)).rejects.toThrow(
+    await expect(openEncryptionKeystore(encryptionKeystore, newPassword)).rejects.toThrow(
       FailedToOpenEncryptionKeyStore,
     );
   });
 
   it('should throw an error if no password for keystore re-encryption', async () => {
     const password = 'user password';
-    const { encryptionKeystore, salt } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
 
-    await expect(changePasswordForEncryptionKeystore(encryptionKeystore, password, '', salt)).rejects.toThrow(
+    await expect(changePasswordForEncryptionKeystore(encryptionKeystore, password, '')).rejects.toThrow(
       FailedToChangePasswordForKeyStore,
     );
   });
