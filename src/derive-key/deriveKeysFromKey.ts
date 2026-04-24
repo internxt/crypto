@@ -23,7 +23,7 @@ export function deriveSymmetricKeyFromContext(context: string, baseKey: Uint8Arr
  */
 export function deriveSymmetricKeyFromTwoKeys(key1: Uint8Array, key2: Uint8Array): Uint8Array {
   try {
-    if (key2.length != AES_KEY_BYTE_LENGTH || key1.length != AES_KEY_BYTE_LENGTH) {
+    if (key2.length !== AES_KEY_BYTE_LENGTH || key1.length !== AES_KEY_BYTE_LENGTH) {
       throw new Error(`Input key length must be exactly ${AES_KEY_BYTE_LENGTH} bytes`);
     }
     const key = blake3(key1, { key: key2 });

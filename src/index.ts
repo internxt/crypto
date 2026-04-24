@@ -23,7 +23,16 @@ export {
   getBytesFromData,
 } from './hash';
 export { unwrapKey, wrapKey } from './key-wrapper';
-export { createEncryptionAndRecoveryKeystores, openEncryptionKeystore, openRecoveryKeystore } from './keystore-crypto';
+export {
+  createEncryptionAndRecoveryKeystores,
+  openEncryptionKeystore,
+  openRecoveryKeystore,
+  changePasswordForEncryptionKeystore,
+  FailedToOpenEncryptionKeyStore,
+  FailedToCreateKeyStores,
+  FailedToOpenRecoveryKeyStore,
+  FailedToChangePasswordForKeyStore,
+} from './keystore-crypto';
 export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto';
 export { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from './symmetric-crypto';
 export {
