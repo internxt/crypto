@@ -32,6 +32,7 @@ export {
   FailedToCreateKeyStores,
   FailedToOpenRecoveryKeyStore,
   FailedToChangePasswordForKeyStore,
+  InvalidInputKeyStore,
 } from './keystore-crypto';
 export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto';
 export { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from './symmetric-crypto';

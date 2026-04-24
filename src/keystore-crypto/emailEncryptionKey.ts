@@ -13,6 +13,7 @@ import {
   FailedToCreateKeyStores,
   FailedToOpenRecoveryKeyStore,
   FailedToChangePasswordForKeyStore,
+  InvalidInputKeyStore,
 } from './errors';
 import { ARGON2ID_SALT_BYTE_LENGTH } from '../constants';
 
@@ -67,12 +68,13 @@ export async function openEncryptionKeystore(
   try {
     const salt = encryptedKeystore.salt ? base64ToUint8Array(encryptedKeystore.salt) : new Uint8Array();
     if (encryptedKeystore.type !== KeystoreType.ENCRYPTION || salt.length !== ARGON2ID_SALT_BYTE_LENGTH) {
-      throw new Error('Input is invalid');
+      throw new InvalidInputKeyStore();
     }
     const secretKey = await deriveEncryptionKeystoreKey(password, salt);
     const keys = await decryptKeystoreContent(secretKey, encryptedKeystore);
     return keys;
   } catch (error) {
+    if (error instanceof InvalidInputKeyStore) throw error;
     throw new FailedToOpenEncryptionKeyStore(error instanceof Error ? error.message : String(error));
   }
 }
@@ -91,12 +93,13 @@ export async function openRecoveryKeystore(
 ): Promise<HybridKeyPair> {
   try {
     if (encryptedKeystore.type !== KeystoreType.RECOVERY) {
-      throw new Error('Input is invalid');
+      throw new InvalidInputKeyStore();
     }
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
     const keys = await decryptKeystoreContent(recoveryKey, encryptedKeystore);
     return keys;
   } catch (error) {
+    if (error instanceof InvalidInputKeyStore) throw error;
     throw new FailedToOpenRecoveryKeyStore(error instanceof Error ? error.message : String(error));
   }
 }
@@ -129,6 +132,7 @@ export async function changePasswordForEncryptionKeystore(
 
     return { newKeystore, keys };
   } catch (error) {
+    if (error instanceof InvalidInputKeyStore) throw error;
     throw new FailedToChangePasswordForKeyStore(error instanceof Error ? error.message : String(error));
   }
 }
