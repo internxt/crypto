@@ -1,9 +1,8 @@
 import { encryptSymmetrically, decryptSymmetrically } from '../symmetric-crypto';
 import { base64ToUint8Array, uint8ArrayToBase64, UTF8ToUint8 } from '../utils';
-import { deriveKeyFromMnemonic, deriveSymmetricKeyFromContext } from '../derive-key';
+import { deriveKeyFromMnemonic } from '../derive-key';
 import { CONTEXT_ENC_KEYSTORE, CONTEXT_RECOVERY } from '../constants';
 import { EncryptedKeystore, HybridKeyPair, KeystoreType } from '../types';
-import { getKeyFromPasswordAndSalt, getKeyFromPassword } from '../derive-password';
 
 /**
  * Encrypts the user's hybrid key using symmetric encryption to get a keystore
@@ -19,7 +18,6 @@ export async function encryptKeystoreContent(
   keys: HybridKeyPair,
   userEmail: string,
   type: KeystoreType,
-  salt?: Uint8Array,
 ): Promise<EncryptedKeystore> {
   try {
     const publicKey = uint8ArrayToBase64(keys.publicKey);
@@ -27,13 +25,11 @@ export async function encryptKeystoreContent(
     const aux = UTF8ToUint8(userEmail + type + publicKey);
     const secretKeyEncrypted = await encryptSymmetrically(secretKey, keys.secretKey, aux);
 
-    const keystoreSalt = salt ? uint8ArrayToBase64(salt) : undefined;
     const keystore: EncryptedKeystore = {
       userEmail,
       type,
       publicKey,
       privateKeyEncrypted: uint8ArrayToBase64(secretKeyEncrypted),
-      salt: keystoreSalt,
     };
     return keystore;
   } catch (error) {
@@ -84,31 +80,4 @@ export async function deriveRecoveryKey(recoveryCodes: string): Promise<Uint8Arr
  */
 export async function deriveEncryptionKeystoreKeyFromMnemonic(mnemonic: string): Promise<Uint8Array> {
   return deriveKeyFromMnemonic(mnemonic, CONTEXT_ENC_KEYSTORE);
-}
-
-/**
- * Derives a secret key for protecting the encryption keystore
- *
- * @param password - The user's password
- * @param salt - The keystore salt
- * @returns The derived secret key for protecting the encryption keystore
- */
-export async function deriveEncryptionKeystoreKey(password: string, salt: Uint8Array): Promise<Uint8Array> {
-  const baseKey = await getKeyFromPasswordAndSalt(password, salt);
-  return deriveSymmetricKeyFromContext(CONTEXT_ENC_KEYSTORE, baseKey);
-}
-
-/**
- * Derives a secret key for protecting the encryption keystore
- *
- * @param password - The user's password
- * @param salt - The keystore salt
- * @returns The derived secret key for protecting the encryption keystore
- */
-export async function deriveNewEncryptionKeystoreKey(
-  password: string,
-): Promise<{ secretKey: Uint8Array; salt: Uint8Array }> {
-  const { key, salt } = await getKeyFromPassword(password);
-  const secretKey = deriveSymmetricKeyFromContext(CONTEXT_ENC_KEYSTORE, key);
-  return { secretKey, salt };
 }
