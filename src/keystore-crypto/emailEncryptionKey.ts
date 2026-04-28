@@ -1,10 +1,9 @@
 import { EncryptedKeystore, KeystoreType, HybridKeyPair } from '../types';
-import { base64ToUint8Array, genMnemonic } from '../utils';
+import { genMnemonic } from '../utils';
 import {
   encryptKeystoreContent,
   decryptKeystoreContent,
-  deriveEncryptionKeystoreKey,
-  deriveNewEncryptionKeystoreKey,
+  deriveEncryptionKeystoreKeyFromMnemonic,
   deriveRecoveryKey,
 } from './core';
 import { genHybridKeys } from '../hybrid-crypto';
@@ -12,25 +11,24 @@ import {
   FailedToOpenEncryptionKeyStore,
   FailedToCreateKeyStores,
   FailedToOpenRecoveryKeyStore,
-  FailedToChangePasswordForKeyStore,
+  FailedToChangeMnemonicForKeyStore,
   InvalidInputKeyStore,
 } from './errors';
-import { ARGON2ID_SALT_BYTE_LENGTH } from '../constants';
 
 /**
  * Generates hybrid keys and creates encrypted main and recovery keystores
- * The main keystore encryption key is derived from the user's password
+ * The main keystore encryption key is derived from the user's mnemonic
  * The recovery keystore encryption key is derived from the recovery codes
  *
  * @param userEmail - The user's email
- * @param password - The user's password
+ * @param mnemonic - The user's mnemonic
  * @returns The encryption keys
  *
  * @returns The encryption and recovery keystores, recovery codes and hybrid keys
  */
 export async function createEncryptionAndRecoveryKeystores(
   userEmail: string,
-  password: string,
+  mnemonic: string,
 ): Promise<{
   encryptionKeystore: EncryptedKeystore;
   recoveryKeystore: EncryptedKeystore;
@@ -40,8 +38,8 @@ export async function createEncryptionAndRecoveryKeystores(
   try {
     const keys = genHybridKeys();
 
-    const { secretKey, salt } = await deriveNewEncryptionKeystoreKey(password);
-    const encryptionKeystore = await encryptKeystoreContent(secretKey, keys, userEmail, KeystoreType.ENCRYPTION, salt);
+    const secretKey = await deriveEncryptionKeystoreKeyFromMnemonic(mnemonic);
+    const encryptionKeystore = await encryptKeystoreContent(secretKey, keys, userEmail, KeystoreType.ENCRYPTION);
 
     const recoveryCodes = genMnemonic();
     const recoveryKey = await deriveRecoveryKey(recoveryCodes);
@@ -55,22 +53,21 @@ export async function createEncryptionAndRecoveryKeystores(
 
 /**
  * Opens the encryption keystore and returns the email encryption keys
- * The decryption key is derived from the user password
+ * The decryption key is derived from the user mnemonic
  *
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
- * @param password - The user's password
+ * @param mnemonic - The user's mnemonic
  * @returns The encryption keys
  */
 export async function openEncryptionKeystore(
   encryptedKeystore: EncryptedKeystore,
-  password: string,
+  mnemonic: string,
 ): Promise<HybridKeyPair> {
   try {
-    const salt = encryptedKeystore.salt ? base64ToUint8Array(encryptedKeystore.salt) : new Uint8Array();
-    if (encryptedKeystore.type !== KeystoreType.ENCRYPTION || salt.length !== ARGON2ID_SALT_BYTE_LENGTH) {
+    if (encryptedKeystore.type !== KeystoreType.ENCRYPTION) {
       throw new InvalidInputKeyStore();
     }
-    const secretKey = await deriveEncryptionKeystoreKey(password, salt);
+    const secretKey = await deriveEncryptionKeystoreKeyFromMnemonic(mnemonic);
     const keys = await decryptKeystoreContent(secretKey, encryptedKeystore);
     return keys;
   } catch (error) {
@@ -105,34 +102,33 @@ export async function openRecoveryKeystore(
 }
 
 /**
- * Re-encrypts the encryption keystore with a new password
- * The decryption key is derived from the user password
+ * Re-encrypts the encryption keystore with a new mnemonic
+ * The decryption key is derived from the user mnemonic
  *
  * @param encryptedKeystore - The encrypted keystore containing encryption keys
- * @param oldPassword - The user's old password
- * @param newPassword - The user's new password
+ * @param oldMnemonic - The user's old mnemonic
+ * @param newMnemonic - The user's new mnemonic
  * @returns The keys and new re-encrypted keystore
  */
-export async function changePasswordForEncryptionKeystore(
+export async function changeMnemonicForEncryptionKeystore(
   encryptedKeystore: EncryptedKeystore,
-  oldPassword: string,
-  newPassword: string,
+  oldMnemonic: string,
+  newMnemonic: string,
 ): Promise<{ keys: HybridKeyPair; newKeystore: EncryptedKeystore }> {
   try {
-    const keys = await openEncryptionKeystore(encryptedKeystore, oldPassword);
+    const keys = await openEncryptionKeystore(encryptedKeystore, oldMnemonic);
 
-    const { secretKey, salt } = await deriveNewEncryptionKeystoreKey(newPassword);
+    const secretKey = await deriveEncryptionKeystoreKeyFromMnemonic(newMnemonic);
     const newKeystore = await encryptKeystoreContent(
       secretKey,
       keys,
       encryptedKeystore.userEmail,
       KeystoreType.ENCRYPTION,
-      salt,
     );
 
     return { newKeystore, keys };
   } catch (error) {
     if (error instanceof InvalidInputKeyStore) throw error;
-    throw new FailedToChangePasswordForKeyStore(error instanceof Error ? error.message : String(error));
+    throw new FailedToChangeMnemonicForKeyStore(error instanceof Error ? error.message : String(error));
   }
 }

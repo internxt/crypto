@@ -3,16 +3,15 @@ import {
   createEncryptionAndRecoveryKeystores,
   openEncryptionKeystore,
   openRecoveryKeystore,
-  changePasswordForEncryptionKeystore,
+  changeMnemonicForEncryptionKeystore,
   FailedToOpenEncryptionKeyStore,
   FailedToCreateKeyStores,
   FailedToOpenRecoveryKeyStore,
-  FailedToChangePasswordForKeyStore,
+  FailedToChangeMnemonicForKeyStore,
   InvalidInputKeyStore,
 } from '../../src/keystore-crypto';
 import { XWING_PUBLIC_KEY_LENGTH, XWING_SECRET_KEY_LENGTH } from '../../src/constants';
-import { generateSalt } from '../../src/derive-password';
-import { uint8ArrayToBase64 } from '../../src/utils';
+import { genMnemonic, uint8ArrayToBase64 } from '../../src/utils';
 import { genHybridKeys } from '../../src/hybrid-crypto';
 
 describe('Test keystore create/open functions', async () => {
@@ -23,17 +22,17 @@ describe('Test keystore create/open functions', async () => {
     vi.restoreAllMocks();
   });
 
-  it('should throw an error if no password for keystore creation', async () => {
+  it('should throw an error if no mnemonic for keystore creation', async () => {
     await expect(createEncryptionAndRecoveryKeystores(mockUserEmail, '')).rejects.toThrow(FailedToCreateKeyStores);
   });
 
   it('should successfully create and open encryption keystore', async () => {
-    const password = 'user password';
+    const mnemonic = genMnemonic();
     const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      password,
+      mnemonic,
     );
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, mnemonic);
     const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
     expect(resultEnc).toStrictEqual(resultRec);
@@ -43,11 +42,11 @@ describe('Test keystore create/open functions', async () => {
     expect(resultEnc.secretKey.length).toBe(XWING_SECRET_KEY_LENGTH);
   });
 
-  it('should throw an error if no password for keystore opening', async () => {
-    const password = 'user password';
+  it('should throw an error if no mnemonic for keystore opening', async () => {
+    const mnemonic = genMnemonic();
     const { encryptionKeystore, recoveryKeystore } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      password,
+      mnemonic,
     );
 
     await expect(openEncryptionKeystore(encryptionKeystore, '')).rejects.toThrow(FailedToOpenEncryptionKeyStore);
@@ -55,92 +54,70 @@ describe('Test keystore create/open functions', async () => {
   });
 
   it('should throw an error if wrong keystore type', async () => {
-    const password = 'user password';
+    const mnemonic = genMnemonic();
     const { encryptionKeystore, recoveryKeystore, recoveryCodes } = await createEncryptionAndRecoveryKeystores(
       mockUserEmail,
-      password,
+      mnemonic,
     );
 
-    await expect(openEncryptionKeystore(recoveryKeystore, password)).rejects.toThrow(InvalidInputKeyStore);
+    await expect(openEncryptionKeystore(recoveryKeystore, mnemonic)).rejects.toThrow(InvalidInputKeyStore);
     await expect(openRecoveryKeystore(recoveryCodes, encryptionKeystore)).rejects.toThrow(InvalidInputKeyStore);
   });
 
-  it('should successfully re-encrypt and open encryption keystore with a new password', async () => {
-    const password = 'user password';
-    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password);
+  it('should successfully re-encrypt and open encryption keystore with a new mnemonic', async () => {
+    const mnemonic = genMnemonic();
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, mnemonic);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, mnemonic);
 
-    const newPassword = 'a very new user password';
-    const { newKeystore, keys } = await changePasswordForEncryptionKeystore(encryptionKeystore, password, newPassword);
+    const newMnemonic = genMnemonic();
+    const { newKeystore, keys } = await changeMnemonicForEncryptionKeystore(encryptionKeystore, mnemonic, newMnemonic);
 
-    const resultNew = await openEncryptionKeystore(newKeystore, newPassword);
+    const resultNew = await openEncryptionKeystore(newKeystore, newMnemonic);
 
+    expect(newMnemonic).not.toEqual(mnemonic);
     expect(resultEnc).toStrictEqual(keys);
     expect(resultEnc).toStrictEqual(resultNew);
-    expect(newKeystore.salt).not.toEqual(encryptionKeystore.salt);
-    expect(newKeystore.salt).toBeDefined();
   });
 
-  it('should throw an error if re-encrypted keystore is opened with old password or salt', async () => {
-    const password = 'user password';
-    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
-    const resultEnc = await openEncryptionKeystore(encryptionKeystore, password);
+  it('should throw an error if re-encrypted keystore is opened with old mnemonic', async () => {
+    const mnemonic = genMnemonic();
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, mnemonic);
+    const resultEnc = await openEncryptionKeystore(encryptionKeystore, mnemonic);
 
-    const newPassword = 'a very new user password';
-    const { newKeystore, keys } = await changePasswordForEncryptionKeystore(encryptionKeystore, password, newPassword);
+    const newMnemonic = genMnemonic();
+    const { newKeystore, keys } = await changeMnemonicForEncryptionKeystore(encryptionKeystore, mnemonic, newMnemonic);
 
     expect(resultEnc).toStrictEqual(keys);
 
-    await expect(openEncryptionKeystore(newKeystore, password)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
+    await expect(openEncryptionKeystore(newKeystore, mnemonic)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
 
-    await expect(openEncryptionKeystore(encryptionKeystore, newPassword)).rejects.toThrow(
+    await expect(openEncryptionKeystore(encryptionKeystore, newMnemonic)).rejects.toThrow(
       FailedToOpenEncryptionKeyStore,
     );
   });
 
-  it('should throw an error if no password for keystore re-encryption', async () => {
-    const password = 'user password';
-    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
+  it('should throw an error if no mnemonic for keystore re-encryption', async () => {
+    const mnemonic = genMnemonic();
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, mnemonic);
 
-    await expect(changePasswordForEncryptionKeystore(encryptionKeystore, password, '')).rejects.toThrow(
-      FailedToChangePasswordForKeyStore,
+    await expect(changeMnemonicForEncryptionKeystore(encryptionKeystore, mnemonic, '')).rejects.toThrow(
+      FailedToChangeMnemonicForKeyStore,
     );
   });
 
-  it('should throw an error if salt, email or pk changed', async () => {
-    const password = 'user password';
-    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
-
-    const wrongSaltKeystore = { ...encryptionKeystore };
-    wrongSaltKeystore.salt = uint8ArrayToBase64(generateSalt());
-    await expect(openEncryptionKeystore(wrongSaltKeystore, password)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
+  it('should throw an error if email or pk changed', async () => {
+    const mnemonic = genMnemonic();
+    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, mnemonic);
 
     const wrongEmailKeystore = { ...encryptionKeystore };
     wrongEmailKeystore.userEmail = 'wrong email';
-    await expect(openEncryptionKeystore(wrongEmailKeystore, password)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
+    await expect(openEncryptionKeystore(wrongEmailKeystore, mnemonic)).rejects.toThrow(FailedToOpenEncryptionKeyStore);
 
     const wrongPublicKeyKeystore = { ...encryptionKeystore };
     const newKeys = genHybridKeys();
     wrongPublicKeyKeystore.publicKey = uint8ArrayToBase64(newKeys.publicKey);
-    await expect(openEncryptionKeystore(wrongPublicKeyKeystore, password)).rejects.toThrow(
+    await expect(openEncryptionKeystore(wrongPublicKeyKeystore, mnemonic)).rejects.toThrow(
       FailedToOpenEncryptionKeyStore,
     );
-  });
-
-  it('should throw an error if salt is too short or too long', async () => {
-    const password = 'user password';
-    const { encryptionKeystore } = await createEncryptionAndRecoveryKeystores(mockUserEmail, password);
-
-    const shortSaltKeystore = { ...encryptionKeystore };
-    shortSaltKeystore.salt = 'WzEsIDIsIDMsIDQsIDUsIDYsIDcsIDhd';
-
-    expect(shortSaltKeystore.salt).not.toEqual(encryptionKeystore.salt);
-    await expect(openEncryptionKeystore(shortSaltKeystore, password)).rejects.toThrow(InvalidInputKeyStore);
-
-    const longSaltKeystore = { ...encryptionKeystore };
-    longSaltKeystore.salt = 'WzEsIDIsIDMsIDQsIDUsIDYsIDcsIDgsIDksIDEwLCAxMSwgMTIsIDEzLCAxNCwgMTUsIDE2LCAxN10=';
-
-    expect(longSaltKeystore.salt).not.toEqual(encryptionKeystore.salt);
-    await expect(openEncryptionKeystore(longSaltKeystore, password)).rejects.toThrow(InvalidInputKeyStore);
   });
 });

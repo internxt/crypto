@@ -30,10 +30,10 @@ export class FailedToOpenRecoveryKeyStore extends Error {
   }
 }
 
-export class FailedToChangePasswordForKeyStore extends Error {
+export class FailedToChangeMnemonicForKeyStore extends Error {
   constructor(errorMsg?: string) {
     super('Error while fetching message: ' + errorMsg);
 
-    Object.setPrototypeOf(this, FailedToChangePasswordForKeyStore.prototype);
+    Object.setPrototypeOf(this, FailedToChangeMnemonicForKeyStore.prototype);
   }
 }

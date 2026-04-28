@@ -27,11 +27,11 @@ export {
   createEncryptionAndRecoveryKeystores,
   openEncryptionKeystore,
   openRecoveryKeystore,
-  changePasswordForEncryptionKeystore,
+  changeMnemonicForEncryptionKeystore,
   FailedToOpenEncryptionKeyStore,
   FailedToCreateKeyStores,
   FailedToOpenRecoveryKeyStore,
-  FailedToChangePasswordForKeyStore,
+  FailedToChangeMnemonicForKeyStore,
   InvalidInputKeyStore,
 } from './keystore-crypto';
 export { generateKyberKeys, encapsulateKyber, decapsulateKyber } from './post-quantum-crypto';
