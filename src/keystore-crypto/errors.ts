@@ -6,6 +6,14 @@ export class FailedToCreateKeyStores extends Error {
   }
 }
 
+export class InvalidInputKeyStore extends Error {
+  constructor() {
+    super('Invalid input');
+
+    Object.setPrototypeOf(this, InvalidInputKeyStore.prototype);
+  }
+}
+
 export class FailedToOpenEncryptionKeyStore extends Error {
   constructor(errorMsg?: string) {
     super('Failed to open encryption keystore: ' + errorMsg);

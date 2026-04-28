@@ -3,6 +3,7 @@ export type EncryptedKeystore = {
   type: KeystoreType;
   publicKey: string;
   privateKeyEncrypted: string;
+  salt?: string;
 };
 
 export type RecipientWithPublicKey = {

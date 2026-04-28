@@ -19,17 +19,21 @@ export async function encryptKeystoreContent(
   keys: HybridKeyPair,
   userEmail: string,
   type: KeystoreType,
+  salt?: Uint8Array,
 ): Promise<EncryptedKeystore> {
   try {
-    const aux = UTF8ToUint8(userEmail + type);
     const publicKey = uint8ArrayToBase64(keys.publicKey);
+
+    const aux = UTF8ToUint8(userEmail + type + publicKey);
     const secretKeyEncrypted = await encryptSymmetrically(secretKey, keys.secretKey, aux);
 
+    const keystoreSalt = salt ? uint8ArrayToBase64(salt) : undefined;
     const keystore: EncryptedKeystore = {
       userEmail,
       type,
       publicKey,
       privateKeyEncrypted: uint8ArrayToBase64(secretKeyEncrypted),
+      salt: keystoreSalt,
     };
     return keystore;
   } catch (error) {
@@ -49,7 +53,7 @@ export async function decryptKeystoreContent(
   encryptedKeystore: EncryptedKeystore,
 ): Promise<HybridKeyPair> {
   try {
-    const aux = UTF8ToUint8(encryptedKeystore.userEmail + encryptedKeystore.type);
+    const aux = UTF8ToUint8(encryptedKeystore.userEmail + encryptedKeystore.type + encryptedKeystore.publicKey);
     const publicKey = base64ToUint8Array(encryptedKeystore.publicKey);
     const ciphertext = base64ToUint8Array(encryptedKeystore.privateKeyEncrypted);
     const secretKey = await decryptSymmetrically(kesytoreOpeningKey, ciphertext, aux);
