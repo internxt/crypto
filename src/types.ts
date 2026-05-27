@@ -20,10 +20,21 @@ export type HybridEncryptedEmail = {
   encEmailBody: EmailBodyEncrypted;
 };
 
+export type HybridEncryptedEmailAndSubject = {
+  encryptedKey: HybridEncKey;
+  encEmailBody: EmailBodyAndSubjectEncrypted ;
+};
+
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
   encEmailBody: EmailBodyEncrypted;
 };
+
+export type PwdProtectedEmailAndSubject = {
+  encryptedKey: PwdProtectedKey;
+  encEmailBody: EmailBodyAndSubjectEncrypted;
+};
+
 
 export type HybridEncKey = {
   hybridCiphertext: string;
@@ -38,15 +49,21 @@ export type PwdProtectedKey = {
 
 export type EmailBodyEncrypted = {
   encText: string;
-  encSubject: string;
   encAttachments?: string[];
 };
 
+export type EmailBodyAndSubjectEncrypted =  EmailBodyEncrypted & {
+    encSubject: string;
+  };
+
 export type EmailBody = {
   text: string;
-  subject: string;
   attachments?: string[];
 };
+
+export type EmailBodyAndSubject =  EmailBody & {
+    subject: string;
+  };
 
 export enum KeystoreType {
   ENCRYPTION = 'Encryption',

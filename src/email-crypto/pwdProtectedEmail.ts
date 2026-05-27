@@ -1,6 +1,6 @@
 import { PwdProtectedEmail, EmailBody } from '../types';
 import { decryptEmailBody, passwordProtectKey, removePasswordProtection, encryptEmailBody } from './core';
-
+import { EmailSymmetricEncryptionError, FailedToDecryptEmail, FailedToEncryptEmail, EmailPasswordProtectError, EmailSymmetricDecryptionError, EmailPasswordOpenError , InvalidInputEmail} from './errors';
 /**
  * Creates a password-protected email.
  *
@@ -20,7 +20,10 @@ export async function createPwdProtectedEmail(
 
     return { encEmailBody, encryptedKey };
   } catch (error) {
-    throw new Error('Failed to password-protect email', { cause: error });
+    if (error instanceof InvalidInputEmail) throw error;
+    if (error instanceof EmailSymmetricEncryptionError) throw error;
+    if (error instanceof EmailPasswordProtectError) throw error;
+    throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -42,6 +45,9 @@ export async function decryptPwdProtectedEmail(
     const body = await decryptEmailBody(encryptedEmail.encEmailBody, encryptionKey, aux);
     return body;
   } catch (error) {
-    throw new Error('Failed to decrypt password-protect email', { cause: error });
+    if (error instanceof InvalidInputEmail) throw error;
+    if (error instanceof EmailPasswordOpenError) throw error;
+    if (error instanceof EmailSymmetricDecryptionError) throw error;
+    throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
   }
 }
