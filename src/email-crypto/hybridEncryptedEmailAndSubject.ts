@@ -1,7 +1,15 @@
-import {  RecipientWithPublicKey, EmailBodyAndSubject, HybridEncryptedEmailAndSubject } from '../types';
+import { RecipientWithPublicKey, EmailBodyAndSubject, HybridEncryptedEmailAndSubject } from '../types';
 import { encryptKeysHybrid, decryptKeysHybrid } from './core';
 import { encryptEmailBodyAndSubject, decryptEmailBodyAndSubject } from './coreSubject';
-import { FailedToDecryptEmail, FailedToEncryptEmail, EmailHybridDecryptionError, EmailHybridEncryptionError, InvalidInputEmail, EmailSymmetricDecryptionError, EmailSymmetricEncryptionError } from './errors';
+import {
+  FailedToDecryptEmail,
+  FailedToEncryptEmail,
+  EmailHybridDecryptionError,
+  EmailHybridEncryptionError,
+  InvalidInputEmail,
+  EmailSymmetricDecryptionError,
+  EmailSymmetricEncryptionError,
+} from './errors';
 
 /**
  * Encrypts the email body using hybrid encryption.
@@ -24,7 +32,7 @@ export async function encryptEmailAndSubjectHybrid(
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
     if (error instanceof EmailHybridEncryptionError) throw error;
-      throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
+    throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -75,7 +83,7 @@ export async function decryptEmailAndSubjectHybrid(
   aux?: Uint8Array,
 ): Promise<EmailBodyAndSubject> {
   try {
-    const encryptionKey = await decryptKeysHybrid(hybridEmail.encryptedKey, recipientPrivateHybridKeys);    
+    const encryptionKey = await decryptKeysHybrid(hybridEmail.encryptedKey, recipientPrivateHybridKeys);
     return await decryptEmailBodyAndSubject(hybridEmail.encEmailBody, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;

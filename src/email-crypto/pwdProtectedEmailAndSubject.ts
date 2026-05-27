@@ -1,14 +1,16 @@
-import { PwdProtectedEmail, EmailBody } from '../types';
-import { decryptEmailBody, passwordProtectKey, removePasswordProtection, encryptEmailBody } from './core';
+import { EmailBodyAndSubject, PwdProtectedEmailAndSubject } from '../types';
+import { passwordProtectKey, removePasswordProtection } from './core';
+import { encryptEmailBodyAndSubject, decryptEmailBodyAndSubject } from './coreSubject';
 import {
-  EmailSymmetricEncryptionError,
   FailedToDecryptEmail,
   FailedToEncryptEmail,
+  InvalidInputEmail,
+  EmailPasswordOpenError,
   EmailPasswordProtectError,
   EmailSymmetricDecryptionError,
-  EmailPasswordOpenError,
-  InvalidInputEmail,
+  EmailSymmetricEncryptionError,
 } from './errors';
+
 /**
  * Creates a password-protected email.
  *
@@ -17,13 +19,13 @@ import {
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The password-protected email
  */
-export async function createPwdProtectedEmail(
-  emailBody: EmailBody,
+export async function createPwdProtectedEmailAndSubject(
+  emailBody: EmailBodyAndSubject,
   password: string,
   aux?: Uint8Array,
-): Promise<PwdProtectedEmail> {
+): Promise<PwdProtectedEmailAndSubject> {
   try {
-    const { encryptionKey, encEmailBody } = await encryptEmailBody(emailBody, aux);
+    const { encryptionKey, encEmailBody } = await encryptEmailBodyAndSubject(emailBody, aux);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
 
     return { encEmailBody, encryptedKey };
@@ -36,21 +38,22 @@ export async function createPwdProtectedEmail(
 }
 
 /**
- * Opens a password-protected email.
+ * Opens a password-protected email and subject.
  *
- * @param encryptedEmail - The encrypted email
+ * @param encryptedEmail - The encrypted email and subject
  * @param password - The secret password shared among recipients.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The decrypted email body
  */
-export async function decryptPwdProtectedEmail(
-  encryptedEmail: PwdProtectedEmail,
+export async function decryptPwdProtectedEmailAndSubject(
+  encryptedEmail: PwdProtectedEmailAndSubject,
   password: string,
   aux?: Uint8Array,
-): Promise<EmailBody> {
+): Promise<EmailBodyAndSubject> {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    const body = await decryptEmailBody(encryptedEmail.encEmailBody, encryptionKey, aux);
+
+    const body = await decryptEmailBodyAndSubject(encryptedEmail.encEmailBody, encryptionKey, aux);
     return body;
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;

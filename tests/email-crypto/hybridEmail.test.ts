@@ -8,8 +8,14 @@ import {
   decryptEmailAndSubjectHybrid,
 } from '../../src/email-crypto';
 
-import { EmailBody, HybridEncryptedEmail, HybridEncKey, EmailBodyAndSubject, HybridEncryptedEmailAndSubject } from '../../src/types';
-import { EmailHybridDecryptionError, EmailHybridEncryptionError} from '../../src/email-crypto/errors';
+import {
+  EmailBody,
+  HybridEncryptedEmail,
+  HybridEncKey,
+  EmailBodyAndSubject,
+  HybridEncryptedEmailAndSubject,
+} from '../../src/types';
+import { EmailHybridDecryptionError, EmailHybridEncryptionError } from '../../src/email-crypto/errors';
 
 describe('Test email crypto functions', async () => {
   const email: EmailBody = {
@@ -40,7 +46,7 @@ describe('Test email crypto functions', async () => {
     expect(decryptedEmail).toStrictEqual(email);
   });
 
-   it('should encrypt and decrypt email and subject sucessfully', async () => {
+  it('should encrypt and decrypt email and subject sucessfully', async () => {
     const encryptedEmail = await encryptEmailAndSubjectHybrid(emailAndSubject, bobWithPublicKeys);
 
     expect(encryptedEmail.encEmailBody?.encSubject).not.toBe(emailAndSubject.subject);
@@ -55,16 +61,13 @@ describe('Test email crypto functions', async () => {
       publicHybridKey: alicePrivateKeys,
     };
 
-    await expect(encryptEmailHybrid(email, badRecipient)).rejects.toThrow(EmailHybridEncryptionError
-    );
+    await expect(encryptEmailHybrid(email, badRecipient)).rejects.toThrow(EmailHybridEncryptionError);
   });
 
   it('should throw an error if not intended recipient', async () => {
     const encryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys);
 
-    await expect(decryptEmailHybrid(encryptedEmail, alicePrivateKeys)).rejects.toThrow(
-      EmailHybridDecryptionError
-    );
+    await expect(decryptEmailHybrid(encryptedEmail, alicePrivateKeys)).rejects.toThrow(EmailHybridDecryptionError);
   });
 
   it('should throw an error if hybrid email decryption fails', async () => {
@@ -88,12 +91,10 @@ describe('Test email crypto functions', async () => {
       },
     };
 
-    await expect(decryptEmailHybrid(badEncryptedEmail, bobPrivateKeys)).rejects.toThrow(
-      EmailHybridDecryptionError
-    );
+    await expect(decryptEmailHybrid(badEncryptedEmail, bobPrivateKeys)).rejects.toThrow(EmailHybridDecryptionError);
 
     await expect(decryptEmailAndSubjectHybrid(badEncryptedEmailAndSubject, bobPrivateKeys)).rejects.toThrow(
-      EmailHybridDecryptionError
+      EmailHybridDecryptionError,
     );
   });
 

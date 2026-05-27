@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { createPwdProtectedEmail, createPwdProtectedEmailAndSubject, decryptPwdProtectedEmail, decryptPwdProtectedEmailAndSubject, EmailPasswordOpenError, InvalidInputEmail } from '../../src/email-crypto';
+import {
+  createPwdProtectedEmail,
+  createPwdProtectedEmailAndSubject,
+  decryptPwdProtectedEmail,
+  decryptPwdProtectedEmailAndSubject,
+  EmailPasswordOpenError,
+  InvalidInputEmail,
+} from '../../src/email-crypto';
 import { EmailBody, EmailBodyAndSubject } from '../../src/types';
 
 describe('Test email crypto functions', () => {
@@ -7,7 +14,7 @@ describe('Test email crypto functions', () => {
     text: 'Hi Bob, This is a test message. -Alice.',
   };
 
-   const emailAndSubject: EmailBodyAndSubject = {
+  const emailAndSubject: EmailBodyAndSubject = {
     text: 'Hi Bob, This is a test message. -Alice.',
     subject: 'test subject',
   };
@@ -20,7 +27,7 @@ describe('Test email crypto functions', () => {
     expect(decryptedEmail).toStrictEqual(email);
   });
 
-   it('should encrypt and decrypt email and subjectsucessfully', async () => {
+  it('should encrypt and decrypt email and subjectsucessfully', async () => {
     const encryptedEmail = await createPwdProtectedEmailAndSubject(emailAndSubject, sharedSecret);
     const decryptedEmail = await decryptPwdProtectedEmailAndSubject(encryptedEmail, sharedSecret);
     expect(decryptedEmail).toStrictEqual(emailAndSubject);
@@ -28,16 +35,12 @@ describe('Test email crypto functions', () => {
 
   it('should throw an error if encryption fails', async () => {
     const badEmail = {} as unknown as EmailBody;
-    await expect(createPwdProtectedEmail(badEmail, sharedSecret)).rejects.toThrow(
-     InvalidInputEmail
-    );
+    await expect(createPwdProtectedEmail(badEmail, sharedSecret)).rejects.toThrow(InvalidInputEmail);
   });
 
   it('should throw an error if a different secret used for decryption', async () => {
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
     const wrongSecret = 'different secret';
-    await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret)).rejects.toThrow(
-      EmailPasswordOpenError
-    );
+    await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret)).rejects.toThrow(EmailPasswordOpenError);
   });
 });

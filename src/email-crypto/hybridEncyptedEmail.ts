@@ -1,6 +1,14 @@
 import { HybridEncryptedEmail, EmailBody, RecipientWithPublicKey } from '../types';
 import { decryptEmailBody, encryptKeysHybrid, decryptKeysHybrid, encryptEmailBody } from './core';
-import { FailedToDecryptEmail, FailedToEncryptEmail, EmailHybridDecryptionError, EmailHybridEncryptionError, InvalidInputEmail, EmailSymmetricDecryptionError, EmailSymmetricEncryptionError } from './errors';
+import {
+  FailedToDecryptEmail,
+  FailedToEncryptEmail,
+  EmailHybridDecryptionError,
+  EmailHybridEncryptionError,
+  InvalidInputEmail,
+  EmailSymmetricDecryptionError,
+  EmailSymmetricEncryptionError,
+} from './errors';
 /**
  * Encrypts the email body using hybrid encryption.
  *
@@ -23,7 +31,6 @@ export async function encryptEmailHybrid(
     if (error instanceof EmailSymmetricEncryptionError) throw error;
     if (error instanceof EmailHybridEncryptionError) throw error;
     throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
-
   }
 }
 

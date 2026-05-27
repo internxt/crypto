@@ -4,7 +4,15 @@ import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
 import { wrapKey, unwrapKey } from '../key-wrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-password';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8 } from '../utils';
-import { EmailHybridDecryptionError, EmailHybridEncryptionError, InvalidInputEmail, EmailSymmetricDecryptionError, EmailSymmetricEncryptionError, EmailPasswordOpenError, EmailPasswordProtectError } from './errors';
+import {
+  EmailHybridDecryptionError,
+  EmailHybridEncryptionError,
+  InvalidInputEmail,
+  EmailSymmetricDecryptionError,
+  EmailSymmetricEncryptionError,
+  EmailPasswordOpenError,
+  EmailPasswordProtectError,
+} from './errors';
 
 /**
  * Symmetrically encrypts email body.
@@ -61,7 +69,7 @@ export async function encryptEmailBodyWithKey(
       const encryptedAttachments = await Promise.all(promises);
       enc.encAttachments = encryptedAttachments?.map(uint8ArrayToBase64);
     }
-      return enc;
+    return enc;
   } catch (error) {
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
@@ -81,7 +89,6 @@ export async function decryptEmailBody(
   aux?: Uint8Array,
 ): Promise<EmailBody> {
   try {
-
     const encText = base64ToUint8Array(encEmailBody.encText);
     const textArray = await decryptSymmetrically(encryptionKey, encText, aux);
     const text = uint8ToUTF8(textArray);

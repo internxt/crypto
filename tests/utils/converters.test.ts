@@ -54,7 +54,7 @@ describe('test uuid and mnemonic generation', () => {
     expect(result).toBe(mnemonic);
   });
 
-    it('should generate unique id', async () => {
+  it('should generate unique id', async () => {
     const result1 = generateUuid();
     const result2 = generateUuid();
     expect(result1).not.toEqual(result2);

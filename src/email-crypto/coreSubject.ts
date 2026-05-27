@@ -52,14 +52,13 @@ export async function encryptEmailBodyAndSubjectWithKey(
     const subject = UTF8ToUint8(body.subject);
     const subjectEnc = await encryptSymmetrically(encryptionKey, subject, aux);
     const encSubject = uint8ArrayToBase64(subjectEnc);
-  
+
     return { ...enc, encSubject };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
-
 
 /**
  * Decrypts symmetrically encrypted email body and subject.
@@ -75,12 +74,12 @@ export async function decryptEmailBodyAndSubject(
   aux?: Uint8Array,
 ): Promise<EmailBodyAndSubject> {
   try {
-      const encSubject = base64ToUint8Array(encEmailBody.encSubject);
-      const subjectArray = await decryptSymmetrically(encryptionKey, encSubject, aux);
-      const subject = uint8ToUTF8(subjectArray);
-      const body = await decryptEmailBody(encEmailBody, encryptionKey, aux);
+    const encSubject = base64ToUint8Array(encEmailBody.encSubject);
+    const subjectArray = await decryptSymmetrically(encryptionKey, encSubject, aux);
+    const subject = uint8ToUTF8(subjectArray);
+    const body = await decryptEmailBody(encEmailBody, encryptionKey, aux);
 
-    return {...body, subject };
+    return { ...body, subject };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
