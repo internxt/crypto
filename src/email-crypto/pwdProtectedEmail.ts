@@ -50,8 +50,7 @@ export async function decryptPwdProtectedEmail(
 ): Promise<EmailBody> {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    const body = await decryptEmailBody(encryptedEmail.encEmailBody, encryptionKey, aux);
-    return body;
+    return await decryptEmailBody(encryptedEmail.encEmailBody, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailPasswordOpenError) throw error;

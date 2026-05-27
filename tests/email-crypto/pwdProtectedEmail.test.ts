@@ -5,6 +5,7 @@ import {
   decryptPwdProtectedEmail,
   decryptPwdProtectedEmailAndSubject,
   EmailPasswordOpenError,
+  EmailSymmetricDecryptionError,
   InvalidInputEmail,
 } from '../../src/email-crypto';
 import { EmailBody, EmailBodyAndSubject } from '../../src/types';
@@ -34,13 +35,36 @@ describe('Test email crypto functions', () => {
   });
 
   it('should throw an error if encryption fails', async () => {
-    const badEmail = {} as unknown as EmailBody;
-    await expect(createPwdProtectedEmail(badEmail, sharedSecret)).rejects.toThrow(InvalidInputEmail);
+    await expect(createPwdProtectedEmail( {} as unknown as EmailBody, sharedSecret)).rejects.toThrow(InvalidInputEmail);
+    await expect(createPwdProtectedEmailAndSubject( {} as unknown as EmailBodyAndSubject, sharedSecret)).rejects.toThrow(InvalidInputEmail);
   });
 
   it('should throw an error if a different secret used for decryption', async () => {
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
     const wrongSecret = 'different secret';
     await expect(decryptPwdProtectedEmail(encryptedEmail, wrongSecret)).rejects.toThrow(EmailPasswordOpenError);
+
+    const encryptedEmailAndSubject = await createPwdProtectedEmailAndSubject(emailAndSubject, sharedSecret);
+    await expect(decryptPwdProtectedEmailAndSubject(encryptedEmailAndSubject, wrongSecret)).rejects.toThrow(EmailPasswordOpenError);
+  });
+
+  it('should throw an error if password-protected email is modified', async () => {
+    const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
+
+    const modifiedCiphertext = encryptedEmail;
+    modifiedCiphertext.encEmailBody.encText += 'modified ciphertext';
+      await expect(
+      decryptPwdProtectedEmail(modifiedCiphertext, sharedSecret),
+    ).rejects.toThrow(EmailSymmetricDecryptionError);
+  });
+
+   it('should throw an error if password-protected email and subject are modified', async () => {
+    const encryptedEmail = await createPwdProtectedEmailAndSubject(emailAndSubject, sharedSecret);
+
+    const modifiedCiphertext = encryptedEmail;
+    modifiedCiphertext.encEmailBody.encText += 'modified ciphertext';
+      await expect(
+      decryptPwdProtectedEmailAndSubject(modifiedCiphertext, sharedSecret),
+    ).rejects.toThrow(EmailSymmetricDecryptionError);
   });
 });

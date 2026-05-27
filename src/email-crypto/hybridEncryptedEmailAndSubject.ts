@@ -50,6 +50,9 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmailAndSubject[]> {
   try {
+    if (!recipients || recipients.length === 0) {
+      throw new InvalidInputEmail();
+    }
     const { encryptionKey, encEmailBody } = await encryptEmailBodyAndSubject(body, aux);
 
     const encryptedEmails: HybridEncryptedEmailAndSubject[] = [];

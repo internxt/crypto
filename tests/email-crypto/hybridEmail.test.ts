@@ -6,6 +6,7 @@ import {
   generateEmailKeys,
   encryptEmailAndSubjectHybrid,
   decryptEmailAndSubjectHybrid,
+  encryptEmailAndSubjectHybridForMultipleRecipients,
 } from '../../src/email-crypto';
 
 import {
@@ -14,8 +15,9 @@ import {
   HybridEncKey,
   EmailBodyAndSubject,
   HybridEncryptedEmailAndSubject,
+  RecipientWithPublicKey,
 } from '../../src/types';
-import { EmailHybridDecryptionError, EmailHybridEncryptionError } from '../../src/email-crypto/errors';
+import { EmailHybridDecryptionError, EmailHybridEncryptionError, EmailSymmetricDecryptionError, InvalidInputEmail } from '../../src/email-crypto/errors';
 
 describe('Test email crypto functions', async () => {
   const email: EmailBody = {
@@ -62,6 +64,7 @@ describe('Test email crypto functions', async () => {
     };
 
     await expect(encryptEmailHybrid(email, badRecipient)).rejects.toThrow(EmailHybridEncryptionError);
+    await expect(encryptEmailAndSubjectHybrid(emailAndSubject, badRecipient)).rejects.toThrow(EmailHybridEncryptionError);
   });
 
   it('should throw an error if not intended recipient', async () => {
@@ -108,6 +111,21 @@ describe('Test email crypto functions', async () => {
     expect(encryptedEmail[0].encEmailBody).toBe(encryptedEmail[1].encEmailBody);
   });
 
+    it('should encrypt email and subject to multiple senders sucessfully', async () => {
+    const encryptedEmail = await encryptEmailAndSubjectHybridForMultipleRecipients(emailAndSubject, [
+      bobWithPublicKeys,
+      aliceWithPublicKeys,
+    ]);
+
+    expect(encryptedEmail.length).toBe(2);
+    expect(encryptedEmail[0].encEmailBody).toBe(encryptedEmail[1].encEmailBody);
+
+    const emailDecryptedByBob = await decryptEmailAndSubjectHybrid(encryptedEmail[0], bobPrivateKeys);
+    const emailDecryptedByAlice = await decryptEmailAndSubjectHybrid(encryptedEmail[1], alicePrivateKeys);
+
+    expect(emailDecryptedByBob).toStrictEqual(emailDecryptedByAlice);
+  });
+
   it('should throw an error if encryption to multiple recipients fails', async () => {
     const badEvePublicKeys = new Uint8Array();
 
@@ -119,5 +137,94 @@ describe('Test email crypto functions', async () => {
     await expect(
       encryptEmailHybridForMultipleRecipients(email, [bobWithPublicKeys, badEveWithPublicKeys]),
     ).rejects.toThrow(EmailHybridEncryptionError);
+
+     await expect(
+      encryptEmailAndSubjectHybridForMultipleRecipients(emailAndSubject, [bobWithPublicKeys, badEveWithPublicKeys]),
+    ).rejects.toThrow(EmailHybridEncryptionError);
+  });
+
+  it('should throw an error if no recipients are provided', async () => {
+    await expect(
+      encryptEmailHybridForMultipleRecipients(email, []),
+    ).rejects.toThrow(InvalidInputEmail);
+
+     await expect(
+      encryptEmailHybridForMultipleRecipients(email, undefined as unknown as RecipientWithPublicKey[]),
+    ).rejects.toThrow(InvalidInputEmail);
+
+     await expect(
+      encryptEmailAndSubjectHybridForMultipleRecipients(emailAndSubject, []),
+    ).rejects.toThrow(InvalidInputEmail);
+
+    await expect(
+      encryptEmailAndSubjectHybridForMultipleRecipients(emailAndSubject, undefined as unknown as RecipientWithPublicKey[]),
+    ).rejects.toThrow(InvalidInputEmail);
+  });
+
+  it('should throw an error if input is invalid', async () => {
+
+     await expect(
+      encryptEmailHybrid( {} as EmailBody, bobWithPublicKeys),
+    ).rejects.toThrow(InvalidInputEmail);
+
+    await expect(
+      encryptEmailAndSubjectHybrid( {} as EmailBodyAndSubject, bobWithPublicKeys),
+    ).rejects.toThrow(InvalidInputEmail);
+
+    await expect(
+      encryptEmailHybridForMultipleRecipients( {} as EmailBody, [
+      bobWithPublicKeys,
+      aliceWithPublicKeys,
+    ]),
+    ).rejects.toThrow(InvalidInputEmail);
+
+     await expect(
+      encryptEmailAndSubjectHybridForMultipleRecipients( {} as EmailBodyAndSubject, [
+      bobWithPublicKeys,
+      aliceWithPublicKeys,
+    ]),
+    ).rejects.toThrow(InvalidInputEmail);
+
+    await expect(
+      decryptEmailHybrid( {} as HybridEncryptedEmail, bobPrivateKeys),
+    ).rejects.toThrow(EmailHybridDecryptionError);
+
+    await expect(
+      decryptEmailAndSubjectHybrid( {} as HybridEncryptedEmailAndSubject, bobPrivateKeys),
+    ).rejects.toThrow(EmailHybridDecryptionError);
+  });
+
+   it('should throw an error if encrypted email is modified', async () => {
+    const encryptedEmail = await encryptEmailHybrid(emailAndSubject, bobWithPublicKeys);
+
+    const modifiedCiphertext = encryptedEmail;
+    modifiedCiphertext.encEmailBody.encText += 'modified ciphertext';
+      await expect(
+      decryptEmailHybrid(modifiedCiphertext, bobPrivateKeys),
+    ).rejects.toThrow(EmailSymmetricDecryptionError);
+
+    const modifiedKey = encryptedEmail;
+    modifiedKey.encryptedKey.encryptedKey += 'modified key';
+      await expect(
+      decryptEmailHybrid(modifiedCiphertext, bobPrivateKeys),
+    ).rejects.toThrow(EmailHybridDecryptionError);
+
+  });
+
+  it('should throw an error if encrypted email and subject are modified', async () => {
+    const encryptedEmail = await encryptEmailAndSubjectHybrid(emailAndSubject, bobWithPublicKeys);
+
+    const modifiedCiphertext = encryptedEmail;
+    modifiedCiphertext.encEmailBody.encText += 'modified ciphertext';
+      await expect(
+      decryptEmailAndSubjectHybrid(modifiedCiphertext, bobPrivateKeys),
+    ).rejects.toThrow(EmailSymmetricDecryptionError);
+
+    const modifiedKey = encryptedEmail;
+    modifiedKey.encryptedKey.encryptedKey += 'modified key';
+      await expect(
+      decryptEmailAndSubjectHybrid(modifiedCiphertext, bobPrivateKeys),
+    ).rejects.toThrow(EmailHybridDecryptionError);
+
   });
 });
