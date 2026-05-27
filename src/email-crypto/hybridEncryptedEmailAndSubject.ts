@@ -12,9 +12,9 @@ import {
 } from './errors';
 
 /**
- * Encrypts the email body using hybrid encryption.
+ * Encrypts the email body and its subject using hybrid encryption.
  *
- * @param body - The email body and subjectto encrypt.
+ * @param body - The email body and subject to encrypt.
  * @param recipientPublicKeys - The public keys of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The encrypted email body
@@ -37,9 +37,9 @@ export async function encryptEmailAndSubjectHybrid(
 }
 
 /**
- * Encrypts the email body using hybrid encryption for multiple recipients.
+ * Encrypts the email body and its subject using hybrid encryption for multiple recipients.
  *
- * @param body - The email body to encrypt for multiple recipients.
+ * @param body - The email body and subject to encrypt for multiple recipients.
  * @param recipients - The recipients with corresponding public keys.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The set of encrypted email bodies
@@ -70,9 +70,9 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
 }
 
 /**
- * Decrypts the email using hybrid encryption.
+ * Decrypts the email and its subject using hybrid encryption.
  *
- * @param hybridEmail - The encrypted email.
+ * @param hybridEmail - The encrypted email and subject.
  * @param recipientPrivateHybridKeys - The private key of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The decrypted email body

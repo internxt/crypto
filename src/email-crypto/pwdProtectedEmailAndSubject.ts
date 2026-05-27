@@ -12,9 +12,9 @@ import {
 } from './errors';
 
 /**
- * Creates a password-protected email.
+ * Creates a password-protected email and subject.
  *
- * @param email - The email to password-protect
+ * @param email - The email and subject to password-protect
  * @param password - The secret password shared among recipients
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The password-protected email

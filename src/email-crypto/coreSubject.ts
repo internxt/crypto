@@ -8,7 +8,6 @@ import { InvalidInputEmail, EmailSymmetricDecryptionError, EmailSymmetricEncrypt
  * Symmetrically encrypts email body and subject.
  *
  * @param body - The email body and subject to encrypt.
- * @param isSubjectEncrypted - A boolean indicating whether the email subject should be encrypted. Defaults to true.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The resulting encrypted email body and symmetric key used for encryption
  */
@@ -38,7 +37,6 @@ export async function encryptEmailBodyAndSubject(
  *
  * @param body - The email body and subject to encrypt.
  * @param encryptionKey - The symmetric key to encrypt the email.
- * @param isSubjectEncrypted - A boolean indicating whether the email subject should be encrypted. Defaults to true.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The resulting encrypted email body and symmetric key used for encryption
  */
