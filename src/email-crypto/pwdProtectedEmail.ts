@@ -1,5 +1,5 @@
 import { PwdProtectedEmail, EmailBody } from '../types';
-import { decryptEmailBody, passwordProtectKey, removePasswordProtection, encryptEmailBody } from './core';
+import { decryptEmail, passwordProtectKey, removePasswordProtection, encryptEmail } from './core';
 import {
   EmailSymmetricEncryptionError,
   FailedToDecryptEmail,
@@ -18,15 +18,15 @@ import {
  * @returns The password-protected email
  */
 export async function createPwdProtectedEmail(
-  emailBody: EmailBody,
+  email: EmailBody,
   password: string,
   aux?: Uint8Array,
 ): Promise<PwdProtectedEmail> {
   try {
-    const { encryptionKey, encEmailBody } = await encryptEmailBody(emailBody, aux);
+    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
 
-    return { encEmailBody, encryptedKey };
+    return { encEmail, encryptedKey };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
@@ -50,7 +50,7 @@ export async function decryptPwdProtectedEmail(
 ): Promise<EmailBody> {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    return await decryptEmailBody(encryptedEmail.encEmailBody, encryptionKey, aux);
+    return await decryptEmail(encryptedEmail.encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailPasswordOpenError) throw error;

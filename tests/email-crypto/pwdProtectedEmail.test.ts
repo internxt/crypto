@@ -56,7 +56,7 @@ describe('Test email crypto functions', () => {
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
 
     const modifiedCiphertext = encryptedEmail;
-    modifiedCiphertext.encEmailBody.encText += 'modified ciphertext';
+    modifiedCiphertext.encEmail.encText += 'modified ciphertext';
     await expect(decryptPwdProtectedEmail(modifiedCiphertext, sharedSecret)).rejects.toThrow(
       EmailSymmetricDecryptionError,
     );
@@ -66,7 +66,7 @@ describe('Test email crypto functions', () => {
     const encryptedEmail = await createPwdProtectedEmailAndSubject(emailAndSubject, sharedSecret);
 
     const modifiedCiphertext = encryptedEmail;
-    modifiedCiphertext.encEmailBody.encText += 'modified ciphertext';
+    modifiedCiphertext.encEmail.encText += 'modified ciphertext';
     await expect(decryptPwdProtectedEmailAndSubject(modifiedCiphertext, sharedSecret)).rejects.toThrow(
       EmailSymmetricDecryptionError,
     );

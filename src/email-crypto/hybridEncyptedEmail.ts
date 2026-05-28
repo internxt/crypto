@@ -1,5 +1,5 @@
 import { HybridEncryptedEmail, EmailBody, RecipientWithPublicKey } from '../types';
-import { decryptEmailBody, encryptKeysHybrid, decryptKeysHybrid, encryptEmailBody } from './core';
+import { decryptEmail, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
 import {
   FailedToDecryptEmail,
   FailedToEncryptEmail,
@@ -10,22 +10,22 @@ import {
   EmailSymmetricEncryptionError,
 } from './errors';
 /**
- * Encrypts the email body using hybrid encryption.
+ * Encrypts the email using hybrid encryption.
  *
- * @param body - The email body to encrypt.
+ * @param email - The email to encrypt.
  * @param recipientPublicKeys - The public keys of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The encrypted email body
+ * @returns The encrypted email 
  */
 export async function encryptEmailHybrid(
-  body: EmailBody,
+  email: EmailBody,
   recipient: RecipientWithPublicKey,
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmail> {
   try {
-    const { encryptionKey, encEmailBody } = await encryptEmailBody(body, aux);
+    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient);
-    return { encEmailBody, encryptedKey };
+    return { encEmail, encryptedKey };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
@@ -35,15 +35,15 @@ export async function encryptEmailHybrid(
 }
 
 /**
- * Encrypts the email body using hybrid encryption for multiple recipients.
+ * Encrypts the email using hybrid encryption for multiple recipients.
  *
- * @param body - The email body to encrypt for multiple recipients.
+ * @param email - The email to encrypt for multiple recipients.
  * @param recipients - The recipients with corresponding public keys.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The set of encrypted email bodies
+ * @returns The set of encrypted emails
  */
 export async function encryptEmailHybridForMultipleRecipients(
-  body: EmailBody,
+  email: EmailBody,
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmail[]> {
@@ -51,13 +51,13 @@ export async function encryptEmailHybridForMultipleRecipients(
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
-    const { encryptionKey, encEmailBody } = await encryptEmailBody(body, aux);
+    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
 
     const encryptedEmails: HybridEncryptedEmail[] = [];
     for (const recipient of recipients) {
       const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient);
       encryptedEmails.push({
-        encEmailBody: encEmailBody,
+        encEmail,
         encryptedKey,
       });
     }
@@ -73,20 +73,19 @@ export async function encryptEmailHybridForMultipleRecipients(
 /**
  * Decrypts the email using hybrid encryption.
  *
- * @param encEmailBody - The encrypted email.
+ * @param encEmail - The encrypted email.
  * @param recipientPrivateHybridKeys - The private key of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The decrypted email body
+ * @returns The decrypted email
  */
 export async function decryptEmailHybrid(
-  encEmailBody: HybridEncryptedEmail,
+  encEmail: HybridEncryptedEmail,
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<EmailBody> {
   try {
-    const encryptionKey = await decryptKeysHybrid(encEmailBody.encryptedKey, recipientPrivateHybridKeys);
-    const body = await decryptEmailBody(encEmailBody.encEmailBody, encryptionKey, aux);
-    return body;
+    const encryptionKey = await decryptKeysHybrid(encEmail.encryptedKey, recipientPrivateHybridKeys);
+    return await decryptEmail(encEmail.encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof EmailHybridDecryptionError) throw error;
     if (error instanceof EmailSymmetricDecryptionError) throw error;

@@ -15,54 +15,54 @@ import {
 } from './errors';
 
 /**
- * Symmetrically encrypts email body.
+ * Symmetrically encrypts email.
  *
- * @param body - The email body to encrypt.
+ * @param email - The email to encrypt.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting encrypted email body and symmetric key used for encryption
+ * @returns The resulting encrypted email and symmetric key used for encryption
  */
-export async function encryptEmailBody(
-  body: EmailBody,
+export async function encryptEmail(
+  email: EmailBody,
   aux?: Uint8Array,
 ): Promise<{
-  encEmailBody: EmailBodyEncrypted;
+  encEmail: EmailBodyEncrypted;
   encryptionKey: Uint8Array;
 }> {
-  try {
-    if (!body.text) {
+  if (!email.text) {
       throw new InvalidInputEmail();
     }
+  try {
+    
     const encryptionKey = genSymmetricKey();
-    const encEmailBody = await encryptEmailBodyWithKey(body, encryptionKey, aux);
+    const encEmail = await encryptEmailWithKey(email, encryptionKey, aux);
 
-    return { encEmailBody, encryptionKey };
+    return { encEmail, encryptionKey };
   } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Symmetrically encrypts email body with the given key.
+ * Symmetrically encrypts email with the given key.
  *
- * @param body - The email body to encrypt.
+ * @param email - The email to encrypt.
  * @param encryptionKey - The symmetric key to encrypt the email.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting encrypted email body and symmetric key used for encryption
+ * @returns The resulting encrypted email and symmetric key used for encryption
  */
-export async function encryptEmailBodyWithKey(
-  body: EmailBody,
+export async function encryptEmailWithKey(
+  email: EmailBody,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
 ): Promise<EmailBodyEncrypted> {
   try {
-    const text = UTF8ToUint8(body.text);
+    const text = UTF8ToUint8(email.text);
 
     const encryptedText = await encryptSymmetrically(encryptionKey, text, aux);
     const encText = uint8ArrayToBase64(encryptedText);
     const enc: EmailBodyEncrypted = { encText };
-    if (body.attachments) {
-      const promises = body.attachments.map((attachment) => {
+    if (email.attachments) {
+      const promises = email.attachments.map((attachment) => {
         const binaryAttachment = UTF8ToUint8(attachment);
         return encryptSymmetrically(encryptionKey, binaryAttachment, aux);
       });
@@ -76,32 +76,32 @@ export async function encryptEmailBodyWithKey(
 }
 
 /**
- * Decrypts symmetrically encrypted email body.
+ * Decrypts symmetrically encrypted email.
  *
- * @param encEmailBody - The email body to decrypt.
+ * @param encEmail - The email to decrypt.
  * @param encryptionKey - The symmetric key to decrypt the email.
  * @param aux - An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting decrypted email body
+ * @returns The resulting decrypted email
  */
-export async function decryptEmailBody(
-  encEmailBody: EmailBodyEncrypted,
+export async function decryptEmail(
+  encEmail: EmailBodyEncrypted,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
 ): Promise<EmailBody> {
   try {
-    const encText = base64ToUint8Array(encEmailBody.encText);
+    const encText = base64ToUint8Array(encEmail.encText);
     const textArray = await decryptSymmetrically(encryptionKey, encText, aux);
     const text = uint8ToUTF8(textArray);
-    const body: EmailBody = { text };
+    const email: EmailBody = { text };
 
-    if (encEmailBody.encAttachments) {
-      const encAttachments = encEmailBody.encAttachments?.map(base64ToUint8Array);
+    if (encEmail.encAttachments) {
+      const encAttachments = encEmail.encAttachments?.map(base64ToUint8Array);
       const promises = encAttachments?.map((encAtt) => decryptSymmetrically(encryptionKey, encAtt, aux));
       const decryptedAttachments = await Promise.all(promises);
-      body.attachments = decryptedAttachments?.map((att) => uint8ToUTF8(att));
+      email.attachments = decryptedAttachments?.map((att) => uint8ToUTF8(att));
     }
 
-    return body;
+    return email;
   } catch (error) {
     throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }

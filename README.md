@@ -130,7 +130,7 @@ const emailAndSubject: EmailBodyAndSubject = {
 const encryptedEmailAndSubject = await encryptEmailAndSubjectHybrid(emailAndSubject, bobWithPublicKeys);
 const decryptedEmailAndSubject = await decryptEmailAndSubjectHybrid(encryptedEmailAndSubject, bobPrivateKeys);
 
-expect(encryptedEmailAndSubject.encEmailBody.encSubject).not.toBe(emailAndSubject.subject);
+expect(encryptedEmailAndSubject.encEmail.encSubject).not.toBe(emailAndSubject.subject);
 expect(decryptedEmailAndSubject).toStrictEqual(emailAndSubject);
 
 
@@ -151,74 +151,5 @@ const resultEnc = await openEncryptionKeystore(encryptionKeystore, mnemonic);
 const resultRec = await openRecoveryKeystore(recoveryCodes, recoveryKeystore);
 
 expect(resultEnc).toStrictEqual(resultRec);
-
-// Email storage and search
-
-// Between sessions emails are stored encrypted in IndexedDB. The encryption key is derived from user's mnemonic
-// During the session, all emails are decrypted and stored in the cache (up to 600 MB, if excides - we delete oldests emails)
-// For search, we build a search index from cache, then use Flexsearch for the search. 
-// The search is doen separately for email content, subject, sender and recivers. 
-
-// Open IndexedDB database
-const userID = 'user ID';
-const db = await openDatabase(userID);
-const mnemonic = genMnemonic();
-
-// Derive key for encrypting emails before storing them in a local database
-const key = await deriveDatabaseKey(mnemonic);
-
-// Derive key for encrypting email draft
-const key = await deriveDatabaseKey(mnemonic);
-
-// Encrypt and store one or several emails
-await encryptAndStoreEmail(email, key, db);
-await encryptAndStoreManyEmail(emails, key, db);
-
-// Delete given email by its ID
-await deleteEmail(emailID, db);
-
-// Delete oldests emails
-const number = 5;
-await deleteOldestEmails(number, db);
-
-// Get all emails with or without sorting
-const allEmails = await getAndDecryptAllEmails(key, db);
-const newestFirst = await getAllEmailsSortedNewestFirst(db, key);
-const oldestFirst = await getAllEmailsSortedOldestFirst(db, key);
-
-// Get the number of stored emails
-const count = await getEmailCount(db);
-
-// Close IndexedDB database
-closeDatabase(db);
-
-// Delete IndexedDB database
-await deleteDatabase(userID);
-
-// Create email cache 
-const esCache = await createCacheFromDB(key, db);
-
-// Add one or multiple emails to cache
-const result = addEmailToCache(email, esCache);
-expect(result.success).toBe(true);
-
-const result = addEmailsToCache(emails, esCache);
-expect(result.success).toBe(true);
-
-// Get email from cache by its ID
-const email = await getEmailFromCache(emailID, esCache);
-
-// Delete email from cache by its ID
-await deleteEmailFromCache(emailID, esCache);
-
-// Create search index and search by query
- const searchIndex = await buildSearchIndexFromCache(esCache);
- const query = 'keywords to search';
- const options = {
-    fields: ['subject'], // in which fields to search, all by deafult (subject, body, from, to)
-    limit: 5,  // result limit, 50 by default
-    boost: { subject: 3, body: 1, from: 2, to: 2 }, // custom waights for matches in different email parts
-  };
- const result: EmailSearchResult = await searchEmails(query, esCache, searchIndex);
 
 ```
