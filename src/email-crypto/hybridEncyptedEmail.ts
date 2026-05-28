@@ -15,7 +15,7 @@ import {
  * @param email - The email to encrypt.
  * @param recipientPublicKeys - The public keys of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The encrypted email 
+ * @returns The encrypted email
  */
 export async function encryptEmailHybrid(
   email: EmailBody,

@@ -19,8 +19,8 @@ export async function encryptEmailAndSubject(
   encryptionKey: Uint8Array;
 }> {
   if (!email.text || !email.subject) {
-      throw new InvalidInputEmail();
-    }
+    throw new InvalidInputEmail();
+  }
   try {
     const encryptionKey = genSymmetricKey();
     const encEmail = await encryptEmailAndSubjectWithKey(email, encryptionKey, aux);

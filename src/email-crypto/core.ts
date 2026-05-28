@@ -29,10 +29,9 @@ export async function encryptEmail(
   encryptionKey: Uint8Array;
 }> {
   if (!email.text) {
-      throw new InvalidInputEmail();
-    }
+    throw new InvalidInputEmail();
+  }
   try {
-    
     const encryptionKey = genSymmetricKey();
     const encEmail = await encryptEmailWithKey(email, encryptionKey, aux);
 
