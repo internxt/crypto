@@ -1,6 +1,6 @@
-import { EmailBodyAndSubject, PwdProtectedEmailAndSubject } from '../types';
+import { EmailAndSubject, PwdProtectedEmailAndSubject } from '../types';
 import { passwordProtectKey, removePasswordProtection } from './core';
-import { encryptEmailBodyAndSubject, decryptEmailBodyAndSubject } from './coreSubject';
+import { encryptEmailAndSubject, decryptEmailAndSubject } from './coreSubject';
 import {
   FailedToDecryptEmail,
   FailedToEncryptEmail,
@@ -20,15 +20,15 @@ import {
  * @returns The password-protected email
  */
 export async function createPwdProtectedEmailAndSubject(
-  emailBody: EmailBodyAndSubject,
+  email: EmailAndSubject,
   password: string,
   aux?: Uint8Array,
 ): Promise<PwdProtectedEmailAndSubject> {
   try {
-    const { encryptionKey, encEmailBody } = await encryptEmailBodyAndSubject(emailBody, aux);
+    const { encryptionKey, encEmail } = await encryptEmailAndSubject(email, aux);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
 
-    return { encEmailBody, encryptedKey };
+    return { encEmail, encryptedKey };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
@@ -43,18 +43,16 @@ export async function createPwdProtectedEmailAndSubject(
  * @param encryptedEmail - The encrypted email and subject
  * @param password - The secret password shared among recipients.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The decrypted email body
+ * @returns The decrypted email and subject
  */
 export async function decryptPwdProtectedEmailAndSubject(
   encryptedEmail: PwdProtectedEmailAndSubject,
   password: string,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubject> {
+): Promise<EmailAndSubject> {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-
-    const body = await decryptEmailBodyAndSubject(encryptedEmail.encEmailBody, encryptionKey, aux);
-    return body;
+    return await decryptEmailAndSubject(encryptedEmail.encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailPasswordOpenError) throw error;

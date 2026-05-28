@@ -1,5 +1,5 @@
-import { PwdProtectedEmail, EmailBody } from '../types';
-import { decryptEmailBody, passwordProtectKey, removePasswordProtection, encryptEmailBody } from './core';
+import { PwdProtectedEmail, Email } from '../types';
+import { decryptEmail, passwordProtectKey, removePasswordProtection, encryptEmail } from './core';
 import {
   EmailSymmetricEncryptionError,
   FailedToDecryptEmail,
@@ -18,15 +18,15 @@ import {
  * @returns The password-protected email
  */
 export async function createPwdProtectedEmail(
-  emailBody: EmailBody,
+  email: Email,
   password: string,
   aux?: Uint8Array,
 ): Promise<PwdProtectedEmail> {
   try {
-    const { encryptionKey, encEmailBody } = await encryptEmailBody(emailBody, aux);
+    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
 
-    return { encEmailBody, encryptedKey };
+    return { encEmail, encryptedKey };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
@@ -41,16 +41,16 @@ export async function createPwdProtectedEmail(
  * @param encryptedEmail - The encrypted email
  * @param password - The secret password shared among recipients.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The decrypted email body
+ * @returns The decrypted email
  */
 export async function decryptPwdProtectedEmail(
   encryptedEmail: PwdProtectedEmail,
   password: string,
   aux?: Uint8Array,
-): Promise<EmailBody> {
+): Promise<Email> {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    return await decryptEmailBody(encryptedEmail.encEmailBody, encryptionKey, aux);
+    return await decryptEmail(encryptedEmail.encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailPasswordOpenError) throw error;

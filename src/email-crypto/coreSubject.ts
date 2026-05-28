@@ -1,85 +1,82 @@
-import { EmailBodyAndSubject, EmailBodyAndSubjectEncrypted } from '../types';
+import { EmailAndSubject, EmailAndSubjectEncrypted } from '../types';
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
-import { encryptEmailBodyWithKey, decryptEmailBody } from './core';
+import { encryptEmailWithKey, decryptEmail } from './core';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8 } from '../utils';
 import { InvalidInputEmail, EmailSymmetricDecryptionError, EmailSymmetricEncryptionError } from './errors';
 
 /**
- * Symmetrically encrypts email body and subject.
+ * Symmetrically encrypts email and subject.
  *
- * @param body - The email body and subject to encrypt.
+ * @param email - The email and subject to encrypt.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting encrypted email body and symmetric key used for encryption
+ * @returns The resulting encrypted email and symmetric key used for encryption
  */
-export async function encryptEmailBodyAndSubject(
-  body: EmailBodyAndSubject,
+export async function encryptEmailAndSubject(
+  email: EmailAndSubject,
   aux?: Uint8Array,
 ): Promise<{
-  encEmailBody: EmailBodyAndSubjectEncrypted;
+  encEmail: EmailAndSubjectEncrypted;
   encryptionKey: Uint8Array;
 }> {
+  if (!email.text || !email.subject) {
+    throw new InvalidInputEmail();
+  }
   try {
-    if (!body.text || !body.subject) {
-      throw new InvalidInputEmail();
-    }
     const encryptionKey = genSymmetricKey();
-    const encEmailBody = await encryptEmailBodyAndSubjectWithKey(body, encryptionKey, aux);
+    const encEmail = await encryptEmailAndSubjectWithKey(email, encryptionKey, aux);
 
-    return { encEmailBody, encryptionKey };
+    return { encEmail, encryptionKey };
   } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Symmetrically encrypts email body and subject with the given key.
+ * Symmetrically encrypts email and subject with the given key.
  *
- * @param body - The email body and subject to encrypt.
+ * @param email - The email and subject to encrypt.
  * @param encryptionKey - The symmetric key to encrypt the email.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting encrypted email body and symmetric key used for encryption
+ * @returns The resulting encrypted email and symmetric key used for encryption
  */
-export async function encryptEmailBodyAndSubjectWithKey(
-  body: EmailBodyAndSubject,
+export async function encryptEmailAndSubjectWithKey(
+  email: EmailAndSubject,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubjectEncrypted> {
+): Promise<EmailAndSubjectEncrypted> {
   try {
-    const enc = await encryptEmailBodyWithKey(body, encryptionKey, aux);
-    const subject = UTF8ToUint8(body.subject);
+    const enc = await encryptEmailWithKey(email, encryptionKey, aux);
+    const subject = UTF8ToUint8(email.subject);
     const subjectEnc = await encryptSymmetrically(encryptionKey, subject, aux);
     const encSubject = uint8ArrayToBase64(subjectEnc);
 
     return { ...enc, encSubject };
   } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Decrypts symmetrically encrypted email body and subject.
+ * Decrypts symmetrically encrypted email and email subject.
  *
- * @param encEmailBody - The email body and subject to decrypt.
+ * @param encEmail - The encrypted email and subject to decrypt.
  * @param encryptionKey - The symmetric key to decrypt the email.
  * @param aux - An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting decrypted email body
+ * @returns The resulting decrypted email and subject
  */
-export async function decryptEmailBodyAndSubject(
-  encEmailBody: EmailBodyAndSubjectEncrypted,
+export async function decryptEmailAndSubject(
+  encEmail: EmailAndSubjectEncrypted,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubject> {
+): Promise<EmailAndSubject> {
   try {
-    const encSubject = base64ToUint8Array(encEmailBody.encSubject);
+    const encSubject = base64ToUint8Array(encEmail.encSubject);
     const subjectArray = await decryptSymmetrically(encryptionKey, encSubject, aux);
     const subject = uint8ToUTF8(subjectArray);
-    const body = await decryptEmailBody(encEmailBody, encryptionKey, aux);
+    const email = await decryptEmail(encEmail, encryptionKey, aux);
 
-    return { ...body, subject };
+    return { ...email, subject };
   } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
     throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }
 }

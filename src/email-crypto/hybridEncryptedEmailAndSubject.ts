@@ -1,6 +1,6 @@
-import { RecipientWithPublicKey, EmailBodyAndSubject, HybridEncryptedEmailAndSubject } from '../types';
+import { RecipientWithPublicKey, EmailAndSubject, HybridEncryptedEmailAndSubject } from '../types';
 import { encryptKeysHybrid, decryptKeysHybrid } from './core';
-import { encryptEmailBodyAndSubject, decryptEmailBodyAndSubject } from './coreSubject';
+import { encryptEmailAndSubject, decryptEmailAndSubject } from './coreSubject';
 import {
   FailedToDecryptEmail,
   FailedToEncryptEmail,
@@ -12,22 +12,22 @@ import {
 } from './errors';
 
 /**
- * Encrypts the email body and its subject using hybrid encryption.
+ * Encrypts the email and its subject using hybrid encryption.
  *
- * @param body - The email body and subject to encrypt.
+ * @param email - The email and subject to encrypt.
  * @param recipientPublicKeys - The public keys of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The encrypted email body
+ * @returns The encrypted email and subject
  */
 export async function encryptEmailAndSubjectHybrid(
-  body: EmailBodyAndSubject,
+  email: EmailAndSubject,
   recipient: RecipientWithPublicKey,
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmailAndSubject> {
   try {
-    const { encryptionKey, encEmailBody } = await encryptEmailBodyAndSubject(body, aux);
+    const { encryptionKey, encEmail } = await encryptEmailAndSubject(email, aux);
     const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient);
-    return { encEmailBody, encryptedKey };
+    return { encEmail, encryptedKey };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
@@ -37,15 +37,15 @@ export async function encryptEmailAndSubjectHybrid(
 }
 
 /**
- * Encrypts the email body and its subject using hybrid encryption for multiple recipients.
+ * Encrypts the email and its subject using hybrid encryption for multiple recipients.
  *
- * @param body - The email body and subject to encrypt for multiple recipients.
+ * @param email - The email and subject to encrypt for multiple recipients.
  * @param recipients - The recipients with corresponding public keys.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The set of encrypted email bodies
+ * @returns The set of encrypted emails and subjects
  */
 export async function encryptEmailAndSubjectHybridForMultipleRecipients(
-  body: EmailBodyAndSubject,
+  email: EmailAndSubject,
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmailAndSubject[]> {
@@ -53,13 +53,13 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
-    const { encryptionKey, encEmailBody } = await encryptEmailBodyAndSubject(body, aux);
+    const { encryptionKey, encEmail } = await encryptEmailAndSubject(email, aux);
 
     const encryptedEmails: HybridEncryptedEmailAndSubject[] = [];
     for (const recipient of recipients) {
       const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient);
       encryptedEmails.push({
-        encEmailBody: encEmailBody,
+        encEmail,
         encryptedKey,
       });
     }
@@ -78,16 +78,16 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
  * @param hybridEmail - The encrypted email and subject.
  * @param recipientPrivateHybridKeys - The private key of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The decrypted email body
+ * @returns The decrypted email and subject
  */
 export async function decryptEmailAndSubjectHybrid(
   hybridEmail: HybridEncryptedEmailAndSubject,
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubject> {
+): Promise<EmailAndSubject> {
   try {
     const encryptionKey = await decryptKeysHybrid(hybridEmail.encryptedKey, recipientPrivateHybridKeys);
-    return await decryptEmailBodyAndSubject(hybridEmail.encEmailBody, encryptionKey, aux);
+    return await decryptEmailAndSubject(hybridEmail.encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailHybridDecryptionError) throw error;

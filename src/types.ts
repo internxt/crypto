@@ -17,22 +17,22 @@ export type HybridKeyPair = {
 
 export type HybridEncryptedEmail = {
   encryptedKey: HybridEncKey;
-  encEmailBody: EmailBodyEncrypted;
+  encEmail: EmailEncrypted;
 };
 
 export type HybridEncryptedEmailAndSubject = {
   encryptedKey: HybridEncKey;
-  encEmailBody: EmailBodyAndSubjectEncrypted;
+  encEmail: EmailAndSubjectEncrypted;
 };
 
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
-  encEmailBody: EmailBodyEncrypted;
+  encEmail: EmailEncrypted;
 };
 
 export type PwdProtectedEmailAndSubject = {
   encryptedKey: PwdProtectedKey;
-  encEmailBody: EmailBodyAndSubjectEncrypted;
+  encEmail: EmailAndSubjectEncrypted;
 };
 
 export type HybridEncKey = {
@@ -46,21 +46,21 @@ export type PwdProtectedKey = {
   salt: string;
 };
 
-export type EmailBodyEncrypted = {
+export type EmailEncrypted = {
   encText: string;
   encAttachments?: string[];
 };
 
-export type EmailBodyAndSubjectEncrypted = EmailBodyEncrypted & {
+export type EmailAndSubjectEncrypted = EmailEncrypted & {
   encSubject: string;
 };
 
-export type EmailBody = {
+export type Email = {
   text: string;
   attachments?: string[];
 };
 
-export type EmailBodyAndSubject = EmailBody & {
+export type EmailAndSubject = Email & {
   subject: string;
 };
 
