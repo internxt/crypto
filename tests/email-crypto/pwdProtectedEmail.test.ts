@@ -52,11 +52,9 @@ describe('Test email crypto functions', () => {
     );
   });
 
-   it('should throw an error if input is invalid', async () => {
-    await expect(decryptPwdProtectedEmail({} as PwdProtectedEmail, sharedSecret)).rejects.toThrow(
-      InvalidInputEmail,
-    );
-     await expect(decryptPwdProtectedEmailAndSubject({} as PwdProtectedEmailAndSubject, sharedSecret)).rejects.toThrow(
+  it('should throw an error if input is invalid', async () => {
+    await expect(decryptPwdProtectedEmail({} as PwdProtectedEmail, sharedSecret)).rejects.toThrow(InvalidInputEmail);
+    await expect(decryptPwdProtectedEmailAndSubject({} as PwdProtectedEmailAndSubject, sharedSecret)).rejects.toThrow(
       InvalidInputEmail,
     );
   });

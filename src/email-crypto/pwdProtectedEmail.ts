@@ -48,7 +48,7 @@ export async function decryptPwdProtectedEmail(
   password: string,
   aux?: Uint8Array,
 ): Promise<Email> {
-  if (!encryptedEmail || !encryptedEmail.encEmail || !encryptedEmail.encryptedKey) {
+  if (!encryptedEmail?.encEmail || !encryptedEmail?.encryptedKey) {
     throw new InvalidInputEmail();
   }
   try {
