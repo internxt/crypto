@@ -1,4 +1,4 @@
-import { HybridEncKey, PwdProtectedKey, EmailBody, RecipientWithPublicKey, EmailBodyEncrypted } from '../types';
+import { HybridEncKey, PwdProtectedKey, Email, RecipientWithPublicKey, EmailEncrypted } from '../types';
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
 import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
 import { wrapKey, unwrapKey } from '../key-wrapper';
@@ -22,10 +22,10 @@ import {
  * @returns The resulting encrypted email and symmetric key used for encryption
  */
 export async function encryptEmail(
-  email: EmailBody,
+  email: Email,
   aux?: Uint8Array,
 ): Promise<{
-  encEmail: EmailBodyEncrypted;
+  encEmail: EmailEncrypted;
   encryptionKey: Uint8Array;
 }> {
   if (!email.text) {
@@ -50,16 +50,16 @@ export async function encryptEmail(
  * @returns The resulting encrypted email and symmetric key used for encryption
  */
 export async function encryptEmailWithKey(
-  email: EmailBody,
+  email: Email,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyEncrypted> {
+): Promise<EmailEncrypted> {
   try {
     const text = UTF8ToUint8(email.text);
 
     const encryptedText = await encryptSymmetrically(encryptionKey, text, aux);
     const encText = uint8ArrayToBase64(encryptedText);
-    const enc: EmailBodyEncrypted = { encText };
+    const enc: EmailEncrypted = { encText };
     if (email.attachments) {
       const promises = email.attachments.map((attachment) => {
         const binaryAttachment = UTF8ToUint8(attachment);
@@ -83,15 +83,15 @@ export async function encryptEmailWithKey(
  * @returns The resulting decrypted email
  */
 export async function decryptEmail(
-  encEmail: EmailBodyEncrypted,
+  encEmail: EmailEncrypted,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBody> {
+): Promise<Email> {
   try {
     const encText = base64ToUint8Array(encEmail.encText);
     const textArray = await decryptSymmetrically(encryptionKey, encText, aux);
     const text = uint8ToUTF8(textArray);
-    const email: EmailBody = { text };
+    const email: Email = { text };
 
     if (encEmail.encAttachments) {
       const encAttachments = encEmail.encAttachments?.map(base64ToUint8Array);

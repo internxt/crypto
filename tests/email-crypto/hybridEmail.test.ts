@@ -10,10 +10,10 @@ import {
 } from '../../src/email-crypto';
 
 import {
-  EmailBody,
+  Email,
   HybridEncryptedEmail,
   HybridEncKey,
-  EmailBodyAndSubject,
+  EmailAndSubject,
   HybridEncryptedEmailAndSubject,
   RecipientWithPublicKey,
 } from '../../src/types';
@@ -25,13 +25,13 @@ import {
 } from '../../src/email-crypto/errors';
 
 describe('Test email crypto functions', async () => {
-  const email: EmailBody = {
-    text: 'test body',
+  const email: Email = {
+    text: 'test email text',
   };
 
-  const emailAndSubject: EmailBodyAndSubject = {
-    text: 'test body',
-    subject: 'test subject',
+  const emailAndSubject: EmailAndSubject = {
+    text: 'test email text',
+    subject: 'test email subject',
   };
 
   const { secretKey: alicePrivateKeys, publicKey: alicePublicKeys } = await generateEmailKeys();
@@ -170,18 +170,18 @@ describe('Test email crypto functions', async () => {
   });
 
   it('should throw an error if input is invalid', async () => {
-    await expect(encryptEmailHybrid({} as EmailBody, bobWithPublicKeys)).rejects.toThrow(InvalidInputEmail);
+    await expect(encryptEmailHybrid({} as Email, bobWithPublicKeys)).rejects.toThrow(InvalidInputEmail);
 
-    await expect(encryptEmailAndSubjectHybrid({} as EmailBodyAndSubject, bobWithPublicKeys)).rejects.toThrow(
+    await expect(encryptEmailAndSubjectHybrid({} as EmailAndSubject, bobWithPublicKeys)).rejects.toThrow(
       InvalidInputEmail,
     );
 
     await expect(
-      encryptEmailHybridForMultipleRecipients({} as EmailBody, [bobWithPublicKeys, aliceWithPublicKeys]),
+      encryptEmailHybridForMultipleRecipients({} as Email, [bobWithPublicKeys, aliceWithPublicKeys]),
     ).rejects.toThrow(InvalidInputEmail);
 
     await expect(
-      encryptEmailAndSubjectHybridForMultipleRecipients({} as EmailBodyAndSubject, [
+      encryptEmailAndSubjectHybridForMultipleRecipients({} as EmailAndSubject, [
         bobWithPublicKeys,
         aliceWithPublicKeys,
       ]),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EmailBody, EmailBodyAndSubject } from '../../src/types';
+import { Email, EmailAndSubject } from '../../src/types';
 import {
   decryptEmail,
   encryptEmail,
@@ -14,31 +14,31 @@ import { AES_KEY_BYTE_LENGTH } from '../../src/constants';
 import { EmailSymmetricDecryptionError, InvalidInputEmail } from '../../src/email-crypto/errors';
 
 describe('Test email crypto functions', () => {
-  const emailBody: EmailBody = {
+  const email: Email = {
     text: 'test email',
   };
 
-  const emailBodyAndSubject: EmailBodyAndSubject = {
-    text: 'test body',
-    subject: 'test subject',
+  const emailAndSubject: EmailAndSubject = {
+    text: 'test email text',
+    subject: 'test email subject',
   };
 
   const aux = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
 
   it('should encrypt and decrypt email', async () => {
-    const { encEmail, encryptionKey } = await encryptEmail(emailBody, aux);
+    const { encEmail, encryptionKey } = await encryptEmail(email, aux);
     const result = await decryptEmail(encEmail, encryptionKey, aux);
-    expect(result).toEqual(emailBody);
+    expect(result).toEqual(email);
   });
 
   it('should encrypt and decrypt email with subject', async () => {
-    const { encEmail, encryptionKey } = await encryptEmailAndSubject(emailBodyAndSubject, aux);
+    const { encEmail, encryptionKey } = await encryptEmailAndSubject(emailAndSubject, aux);
     const result = await decryptEmailAndSubject(encEmail, encryptionKey, aux);
-    expect(result).toEqual(emailBodyAndSubject);
+    expect(result).toEqual(emailAndSubject);
   });
 
   it('should throw an error if decryption fails', async () => {
-    const { encEmail, encryptionKey } = await encryptEmail(emailBody, aux);
+    const { encEmail, encryptionKey } = await encryptEmail(email, aux);
     const badEncryptionKey = await genSymmetricKey();
     await expect(decryptEmail(encEmail, badEncryptionKey, aux)).rejects.toThrow(EmailSymmetricDecryptionError);
 
@@ -47,7 +47,7 @@ describe('Test email crypto functions', () => {
   });
 
   it('should throw an error if decryption fails', async () => {
-    const { encEmail, encryptionKey } = await encryptEmailAndSubject(emailBodyAndSubject, aux);
+    const { encEmail, encryptionKey } = await encryptEmailAndSubject(emailAndSubject, aux);
     const badEncryptionKey = await genSymmetricKey();
     await expect(decryptEmailAndSubject(encEmail, badEncryptionKey, aux)).rejects.toThrow(
       EmailSymmetricDecryptionError,

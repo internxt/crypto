@@ -107,7 +107,7 @@ const password = 'your password';
 const { key, salt } = await getKeyFromPassword(password);
 
 // Hybrid email encryption
-const email: EmailBody = {
+const email: Email = {
     text: 'email text',
     attachments: ['email attachements'],
 };
@@ -119,10 +119,10 @@ const bobWithPublicKeys = {
 const encryptedEmail = await encryptEmailHybrid(email, bobWithPublicKeys);
 const decryptedEmail = await decryptEmailHybrid(encryptedEmail, bobPrivateKeys);
 
-expect(decryptedEmailBody).toStrictEqual(email);
+expect(decryptedEmail).toStrictEqual(email);
 
 // Hybrid email and subject encryption
-const emailAndSubject: EmailBodyAndSubject = {
+const emailAndSubject: EmailAndSubject = {
     text: 'email text',
     subject: 'email subject'
     attachments: ['email attachements'],

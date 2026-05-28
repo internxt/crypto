@@ -1,4 +1,4 @@
-import { EmailBodyAndSubject, EmailBodyAndSubjectEncrypted } from '../types';
+import { EmailAndSubject, EmailAndSubjectEncrypted } from '../types';
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
 import { encryptEmailWithKey, decryptEmail } from './core';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8 } from '../utils';
@@ -12,10 +12,10 @@ import { InvalidInputEmail, EmailSymmetricDecryptionError, EmailSymmetricEncrypt
  * @returns The resulting encrypted email and symmetric key used for encryption
  */
 export async function encryptEmailAndSubject(
-  email: EmailBodyAndSubject,
+  email: EmailAndSubject,
   aux?: Uint8Array,
 ): Promise<{
-  encEmail: EmailBodyAndSubjectEncrypted;
+  encEmail: EmailAndSubjectEncrypted;
   encryptionKey: Uint8Array;
 }> {
   if (!email.text || !email.subject) {
@@ -40,10 +40,10 @@ export async function encryptEmailAndSubject(
  * @returns The resulting encrypted email and symmetric key used for encryption
  */
 export async function encryptEmailAndSubjectWithKey(
-  email: EmailBodyAndSubject,
+  email: EmailAndSubject,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubjectEncrypted> {
+): Promise<EmailAndSubjectEncrypted> {
   try {
     const enc = await encryptEmailWithKey(email, encryptionKey, aux);
     const subject = UTF8ToUint8(email.subject);
@@ -65,10 +65,10 @@ export async function encryptEmailAndSubjectWithKey(
  * @returns The resulting decrypted email and subject
  */
 export async function decryptEmailAndSubject(
-  encEmail: EmailBodyAndSubjectEncrypted,
+  encEmail: EmailAndSubjectEncrypted,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubject> {
+): Promise<EmailAndSubject> {
   try {
     const encSubject = base64ToUint8Array(encEmail.encSubject);
     const subjectArray = await decryptSymmetrically(encryptionKey, encSubject, aux);

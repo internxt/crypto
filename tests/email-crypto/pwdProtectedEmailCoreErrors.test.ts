@@ -6,7 +6,7 @@ import {
   decryptPwdProtectedEmailAndSubject,
 } from '../../src/email-crypto';
 import { FailedToDecryptEmail, FailedToEncryptEmail } from '../../src/email-crypto/errors';
-import { EmailBody, EmailBodyAndSubject, PwdProtectedEmail, PwdProtectedEmailAndSubject } from '../../src/types';
+import { Email, EmailAndSubject, PwdProtectedEmail, PwdProtectedEmailAndSubject } from '../../src/types';
 import * as core from '../../src/email-crypto/core';
 
 vi.mock('../../src/email-crypto/core', async () => {
@@ -24,12 +24,12 @@ describe('Test email crypto functions', () => {
     vi.resetAllMocks();
   });
 
-  const email: EmailBody = {
+  const email: Email = {
     text: 'Hi Bob, This is a test message. -Alice.',
     attachments: ['file1.txt', 'file2.txt'],
   };
 
-  const emailAndSubject: EmailBodyAndSubject = {
+  const emailAndSubject: EmailAndSubject = {
     text: 'Hi Bob, This is a test message. -Alice.',
     attachments: ['file1.txt', 'file2.txt'],
     subject: 'test subject',

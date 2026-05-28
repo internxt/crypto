@@ -8,14 +8,14 @@ import {
   EmailSymmetricDecryptionError,
   InvalidInputEmail,
 } from '../../src/email-crypto';
-import { EmailBody, EmailBodyAndSubject } from '../../src/types';
+import { Email, EmailAndSubject } from '../../src/types';
 
 describe('Test email crypto functions', () => {
-  const email: EmailBody = {
+  const email: Email = {
     text: 'Hi Bob, This is a test message. -Alice.',
   };
 
-  const emailAndSubject: EmailBodyAndSubject = {
+  const emailAndSubject: EmailAndSubject = {
     text: 'Hi Bob, This is a test message. -Alice.',
     subject: 'test subject',
   };
@@ -35,8 +35,8 @@ describe('Test email crypto functions', () => {
   });
 
   it('should throw an error if encryption fails', async () => {
-    await expect(createPwdProtectedEmail({} as unknown as EmailBody, sharedSecret)).rejects.toThrow(InvalidInputEmail);
-    await expect(createPwdProtectedEmailAndSubject({} as unknown as EmailBodyAndSubject, sharedSecret)).rejects.toThrow(
+    await expect(createPwdProtectedEmail({} as unknown as Email, sharedSecret)).rejects.toThrow(InvalidInputEmail);
+    await expect(createPwdProtectedEmailAndSubject({} as unknown as EmailAndSubject, sharedSecret)).rejects.toThrow(
       InvalidInputEmail,
     );
   });

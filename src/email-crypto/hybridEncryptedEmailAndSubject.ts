@@ -1,4 +1,4 @@
-import { RecipientWithPublicKey, EmailBodyAndSubject, HybridEncryptedEmailAndSubject } from '../types';
+import { RecipientWithPublicKey, EmailAndSubject, HybridEncryptedEmailAndSubject } from '../types';
 import { encryptKeysHybrid, decryptKeysHybrid } from './core';
 import { encryptEmailAndSubject, decryptEmailAndSubject } from './coreSubject';
 import {
@@ -20,7 +20,7 @@ import {
  * @returns The encrypted email and subject
  */
 export async function encryptEmailAndSubjectHybrid(
-  email: EmailBodyAndSubject,
+  email: EmailAndSubject,
   recipient: RecipientWithPublicKey,
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmailAndSubject> {
@@ -45,7 +45,7 @@ export async function encryptEmailAndSubjectHybrid(
  * @returns The set of encrypted emails and subjects
  */
 export async function encryptEmailAndSubjectHybridForMultipleRecipients(
-  email: EmailBodyAndSubject,
+  email: EmailAndSubject,
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
 ): Promise<HybridEncryptedEmailAndSubject[]> {
@@ -84,7 +84,7 @@ export async function decryptEmailAndSubjectHybrid(
   hybridEmail: HybridEncryptedEmailAndSubject,
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyAndSubject> {
+): Promise<EmailAndSubject> {
   try {
     const encryptionKey = await decryptKeysHybrid(hybridEmail.encryptedKey, recipientPrivateHybridKeys);
     return await decryptEmailAndSubject(hybridEmail.encEmail, encryptionKey, aux);

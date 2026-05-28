@@ -5,7 +5,7 @@ import {
   EmailPasswordProtectError,
   EmailSymmetricEncryptionError,
 } from '../../src/email-crypto';
-import { EmailBody, EmailBodyAndSubject } from '../../src/types';
+import { Email, EmailAndSubject } from '../../src/types';
 import * as nobleUtils from '@noble/hashes/utils.js';
 import * as nobleWrapper from '@noble/ciphers/aes.js';
 
@@ -35,11 +35,11 @@ describe('Test email crypto functions', () => {
     vi.resetAllMocks();
   });
 
-  const email: EmailBody = {
+  const email: Email = {
     text: 'Hi Bob, This is a test message. -Alice.',
   };
 
-  const emailAndSubject: EmailBodyAndSubject = {
+  const emailAndSubject: EmailAndSubject = {
     text: 'Hi Bob, This is a test message. -Alice.',
     subject: 'test subject',
   };
