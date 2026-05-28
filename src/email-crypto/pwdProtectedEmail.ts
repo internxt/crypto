@@ -48,11 +48,13 @@ export async function decryptPwdProtectedEmail(
   password: string,
   aux?: Uint8Array,
 ): Promise<Email> {
+  if (!encryptedEmail?.encEmail || !encryptedEmail?.encryptedKey) {
+    throw new InvalidInputEmail();
+  }
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
     return await decryptEmail(encryptedEmail.encEmail, encryptionKey, aux);
   } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailPasswordOpenError) throw error;
     if (error instanceof EmailSymmetricDecryptionError) throw error;
     throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
