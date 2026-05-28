@@ -1,2 +1,2 @@
 
-yarn run lint:fix; npx lint-staged; yarn run test
+yarn run lint:fix; npx lint-staged --allow-empty; yarn run test

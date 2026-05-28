@@ -1,29 +1,31 @@
-import { PwdProtectedEmail, Email } from '../types';
-import { decryptEmail, passwordProtectKey, removePasswordProtection, encryptEmail } from './core';
+import { EmailAndSubject, PwdProtectedEmailAndSubject } from '../types';
+import { passwordProtectKey, removePasswordProtection } from './core';
+import { encryptEmailAndSubject, decryptEmailAndSubject } from './coreSubject';
 import {
-  EmailSymmetricEncryptionError,
   FailedToDecryptEmail,
   FailedToEncryptEmail,
+  InvalidInputEmail,
+  EmailPasswordOpenError,
   EmailPasswordProtectError,
   EmailSymmetricDecryptionError,
-  EmailPasswordOpenError,
-  InvalidInputEmail,
+  EmailSymmetricEncryptionError,
 } from './errors';
+
 /**
- * Creates a password-protected email.
+ * Creates a password-protected email and subject.
  *
- * @param email - The email to password-protect
+ * @param email - The email and subject to password-protect
  * @param password - The secret password shared among recipients
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The password-protected email
  */
-export async function createPwdProtectedEmail(
-  email: Email,
+export async function createPwdProtectedEmailAndSubject(
+  email: EmailAndSubject,
   password: string,
   aux?: Uint8Array,
-): Promise<PwdProtectedEmail> {
+): Promise<PwdProtectedEmailAndSubject> {
   try {
-    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
+    const { encryptionKey, encEmail } = await encryptEmailAndSubject(email, aux);
     const encryptedKey = await passwordProtectKey(encryptionKey, password);
 
     return { encEmail, encryptedKey };
@@ -36,21 +38,21 @@ export async function createPwdProtectedEmail(
 }
 
 /**
- * Opens a password-protected email.
+ * Opens a password-protected email and subject.
  *
- * @param encryptedEmail - The encrypted email
+ * @param encryptedEmail - The encrypted email and subject
  * @param password - The secret password shared among recipients.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The decrypted email
+ * @returns The decrypted email and subject
  */
-export async function decryptPwdProtectedEmail(
-  encryptedEmail: PwdProtectedEmail,
+export async function decryptPwdProtectedEmailAndSubject(
+  encryptedEmail: PwdProtectedEmailAndSubject,
   password: string,
   aux?: Uint8Array,
-): Promise<Email> {
+): Promise<EmailAndSubject> {
   try {
     const encryptionKey = await removePasswordProtection(encryptedEmail.encryptedKey, password);
-    return await decryptEmail(encryptedEmail.encEmail, encryptionKey, aux);
+    return await decryptEmailAndSubject(encryptedEmail.encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailPasswordOpenError) throw error;

@@ -1,106 +1,108 @@
-import { HybridEncKey, PwdProtectedKey, EmailBody, EmailBodyEncrypted, RecipientWithPublicKey } from '../types';
+import { HybridEncKey, PwdProtectedKey, Email, RecipientWithPublicKey, EmailEncrypted } from '../types';
 import { encryptSymmetrically, decryptSymmetrically, genSymmetricKey } from '../symmetric-crypto';
 import { encapsulateHybrid, decapsulateHybrid } from '../hybrid-crypto';
 import { wrapKey, unwrapKey } from '../key-wrapper';
 import { getKeyFromPassword, getKeyFromPasswordAndSalt } from '../derive-password';
 import { UTF8ToUint8, base64ToUint8Array, uint8ArrayToBase64, uint8ToUTF8 } from '../utils';
+import {
+  EmailHybridDecryptionError,
+  EmailHybridEncryptionError,
+  InvalidInputEmail,
+  EmailSymmetricDecryptionError,
+  EmailSymmetricEncryptionError,
+  EmailPasswordOpenError,
+  EmailPasswordProtectError,
+} from './errors';
 
 /**
- * Symmetrically encrypts email body.
+ * Symmetrically encrypts email.
  *
- * @param body - The email body to encrypt.
+ * @param email - The email to encrypt.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting encrypted email body and symmetric key used for encryption
+ * @returns The resulting encrypted email and symmetric key used for encryption
  */
-export async function encryptEmailBody(
-  body: EmailBody,
+export async function encryptEmail(
+  email: Email,
   aux?: Uint8Array,
 ): Promise<{
-  encEmailBody: EmailBodyEncrypted;
+  encEmail: EmailEncrypted;
   encryptionKey: Uint8Array;
 }> {
+  if (!email.text) {
+    throw new InvalidInputEmail();
+  }
   try {
-    if (!body.text || !body.subject) {
-      throw new Error('Invalid input');
-    }
     const encryptionKey = genSymmetricKey();
-    const encEmailBody = await encryptEmailBodyWithKey(body, encryptionKey, aux);
+    const encEmail = await encryptEmailWithKey(email, encryptionKey, aux);
 
-    return { encEmailBody, encryptionKey };
+    return { encEmail, encryptionKey };
   } catch (error) {
-    throw new Error('Failed to symmetrically encrypt email body', { cause: error });
+    throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Symmetrically encrypts email body with the given key.
+ * Symmetrically encrypts email with the given key.
  *
- * @param body - The email body to encrypt.
+ * @param email - The email to encrypt.
  * @param encryptionKey - The symmetric key to encrypt the email.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting encrypted email body and symmetric key used for encryption
+ * @returns The resulting encrypted email and symmetric key used for encryption
  */
-export async function encryptEmailBodyWithKey(
-  body: EmailBody,
+export async function encryptEmailWithKey(
+  email: Email,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBodyEncrypted> {
+): Promise<EmailEncrypted> {
   try {
-    const text = UTF8ToUint8(body.text);
-    const subject = UTF8ToUint8(body.subject);
-    const subjectEnc = await encryptSymmetrically(encryptionKey, subject, aux);
+    const text = UTF8ToUint8(email.text);
+
     const encryptedText = await encryptSymmetrically(encryptionKey, text, aux);
     const encText = uint8ArrayToBase64(encryptedText);
-    const encSubject = uint8ArrayToBase64(subjectEnc);
-    const enc: EmailBodyEncrypted = { encText, encSubject };
-
-    if (body.attachments) {
-      const promises = body.attachments.map((attachment) => {
+    const enc: EmailEncrypted = { encText };
+    if (email.attachments) {
+      const promises = email.attachments.map((attachment) => {
         const binaryAttachment = UTF8ToUint8(attachment);
         return encryptSymmetrically(encryptionKey, binaryAttachment, aux);
       });
       const encryptedAttachments = await Promise.all(promises);
       enc.encAttachments = encryptedAttachments?.map(uint8ArrayToBase64);
     }
-
     return enc;
   } catch (error) {
-    throw new Error('Failed to encrypt email body', { cause: error });
+    throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Decrypts symmetrically encrypted email body.
+ * Decrypts symmetrically encrypted email.
  *
- * @param encEmailBody - The email body to decrypt.
+ * @param encEmail - The email to decrypt.
  * @param encryptionKey - The symmetric key to decrypt the email.
  * @param aux - An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The resulting decrypted email body
+ * @returns The resulting decrypted email
  */
-export async function decryptEmailBody(
-  encEmailBody: EmailBodyEncrypted,
+export async function decryptEmail(
+  encEmail: EmailEncrypted,
   encryptionKey: Uint8Array,
   aux?: Uint8Array,
-): Promise<EmailBody> {
+): Promise<Email> {
   try {
-    const encSubject = base64ToUint8Array(encEmailBody.encSubject);
-    const subjectArray = await decryptSymmetrically(encryptionKey, encSubject, aux);
-    const subject = uint8ToUTF8(subjectArray);
-    const encText = base64ToUint8Array(encEmailBody.encText);
+    const encText = base64ToUint8Array(encEmail.encText);
     const textArray = await decryptSymmetrically(encryptionKey, encText, aux);
     const text = uint8ToUTF8(textArray);
-    const body: EmailBody = { text, subject };
+    const email: Email = { text };
 
-    if (encEmailBody.encAttachments) {
-      const encAttachments = encEmailBody.encAttachments?.map(base64ToUint8Array);
+    if (encEmail.encAttachments) {
+      const encAttachments = encEmail.encAttachments?.map(base64ToUint8Array);
       const promises = encAttachments?.map((encAtt) => decryptSymmetrically(encryptionKey, encAtt, aux));
       const decryptedAttachments = await Promise.all(promises);
-      body.attachments = decryptedAttachments?.map((att) => uint8ToUTF8(att));
+      email.attachments = decryptedAttachments?.map((att) => uint8ToUTF8(att));
     }
 
-    return body;
+    return email;
   } catch (error) {
-    throw new Error('Failed to symmetrically decrypt email body', { cause: error });
+    throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -127,7 +129,7 @@ export async function encryptKeysHybrid(
       encryptedForEmail: recipient.email,
     };
   } catch (error) {
-    throw new Error('Failed to encrypt email key using hybrid encryption', { cause: error });
+    throw new EmailHybridEncryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -149,7 +151,7 @@ export async function decryptKeysHybrid(
     const encryptionKey = await unwrapKey(encKey, sharedSecret);
     return encryptionKey;
   } catch (error) {
-    throw new Error('Failed to decrypt email key encrypted via hybrid encryption', { cause: error });
+    throw new EmailHybridDecryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -168,7 +170,7 @@ export async function passwordProtectKey(emailEncryptionKey: Uint8Array, passwor
     const encryptedKeyStr = uint8ArrayToBase64(encryptedKey);
     return { encryptedKey: encryptedKeyStr, salt: saltStr };
   } catch (error) {
-    throw new Error('Failed to password-protect email key', { cause: error });
+    throw new EmailPasswordProtectError(error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -190,6 +192,6 @@ export async function removePasswordProtection(
     const encryptionKey = await unwrapKey(encryptedKey, key);
     return encryptionKey;
   } catch (error) {
-    throw new Error('Failed to remove password-protection from email key', { cause: error });
+    throw new EmailPasswordOpenError(error instanceof Error ? error.message : String(error));
   }
 }
