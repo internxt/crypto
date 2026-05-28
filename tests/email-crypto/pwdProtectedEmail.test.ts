@@ -8,7 +8,7 @@ import {
   EmailSymmetricDecryptionError,
   InvalidInputEmail,
 } from '../../src/email-crypto';
-import { Email, EmailAndSubject } from '../../src/types';
+import { Email, EmailAndSubject, PwdProtectedEmail, PwdProtectedEmailAndSubject } from '../../src/types';
 
 describe('Test email crypto functions', () => {
   const email: Email = {
@@ -52,9 +52,17 @@ describe('Test email crypto functions', () => {
     );
   });
 
+   it('should throw an error if input is invalid', async () => {
+    await expect(decryptPwdProtectedEmail({} as PwdProtectedEmail, sharedSecret)).rejects.toThrow(
+      InvalidInputEmail,
+    );
+     await expect(decryptPwdProtectedEmailAndSubject({} as PwdProtectedEmailAndSubject, sharedSecret)).rejects.toThrow(
+      InvalidInputEmail,
+    );
+  });
+
   it('should throw an error if password-protected email is modified', async () => {
     const encryptedEmail = await createPwdProtectedEmail(email, sharedSecret);
-
     const modifiedCiphertext = encryptedEmail;
     modifiedCiphertext.encEmail.encText += 'modified ciphertext';
     await expect(decryptPwdProtectedEmail(modifiedCiphertext, sharedSecret)).rejects.toThrow(
