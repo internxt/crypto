@@ -36,6 +36,9 @@ jobs:
       - name: Check and Install Playwright
         run: yarn playwright install
 
+      - name: Unit test run
+        run: yarn test:coverage
+
       # Analyze with SonarCloud
       - name: Analyze with SonarCloud
         uses: SonarSource/sonarqube-scan-action@v5.0.0
