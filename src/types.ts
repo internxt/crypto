@@ -48,7 +48,6 @@ export type PwdProtectedKey = {
 
 export type EmailEncrypted = {
   encText: string;
-  encAttachments?: string[];
 };
 
 export type EmailAndSubjectEncrypted = EmailEncrypted & {
@@ -57,7 +56,6 @@ export type EmailAndSubjectEncrypted = EmailEncrypted & {
 
 export type Email = {
   text: string;
-  attachments?: string[];
 };
 
 export type EmailAndSubject = Email & {

@@ -59,16 +59,7 @@ export async function encryptEmailWithKey(
 
     const encryptedText = await encryptSymmetrically(encryptionKey, text, aux);
     const encText = uint8ArrayToBase64(encryptedText);
-    const enc: EmailEncrypted = { encText };
-    if (email.attachments) {
-      const promises = email.attachments.map((attachment) => {
-        const binaryAttachment = UTF8ToUint8(attachment);
-        return encryptSymmetrically(encryptionKey, binaryAttachment, aux);
-      });
-      const encryptedAttachments = await Promise.all(promises);
-      enc.encAttachments = encryptedAttachments?.map(uint8ArrayToBase64);
-    }
-    return enc;
+    return { encText };
   } catch (error) {
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
@@ -91,16 +82,8 @@ export async function decryptEmail(
     const encText = base64ToUint8Array(encEmail.encText);
     const textArray = await decryptSymmetrically(encryptionKey, encText, aux);
     const text = uint8ToUTF8(textArray);
-    const email: Email = { text };
 
-    if (encEmail.encAttachments) {
-      const encAttachments = encEmail.encAttachments?.map(base64ToUint8Array);
-      const promises = encAttachments?.map((encAtt) => decryptSymmetrically(encryptionKey, encAtt, aux));
-      const decryptedAttachments = await Promise.all(promises);
-      email.attachments = decryptedAttachments?.map((att) => uint8ToUTF8(att));
-    }
-
-    return email;
+    return { text };
   } catch (error) {
     throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }
