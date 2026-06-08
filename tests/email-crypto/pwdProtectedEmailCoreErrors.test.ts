@@ -26,12 +26,10 @@ describe('Test email crypto functions', () => {
 
   const email: Email = {
     text: 'Hi Bob, This is a test message. -Alice.',
-    attachments: ['file1.txt', 'file2.txt'],
   };
 
   const emailAndSubject: EmailAndSubject = {
     text: 'Hi Bob, This is a test message. -Alice.',
-    attachments: ['file1.txt', 'file2.txt'],
     subject: 'test subject',
   };
 
