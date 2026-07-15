@@ -26,11 +26,15 @@ describe('Test email crypto functions', () => {
 
   const email: Email = {
     text: 'Hi Bob, This is a test message. -Alice.',
+    preview: 'Hi Bib,',
+    attachmentsSessionKey: new Uint8Array([1, 2, 3, 4]),
   };
 
   const emailAndSubject: EmailAndSubject = {
     text: 'Hi Bob, This is a test message. -Alice.',
     subject: 'test subject',
+    preview: 'Hi Bib,',
+    attachmentsSessionKey: new Uint8Array([1, 2, 3, 4]),
   };
 
   const sharedSecret = 'test shared secret';

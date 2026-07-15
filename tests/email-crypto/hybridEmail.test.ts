@@ -27,11 +27,15 @@ import {
 describe('Test email crypto functions', async () => {
   const email: Email = {
     text: 'test email text',
+    preview: 'Hi Bib,',
+    attachmentsSessionKey: new Uint8Array([1, 2, 3, 4]),
   };
 
   const emailAndSubject: EmailAndSubject = {
     text: 'test email text',
     subject: 'test email subject',
+    preview: 'Hi Bib,',
+    attachmentsSessionKey: new Uint8Array([1, 2, 3, 4]),
   };
 
   const { secretKey: alicePrivateKeys, publicKey: alicePublicKeys } = await generateEmailKeys();
@@ -90,6 +94,8 @@ describe('Test email crypto functions', async () => {
       encryptedKey: encKey,
       encEmail: {
         encText: 'mock encrypted text',
+        encPreview: 'mock encryped preview',
+        encAttachmentsSessionKey: 'mock encrypted attachement session key',
       },
     };
 
@@ -98,6 +104,8 @@ describe('Test email crypto functions', async () => {
       encEmail: {
         encText: 'mock encrypted text',
         encSubject: 'mock encrypted subject',
+        encPreview: 'mock encryped preview',
+        encAttachmentsSessionKey: 'mock encrypted attachement session key',
       },
     };
 
