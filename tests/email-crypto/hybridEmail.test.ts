@@ -28,14 +28,14 @@ describe('Test email crypto functions', async () => {
   const email: Email = {
     text: 'test email text',
     preview: 'Hi Bib,',
-    attachmentsSessionKey: new Uint8Array([1,2,3,4]),
+    attachmentsSessionKey: new Uint8Array([1, 2, 3, 4]),
   };
 
   const emailAndSubject: EmailAndSubject = {
     text: 'test email text',
     subject: 'test email subject',
     preview: 'Hi Bib,',
-    attachmentsSessionKey: new Uint8Array([1,2,3,4]),
+    attachmentsSessionKey: new Uint8Array([1, 2, 3, 4]),
   };
 
   const { secretKey: alicePrivateKeys, publicKey: alicePublicKeys } = await generateEmailKeys();

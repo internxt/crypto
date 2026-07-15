@@ -64,7 +64,6 @@ export async function encryptEmailWithKey(
     const encryptedPreview = await encryptSymmetrically(encryptionKey, preview, aux);
     const encPreview = uint8ArrayToBase64(encryptedPreview);
 
-
     const encryptedAttachmentsSessionKey = await encryptSymmetrically(encryptionKey, email.attachmentsSessionKey, aux);
     const encAttachmentsSessionKey = uint8ArrayToBase64(encryptedAttachmentsSessionKey);
 
@@ -99,7 +98,7 @@ export async function decryptEmail(
     const encAttachementSessionKey = base64ToUint8Array(encEmail.encAttachmentsSessionKey);
     const attachmentsSessionKey = await decryptSymmetrically(encryptionKey, encAttachementSessionKey, aux);
 
-    return { text, preview, attachmentsSessionKey};
+    return { text, preview, attachmentsSessionKey };
   } catch (error) {
     throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }
