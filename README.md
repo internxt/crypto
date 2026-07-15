@@ -125,8 +125,8 @@ const emailAndSubject: EmailAndSubject = {
     text: 'email text',
     subject: 'email subject'
 };
-const encryptedEmailAndSubject = await encryptEmailAndSubjectHybrid(emailAndSubject, bobWithPublicKeys);
-const decryptedEmailAndSubject = await decryptEmailAndSubjectHybrid(encryptedEmailAndSubject, bobPrivateKeys);
+const {encryptedKeys, encEmail} = await encryptEmailAndSubjectHybridForMultipleRecipients(emailAndSubject, [bobWithPublicKeys]);
+const decryptedEmailAndSubject = await decryptEmailAndSubjectHybrid(encEmail, encryptedKeys[0], bobPrivateKeys);
 
 expect(encryptedEmailAndSubject.encEmail.encSubject).not.toBe(emailAndSubject.subject);
 expect(decryptedEmailAndSubject).toStrictEqual(emailAndSubject);

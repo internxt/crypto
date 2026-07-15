@@ -1,4 +1,4 @@
-import { HybridEncryptedEmail, Email, RecipientWithPublicKey } from '../types';
+import { Email, RecipientWithPublicKey, HybridEncKey,EmailEncrypted } from '../types';
 import { decryptEmail, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
 import {
   FailedToDecryptEmail,
@@ -9,30 +9,6 @@ import {
   EmailSymmetricDecryptionError,
   EmailSymmetricEncryptionError,
 } from './errors';
-/**
- * Encrypts the email using hybrid encryption.
- *
- * @param email - The email to encrypt.
- * @param recipientPublicKeys - The public keys of the recipient.
- * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The encrypted email
- */
-export async function encryptEmailHybrid(
-  email: Email,
-  recipient: RecipientWithPublicKey,
-  aux?: Uint8Array,
-): Promise<HybridEncryptedEmail> {
-  try {
-    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
-    const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient);
-    return { encEmail, encryptedKey };
-  } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
-    if (error instanceof EmailSymmetricEncryptionError) throw error;
-    if (error instanceof EmailHybridEncryptionError) throw error;
-    throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
-  }
-}
 
 /**
  * Encrypts the email using hybrid encryption for multiple recipients.
@@ -40,28 +16,25 @@ export async function encryptEmailHybrid(
  * @param email - The email to encrypt for multiple recipients.
  * @param recipients - The recipients with corresponding public keys.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
- * @returns The set of encrypted emails
+ * @returns The set of encrypted keys (one per user) and encrypted email
  */
 export async function encryptEmailHybridForMultipleRecipients(
   email: Email,
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
-): Promise<HybridEncryptedEmail[]> {
+): Promise<{  encryptedKeys: HybridEncKey[];
+  encEmail: EmailEncrypted}> {
   try {
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
     const { encryptionKey, encEmail } = await encryptEmail(email, aux);
 
-    const encryptedEmails: HybridEncryptedEmail[] = [];
-    for (const recipient of recipients) {
-      const encryptedKey = await encryptKeysHybrid(encryptionKey, recipient);
-      encryptedEmails.push({
-        encEmail,
-        encryptedKey,
-      });
-    }
-    return encryptedEmails;
+    const encryptedKeys = await Promise.all(
+      recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)),
+    );
+
+    return {encryptedKeys, encEmail};
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
@@ -74,18 +47,20 @@ export async function encryptEmailHybridForMultipleRecipients(
  * Decrypts the email using hybrid encryption.
  *
  * @param encEmail - The encrypted email.
+ * @param encryptedKey - The encrypted key for this recipient.
  * @param recipientPrivateHybridKeys - The private key of the recipient.
  * @param aux -  An optional auxilary sting for AEAD (e.g., email ID or timestamp).
  * @returns The decrypted email
  */
 export async function decryptEmailHybrid(
-  encEmail: HybridEncryptedEmail,
+  encEmail: EmailEncrypted,
+  encryptedKey: HybridEncKey,
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<Email> {
   try {
-    const encryptionKey = await decryptKeysHybrid(encEmail.encryptedKey, recipientPrivateHybridKeys);
-    return await decryptEmail(encEmail.encEmail, encryptionKey, aux);
+    const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
+    return await decryptEmail(encEmail, encryptionKey, aux);
   } catch (error) {
     if (error instanceof EmailHybridDecryptionError) throw error;
     if (error instanceof EmailSymmetricDecryptionError) throw error;
