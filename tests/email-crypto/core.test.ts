@@ -16,11 +16,15 @@ import { EmailSymmetricDecryptionError, InvalidInputEmail } from '../../src/emai
 describe('Test email crypto functions', () => {
   const email: Email = {
     text: 'test email',
+    preview: 'email preview',
+    attachmentsSessionKey: new Uint8Array([1,2,3,4,5,6,7,8]),
   };
 
   const emailAndSubject: EmailAndSubject = {
     text: 'test email text',
     subject: 'test email subject',
+    preview: 'email preview',
+    attachmentsSessionKey: new Uint8Array([1,2,3,4,5,6,7,8]),
   };
 
   const aux = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);

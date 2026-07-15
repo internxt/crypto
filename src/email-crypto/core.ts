@@ -56,10 +56,19 @@ export async function encryptEmailWithKey(
 ): Promise<EmailEncrypted> {
   try {
     const text = UTF8ToUint8(email.text);
+    const preview = UTF8ToUint8(email.preview);
 
     const encryptedText = await encryptSymmetrically(encryptionKey, text, aux);
     const encText = uint8ArrayToBase64(encryptedText);
-    return { encText };
+
+    const encryptedPreview = await encryptSymmetrically(encryptionKey, preview, aux);
+    const encPreview = uint8ArrayToBase64(encryptedPreview);
+
+
+    const encryptedAttachmentsSessionKey = await encryptSymmetrically(encryptionKey, email.attachmentsSessionKey, aux);
+    const encAttachmentsSessionKey = uint8ArrayToBase64(encryptedAttachmentsSessionKey);
+
+    return { encText, encPreview, encAttachmentsSessionKey };
   } catch (error) {
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
   }
@@ -83,7 +92,14 @@ export async function decryptEmail(
     const textArray = await decryptSymmetrically(encryptionKey, encText, aux);
     const text = uint8ToUTF8(textArray);
 
-    return { text };
+    const encPreview = base64ToUint8Array(encEmail.encPreview);
+    const previewArray = await decryptSymmetrically(encryptionKey, encPreview, aux);
+    const preview = uint8ToUTF8(previewArray);
+
+    const encAttachementSessionKey = base64ToUint8Array(encEmail.encAttachmentsSessionKey);
+    const attachmentsSessionKey = await decryptSymmetrically(encryptionKey, encAttachementSessionKey, aux);
+
+    return { text, preview, attachmentsSessionKey};
   } catch (error) {
     throw new EmailSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }

@@ -48,6 +48,8 @@ export type PwdProtectedKey = {
 
 export type EmailEncrypted = {
   encText: string;
+  encPreview: string;
+  encAttachmentsSessionKey: string;
 };
 
 export type EmailAndSubjectEncrypted = EmailEncrypted & {
@@ -56,6 +58,8 @@ export type EmailAndSubjectEncrypted = EmailEncrypted & {
 
 export type Email = {
   text: string;
+  preview: string;
+  attachmentsSessionKey: Uint8Array;
 };
 
 export type EmailAndSubject = Email & {
