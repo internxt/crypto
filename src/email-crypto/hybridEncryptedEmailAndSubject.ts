@@ -23,19 +23,16 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
   email: EmailAndSubject,
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
-): Promise<{  encryptedKeys: HybridEncKey[];
-  encEmail: EmailAndSubjectEncrypted}> {
+): Promise<{ encryptedKeys: HybridEncKey[]; encEmail: EmailAndSubjectEncrypted }> {
   try {
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
     const { encryptionKey, encEmail } = await encryptEmailAndSubject(email, aux);
 
-     const encryptedKeys = await Promise.all(
-      recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)),
-    );
+    const encryptedKeys = await Promise.all(recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)));
 
-    return {encEmail, encryptedKeys};
+    return { encEmail, encryptedKeys };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;

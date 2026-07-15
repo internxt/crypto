@@ -1,4 +1,4 @@
-import { Email, RecipientWithPublicKey, HybridEncKey,EmailEncrypted } from '../types';
+import { Email, RecipientWithPublicKey, HybridEncKey, EmailEncrypted } from '../types';
 import { decryptEmail, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
 import {
   FailedToDecryptEmail,
@@ -22,19 +22,16 @@ export async function encryptEmailHybridForMultipleRecipients(
   email: Email,
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
-): Promise<{  encryptedKeys: HybridEncKey[];
-  encEmail: EmailEncrypted}> {
+): Promise<{ encryptedKeys: HybridEncKey[]; encEmail: EmailEncrypted }> {
   try {
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
     const { encryptionKey, encEmail } = await encryptEmail(email, aux);
 
-    const encryptedKeys = await Promise.all(
-      recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)),
-    );
+    const encryptedKeys = await Promise.all(recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)));
 
-    return {encryptedKeys, encEmail};
+    return { encryptedKeys, encEmail };
   } catch (error) {
     if (error instanceof InvalidInputEmail) throw error;
     if (error instanceof EmailSymmetricEncryptionError) throw error;
