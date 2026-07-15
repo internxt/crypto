@@ -41,7 +41,7 @@ describe('Test email crypto functions', () => {
     expect(result).toEqual(emailAndSubject);
   });
 
-  it('should throw an error if decryption fails', async () => {
+  it('should throw an error if email decryption fails', async () => {
     const { encEmail, encryptionKey } = await encryptEmail(email, aux);
     const badEncryptionKey = await genSymmetricKey();
     await expect(decryptEmail(encEmail, badEncryptionKey, aux)).rejects.toThrow(EmailSymmetricDecryptionError);
@@ -50,7 +50,7 @@ describe('Test email crypto functions', () => {
     await expect(decryptEmail(encEmail, encryptionKey, badAux)).rejects.toThrow(EmailSymmetricDecryptionError);
   });
 
-  it('should throw an error if decryption fails', async () => {
+  it('should throw an error if email and subject decryption fails', async () => {
     const { encEmail, encryptionKey } = await encryptEmailAndSubject(emailAndSubject, aux);
     const badEncryptionKey = await genSymmetricKey();
     await expect(decryptEmailAndSubject(encEmail, badEncryptionKey, aux)).rejects.toThrow(
@@ -74,7 +74,7 @@ describe('Test email crypto functions', () => {
   it('should derive symmetric key for database encryption', async () => {
     const mnemonic = genMnemonic();
     const key = await deriveDatabaseKey(mnemonic);
-    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
+    expect(key).toHaveLength(AES_KEY_BYTE_LENGTH);
     const key2 = await deriveDatabaseKey(mnemonic);
     expect(key2).toStrictEqual(key);
   });
@@ -82,16 +82,16 @@ describe('Test email crypto functions', () => {
   it('should derive symmetric key for email draft encryption', async () => {
     const mnemonic = genMnemonic();
     const key = await deriveEmailDraftKey(mnemonic);
-    expect(key.length).toBe(AES_KEY_BYTE_LENGTH);
+    expect(key).toHaveLength(AES_KEY_BYTE_LENGTH);
     const key2 = await deriveEmailDraftKey(mnemonic);
     expect(key2).toStrictEqual(key);
   });
 
-  it('should derive symmetric key for email draft encryption', async () => {
+  it('database encryption key and draft key should be different', async () => {
     const mnemonic = genMnemonic();
     const keyDatabase = await deriveDatabaseKey(mnemonic);
     const keyDraft = await deriveEmailDraftKey(mnemonic);
-    expect(keyDatabase.length).toBe(keyDraft.length);
+    expect(keyDatabase).toHaveLength(keyDraft.length);
     expect(keyDraft).not.toStrictEqual(keyDatabase);
   });
 });

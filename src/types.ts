@@ -15,16 +15,6 @@ export type HybridKeyPair = {
   secretKey: Uint8Array;
 };
 
-export type HybridEncryptedEmail = {
-  encryptedKey: HybridEncKey;
-  encEmail: EmailEncrypted;
-};
-
-export type HybridEncryptedEmailAndSubject = {
-  encryptedKey: HybridEncKey;
-  encEmail: EmailAndSubjectEncrypted;
-};
-
 export type PwdProtectedEmail = {
   encryptedKey: PwdProtectedKey;
   encEmail: EmailEncrypted;
