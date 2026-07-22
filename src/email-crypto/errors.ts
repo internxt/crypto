@@ -22,6 +22,14 @@ export class EmailSymmetricDecryptionError extends Error {
   }
 }
 
+export class EmailPreviewSymmetricDecryptionError extends Error {
+  constructor(errorMsg?: string) {
+    super('Failed to symmetrically decrypt email preview: ' + errorMsg);
+
+    Object.setPrototypeOf(this, EmailPreviewSymmetricDecryptionError.prototype);
+  }
+}
+
 export class EmailHybridEncryptionError extends Error {
   constructor(errorMsg?: string) {
     super('Failed to hybridly encrypt the key: ' + errorMsg);

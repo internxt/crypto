@@ -1,5 +1,5 @@
 import { Email, RecipientWithPublicKey, HybridEncKey, EmailEncrypted } from '../types';
-import { decryptEmail, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
+import { decryptEmail,decryptPreview, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
 import {
   FailedToDecryptEmail,
   FailedToEncryptEmail,
@@ -8,6 +8,7 @@ import {
   InvalidInputEmail,
   EmailSymmetricDecryptionError,
   EmailSymmetricEncryptionError,
+  EmailPreviewSymmetricDecryptionError,
 } from './errors';
 
 /**
@@ -61,6 +62,23 @@ export async function decryptEmailHybrid(
   } catch (error) {
     if (error instanceof EmailHybridDecryptionError) throw error;
     if (error instanceof EmailSymmetricDecryptionError) throw error;
+    throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
+  }
+}
+
+export async function decryptEmailPreviewHybrid(
+  encPreview: string,
+  encryptedKey: HybridEncKey,
+  recipientPrivateHybridKeys: Uint8Array,
+  aux?: Uint8Array,
+): Promise<{ preview: string; encryptionKey: Uint8Array }> {
+  try {
+    const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
+    const preview = await decryptPreview(encPreview, encryptionKey, aux);
+    return { preview, encryptionKey };
+  } catch (error) {
+    if (error instanceof EmailHybridDecryptionError) throw error;
+    if (error instanceof EmailPreviewSymmetricDecryptionError) throw error;
     throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
   }
 }

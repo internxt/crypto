@@ -5,6 +5,7 @@ import {
   generateEmailKeys,
   decryptEmailAndSubjectHybrid,
   encryptEmailAndSubjectHybridForMultipleRecipients,
+  decryptEmailPreviewHybrid,
 } from '../../src/email-crypto';
 
 import {
@@ -18,6 +19,7 @@ import {
 import {
   EmailHybridDecryptionError,
   EmailHybridEncryptionError,
+  EmailPreviewSymmetricDecryptionError,
   EmailSymmetricDecryptionError,
   InvalidInputEmail,
 } from '../../src/email-crypto/errors';
@@ -55,6 +57,13 @@ describe('Test email crypto functions', async () => {
     expect(decryptedEmail).toStrictEqual(email);
   });
 
+  it('should decrypt email preview sucessfully', async () => {
+    const { encryptedKeys, encEmail } = await encryptEmailHybridForMultipleRecipients(email, [bobWithPublicKeys]);
+    const {preview: decryptedPreview } = await decryptEmailPreviewHybrid(encEmail.encPreview, encryptedKeys[0], bobPrivateKeys);
+
+    expect(decryptedPreview).toStrictEqual(email.preview);
+  });
+
   it('should encrypt and decrypt email and subject sucessfully', async () => {
     const { encryptedKeys, encEmail } = await encryptEmailAndSubjectHybridForMultipleRecipients(emailAndSubject, [
       bobWithPublicKeys,
@@ -83,6 +92,10 @@ describe('Test email crypto functions', async () => {
     await expect(decryptEmailHybrid(encEmail, encryptedKeys[0], alicePrivateKeys)).rejects.toThrow(
       EmailHybridDecryptionError,
     );
+
+    await expect(decryptEmailPreviewHybrid(encEmail.encPreview, encryptedKeys[0], alicePrivateKeys)).rejects.toThrow(
+      EmailHybridDecryptionError,
+    );
   });
 
   it('should throw an error if hybrid email decryption fails', async () => {
@@ -109,6 +122,10 @@ describe('Test email crypto functions', async () => {
     );
 
     await expect(decryptEmailAndSubjectHybrid(badEncryptedEmailAndSubject, encKey, bobPrivateKeys)).rejects.toThrow(
+      EmailHybridDecryptionError,
+    );
+
+    await expect(decryptEmailPreviewHybrid(badEncryptedEmail.encPreview, encKey, bobPrivateKeys)).rejects.toThrow(
       EmailHybridDecryptionError,
     );
   });
@@ -202,6 +219,10 @@ describe('Test email crypto functions', async () => {
 
     await expect(decryptEmailHybrid(encEmail, {} as HybridEncKey, bobPrivateKeys)).rejects.toThrow(
       EmailHybridDecryptionError,
+    );
+
+    await expect(decryptEmailPreviewHybrid('', encryptedKeys[0], bobPrivateKeys)).rejects.toThrow(
+      EmailPreviewSymmetricDecryptionError,
     );
 
     await expect(
