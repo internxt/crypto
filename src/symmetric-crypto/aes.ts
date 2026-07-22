@@ -1,6 +1,6 @@
 import { concatBytes, randomBytes } from '@noble/hashes/utils.js';
 import { IV_LEN_BYTES, AES_KEY_BYTE_LENGTH } from '../constants';
-import { gcm as aeadCipher } from '@noble/ciphers/webcrypto.js';
+import { gcm as aeadCipher } from '@noble/ciphers/aes.js';
 
 /**
  * Symmetrically encrypts the message
@@ -17,7 +17,7 @@ export async function encryptSymmetrically(
 ): Promise<Uint8Array> {
   try {
     const iv = randomBytes(IV_LEN_BYTES);
-    const ciphertext = await aeadCipher(encryptionKey, iv, aux).encrypt(message);
+    const ciphertext = aeadCipher(encryptionKey, iv, aux).encrypt(message);
     return concatBytes(ciphertext, iv);
   } catch (error) {
     throw new Error('Failed to encrypt symmetrically', { cause: error });
@@ -40,7 +40,7 @@ export async function decryptSymmetrically(
   try {
     const ciphertext = encryptedMessage.slice(0, encryptedMessage.length - IV_LEN_BYTES);
     const iv = encryptedMessage.slice(encryptedMessage.length - IV_LEN_BYTES);
-    const result = await aeadCipher(encryptionKey, iv, aux).decrypt(ciphertext);
+    const result = aeadCipher(encryptionKey, iv, aux).decrypt(ciphertext);
     return result;
   } catch (error) {
     throw new Error('Failed to decrypt symmetrically', { cause: error });
