@@ -1,14 +1,7 @@
 import { Email, RecipientWithPublicKey, HybridEncKey, EmailEncrypted } from '../types';
 import { decryptEmail, decryptPreview, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
 import {
-  FailedToDecryptEmail,
-  FailedToEncryptEmail,
-  EmailHybridDecryptionError,
-  EmailHybridEncryptionError,
   InvalidInputEmail,
-  EmailSymmetricDecryptionError,
-  EmailSymmetricEncryptionError,
-  EmailPreviewSymmetricDecryptionError,
 } from './errors';
 
 /**
@@ -24,7 +17,6 @@ export async function encryptEmailHybridForMultipleRecipients(
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
 ): Promise<{ encryptedKeys: HybridEncKey[]; encEmail: EmailEncrypted }> {
-  try {
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
@@ -33,12 +25,6 @@ export async function encryptEmailHybridForMultipleRecipients(
     const encryptedKeys = await Promise.all(recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)));
 
     return { encryptedKeys, encEmail };
-  } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
-    if (error instanceof EmailSymmetricEncryptionError) throw error;
-    if (error instanceof EmailHybridEncryptionError) throw error;
-    throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
-  }
 }
 
 /**
@@ -56,14 +42,8 @@ export async function decryptEmailHybrid(
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<Email> {
-  try {
     const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
     return await decryptEmail(encEmail, encryptionKey, aux);
-  } catch (error) {
-    if (error instanceof EmailHybridDecryptionError) throw error;
-    if (error instanceof EmailSymmetricDecryptionError) throw error;
-    throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
-  }
 }
 
 export async function decryptEmailPreviewHybrid(
@@ -72,13 +52,7 @@ export async function decryptEmailPreviewHybrid(
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<{ preview: string; encryptionKey: Uint8Array }> {
-  try {
     const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
     const preview = await decryptPreview(encPreview, encryptionKey, aux);
     return { preview, encryptionKey };
-  } catch (error) {
-    if (error instanceof EmailHybridDecryptionError) throw error;
-    if (error instanceof EmailPreviewSymmetricDecryptionError) throw error;
-    throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
-  }
 }
