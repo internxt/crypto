@@ -26,6 +26,7 @@ export class EmailPreviewSymmetricDecryptionError extends Error {
   constructor(errorMsg?: string) {
     super('Failed to symmetrically decrypt email preview: ' + errorMsg);
 
+    this.name = 'EmailPreviewSymmetrictDecryptionError';
     Object.setPrototypeOf(this, EmailPreviewSymmetricDecryptionError.prototype);
   }
 }

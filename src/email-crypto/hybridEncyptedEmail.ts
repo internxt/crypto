@@ -1,8 +1,6 @@
 import { Email, RecipientWithPublicKey, HybridEncKey, EmailEncrypted } from '../types';
 import { decryptEmail, decryptPreview, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
-import {
-  InvalidInputEmail,
-} from './errors';
+import { InvalidInputEmail } from './errors';
 
 /**
  * Encrypts the email using hybrid encryption for multiple recipients.
@@ -17,14 +15,14 @@ export async function encryptEmailHybridForMultipleRecipients(
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
 ): Promise<{ encryptedKeys: HybridEncKey[]; encEmail: EmailEncrypted }> {
-    if (!recipients || recipients.length === 0) {
-      throw new InvalidInputEmail();
-    }
-    const { encryptionKey, encEmail } = await encryptEmail(email, aux);
+  if (!recipients || recipients.length === 0) {
+    throw new InvalidInputEmail();
+  }
+  const { encryptionKey, encEmail } = await encryptEmail(email, aux);
 
-    const encryptedKeys = await Promise.all(recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)));
+  const encryptedKeys = await Promise.all(recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)));
 
-    return { encryptedKeys, encEmail };
+  return { encryptedKeys, encEmail };
 }
 
 /**
@@ -42,8 +40,8 @@ export async function decryptEmailHybrid(
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<Email> {
-    const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
-    return await decryptEmail(encEmail, encryptionKey, aux);
+  const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
+  return await decryptEmail(encEmail, encryptionKey, aux);
 }
 
 export async function decryptEmailPreviewHybrid(
@@ -52,7 +50,7 @@ export async function decryptEmailPreviewHybrid(
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<{ preview: string; encryptionKey: Uint8Array }> {
-    const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
-    const preview = await decryptPreview(encPreview, encryptionKey, aux);
-    return { preview, encryptionKey };
+  const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
+  const preview = await decryptPreview(encPreview, encryptionKey, aux);
+  return { preview, encryptionKey };
 }
