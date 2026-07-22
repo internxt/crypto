@@ -59,7 +59,11 @@ describe('Test email crypto functions', async () => {
 
   it('should decrypt email preview sucessfully', async () => {
     const { encryptedKeys, encEmail } = await encryptEmailHybridForMultipleRecipients(email, [bobWithPublicKeys]);
-    const {preview: decryptedPreview } = await decryptEmailPreviewHybrid(encEmail.encPreview, encryptedKeys[0], bobPrivateKeys);
+    const { preview: decryptedPreview } = await decryptEmailPreviewHybrid(
+      encEmail.encPreview,
+      encryptedKeys[0],
+      bobPrivateKeys,
+    );
 
     expect(decryptedPreview).toStrictEqual(email.preview);
   });

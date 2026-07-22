@@ -1,5 +1,5 @@
 import { Email, RecipientWithPublicKey, HybridEncKey, EmailEncrypted } from '../types';
-import { decryptEmail,decryptPreview, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
+import { decryptEmail, decryptPreview, encryptKeysHybrid, decryptKeysHybrid, encryptEmail } from './core';
 import {
   FailedToDecryptEmail,
   FailedToEncryptEmail,

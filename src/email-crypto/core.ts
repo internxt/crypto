@@ -88,7 +88,6 @@ export async function decryptPreview(
   aux?: Uint8Array,
 ): Promise<string> {
   try {
-
     const encPreview = base64ToUint8Array(encEmailPreview);
     const previewArray = await decryptSymmetrically(encryptionKey, encPreview, aux);
     const preview = uint8ToUTF8(previewArray);

@@ -4,6 +4,7 @@ export { getKeyFromPassword, getKeyFromPasswordAndSalt, generateSalt } from './d
 export {
   encryptEmailHybridForMultipleRecipients,
   decryptEmailHybrid,
+  decryptEmailPreviewHybrid,
   encryptEmailAndSubjectHybridForMultipleRecipients,
   decryptEmailAndSubjectHybrid,
   createPwdProtectedEmail,
