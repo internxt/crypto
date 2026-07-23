@@ -239,7 +239,7 @@ describe('Test email crypto functions', async () => {
       bobWithPublicKeys,
     ]);
 
-     const modifiedCiphertext = { ...encEmail };
+    const modifiedCiphertext = { ...encEmail };
     modifiedCiphertext.encText += 'modified ciphertext';
     await expect(decryptEmailHybrid(modifiedCiphertext, encryptedKeys[0], bobPrivateKeys)).rejects.toThrow(
       EmailSymmetricDecryptionError,
