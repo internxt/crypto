@@ -239,14 +239,14 @@ describe('Test email crypto functions', async () => {
       bobWithPublicKeys,
     ]);
 
-    const modifiedCiphertext = encEmail;
+     const modifiedCiphertext = { ...encEmail };
     modifiedCiphertext.encText += 'modified ciphertext';
     await expect(decryptEmailHybrid(modifiedCiphertext, encryptedKeys[0], bobPrivateKeys)).rejects.toThrow(
       EmailSymmetricDecryptionError,
     );
 
-    const modifiedKey = encryptedKeys[0];
-    modifiedKey.encryptedKey += 'modified key';
+    const modifiedKey = { ...encryptedKeys[0] };
+    modifiedKey.encryptedKey = modifiedKey.encryptedKey.slice(0, -4) + 'AAAA';
     await expect(decryptEmailHybrid(encEmail, modifiedKey, bobPrivateKeys)).rejects.toThrow(EmailHybridDecryptionError);
   });
 
@@ -255,14 +255,14 @@ describe('Test email crypto functions', async () => {
       bobWithPublicKeys,
     ]);
 
-    const modifiedCiphertext = encEmail;
+    const modifiedCiphertext = { ...encEmail };
     modifiedCiphertext.encText += 'modified ciphertext';
     await expect(decryptEmailAndSubjectHybrid(modifiedCiphertext, encryptedKeys[0], bobPrivateKeys)).rejects.toThrow(
       EmailSymmetricDecryptionError,
     );
 
-    const modifiedKey = encryptedKeys[0];
-    modifiedKey.encryptedKey += 'modified key';
+    const modifiedKey = { ...encryptedKeys[0] };
+    modifiedKey.encryptedKey = modifiedKey.encryptedKey.slice(0, -4) + 'AAAA';
     await expect(decryptEmailAndSubjectHybrid(encEmail, modifiedKey, bobPrivateKeys)).rejects.toThrow(
       EmailHybridDecryptionError,
     );
