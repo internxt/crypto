@@ -49,11 +49,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "react-native": "./dist/react-native/index.mjs",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./*": {
       "types": "./dist/*.d.ts",
+      "react-native": "./dist/react-native/*.mjs",
       "import": "./dist/*.mjs",
       "require": "./dist/*.js"
     }
