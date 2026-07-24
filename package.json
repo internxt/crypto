@@ -1,6 +1,6 @@
 {
   "name": "internxt-crypto",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
@@ -41,6 +41,7 @@
     "@noble/hashes": "^2.2.0",
     "@noble/post-quantum": "^0.6.1",
     "@scure/bip39": "^2.2.0",
+    "base64-js": "^1.5.1",
     "hash-wasm": "^4.12.0",
     "husky": "^9.1.7",
     "uuid": "^14.0.0"
@@ -48,11 +49,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "react-native": "./dist/react-native/index.mjs",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./*": {
       "types": "./dist/*.d.ts",
+      "react-native": "./dist/react-native/*.mjs",
       "import": "./dist/*.mjs",
       "require": "./dist/*.js"
     }

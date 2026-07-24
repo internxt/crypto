@@ -11,7 +11,8 @@
     "esModuleInterop": true,
     "moduleResolution": "nodenext",
     "incremental": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo" 
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "moduleSuffixes": [".native", ""]
   },
   "include": ["src"]
 }

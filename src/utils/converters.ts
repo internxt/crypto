@@ -1,4 +1,5 @@
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
+import { fromByteArray, toByteArray } from 'base64-js';
 
 /**
  * Converts a Uint8Array into a hexadecimal string.
@@ -47,9 +48,7 @@ export function hexToUint8Array(hex: string): Uint8Array {
  * @returns The base64 string representation of the array.
  */
 export function uint8ArrayToBase64(buffer: Uint8Array): string {
-  const array = Uint16Array.from(buffer);
-  const binaryString = new TextDecoder('UTF-16').decode(array);
-  return btoa(binaryString);
+  return fromByteArray(buffer);
 }
 
 /**
@@ -59,11 +58,5 @@ export function uint8ArrayToBase64(buffer: Uint8Array): string {
  * @returns A Uint8Array created from the base64 string.
  */
 export function base64ToUint8Array(str: string): Uint8Array {
-  const binaryString = atob(str);
-  const len = binaryString.length;
-  const array = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    array[i] = binaryString.codePointAt(i)!;
-  }
-  return new Uint8Array(array.buffer);
+  return toByteArray(str);
 }

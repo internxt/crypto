@@ -12,6 +12,7 @@ import {
   EmailSymmetricEncryptionError,
   EmailPasswordOpenError,
   EmailPasswordProtectError,
+  EmailPreviewSymmetricDecryptionError,
 } from './errors';
 
 /**
@@ -70,6 +71,30 @@ export async function encryptEmailWithKey(
     return { encText, encPreview, encAttachmentsSessionKey };
   } catch (error) {
     throw new EmailSymmetricEncryptionError(error instanceof Error ? error.message : String(error));
+  }
+}
+
+/**
+ * Decrypts symmetrically encrypted email preview.
+ *
+ * @param encEmailPreview - The email preview to decrypt.
+ * @param encryptionKey - The symmetric key to decrypt the email.
+ * @param aux - An optional auxilary sting for AEAD (e.g., email ID or timestamp).
+ * @returns The resulting decrypted email
+ */
+export async function decryptPreview(
+  encEmailPreview: string,
+  encryptionKey: Uint8Array,
+  aux?: Uint8Array,
+): Promise<string> {
+  try {
+    const encPreview = base64ToUint8Array(encEmailPreview);
+    const previewArray = await decryptSymmetrically(encryptionKey, encPreview, aux);
+    const preview = uint8ToUTF8(previewArray);
+
+    return preview;
+  } catch (error) {
+    throw new EmailPreviewSymmetricDecryptionError(error instanceof Error ? error.message : String(error));
   }
 }
 
