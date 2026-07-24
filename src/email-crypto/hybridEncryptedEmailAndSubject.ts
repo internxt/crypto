@@ -2,13 +2,7 @@ import { RecipientWithPublicKey, EmailAndSubject, EmailAndSubjectEncrypted, Hybr
 import { encryptKeysHybrid, decryptKeysHybrid } from './core';
 import { encryptEmailAndSubject, decryptEmailAndSubject } from './coreSubject';
 import {
-  FailedToDecryptEmail,
-  FailedToEncryptEmail,
-  EmailHybridDecryptionError,
-  EmailHybridEncryptionError,
   InvalidInputEmail,
-  EmailSymmetricDecryptionError,
-  EmailSymmetricEncryptionError,
 } from './errors';
 
 /**
@@ -24,7 +18,6 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
   recipients: RecipientWithPublicKey[],
   aux?: Uint8Array,
 ): Promise<{ encryptedKeys: HybridEncKey[]; encEmail: EmailAndSubjectEncrypted }> {
-  try {
     if (!recipients || recipients.length === 0) {
       throw new InvalidInputEmail();
     }
@@ -33,12 +26,6 @@ export async function encryptEmailAndSubjectHybridForMultipleRecipients(
     const encryptedKeys = await Promise.all(recipients.map((recipient) => encryptKeysHybrid(encryptionKey, recipient)));
 
     return { encEmail, encryptedKeys };
-  } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
-    if (error instanceof EmailSymmetricEncryptionError) throw error;
-    if (error instanceof EmailHybridEncryptionError) throw error;
-    throw new FailedToEncryptEmail(error instanceof Error ? error.message : String(error));
-  }
 }
 
 /**
@@ -56,13 +43,6 @@ export async function decryptEmailAndSubjectHybrid(
   recipientPrivateHybridKeys: Uint8Array,
   aux?: Uint8Array,
 ): Promise<EmailAndSubject> {
-  try {
     const encryptionKey = await decryptKeysHybrid(encryptedKey, recipientPrivateHybridKeys);
     return await decryptEmailAndSubject(encEmail, encryptionKey, aux);
-  } catch (error) {
-    if (error instanceof InvalidInputEmail) throw error;
-    if (error instanceof EmailHybridDecryptionError) throw error;
-    if (error instanceof EmailSymmetricDecryptionError) throw error;
-    throw new FailedToDecryptEmail(error instanceof Error ? error.message : String(error));
-  }
 }
