@@ -25,14 +25,10 @@ export async function argon2(
   memorySize: number = ARGON2ID_MEMORY_SIZE,
   hashLength: number = ARGON2ID_OUTPUT_BYTE_LENGTH,
 ): Promise<Uint8Array> {
-  return argon2id(
-    password,
-    salt,
-    {
+  return argon2id(password, salt, {
     p: parallelism,
     t: iterations,
     m: memorySize,
     dkLen: hashLength,
-    }
-  );
+  });
 }

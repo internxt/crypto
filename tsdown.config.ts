@@ -32,9 +32,9 @@ export default defineConfig([
     outDir: 'dist',
     clean: true,
     deps: {
-    onlyBundle: ['hash-wasm'],
-    alwaysBundle: ['hash-wasm'],
-  },
+      onlyBundle: ['hash-wasm'],
+      alwaysBundle: ['hash-wasm'],
+    },
   },
   {
     ...shared,
